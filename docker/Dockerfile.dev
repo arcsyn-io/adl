@@ -1,0 +1,24 @@
+FROM node:24-bookworm-slim
+
+ARG PNPM_VERSION=10.12.4
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PNPM_HOME=/home/node/.local/share/pnpm \
+    PATH=/home/node/.local/share/pnpm:/usr/local/bin:$PATH
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       bash build-essential ca-certificates curl gh git jq openssh-client \
+       python3 ripgrep tini \
+    && npm install --global "pnpm@${PNPM_VERSION}" \
+    && git config --system --add safe.directory /workspace \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /workspace/node_modules /workspace/.turbo /pnpm/store "${PNPM_HOME}" /home/node/.config/gh \
+    && chown -R node:node /workspace /pnpm /home/node/.local /home/node/.config
+
+WORKDIR /workspace
+USER node
+
+EXPOSE 5173
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["bash"]

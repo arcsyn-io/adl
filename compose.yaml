@@ -1,0 +1,52 @@
+name: adl
+
+x-workspace-common: &workspace-common
+  build:
+    context: .
+    dockerfile: docker/Dockerfile.dev
+  working_dir: /workspace
+  environment:
+    CHOKIDAR_USEPOLLING: "true"
+    WATCHPACK_POLLING: "true"
+    npm_config_store_dir: /pnpm/store
+    WEB_EDITOR_PACKAGE: ${WEB_EDITOR_PACKAGE:-@adl/web-editor}
+  volumes:
+    - .:/workspace
+    - node_modules:/workspace/node_modules
+    - pnpm_store:/pnpm/store
+    - turbo_cache:/workspace/.turbo
+    - gh_config:/home/node/.config/gh
+
+services:
+  workspace:
+    <<: *workspace-common
+    ports:
+      - "5173:5173"
+    command:
+      - bash
+      - -lc
+      - >-
+        pnpm install &&
+        pnpm --filter "$${WEB_EDITOR_PACKAGE}" dev
+
+  e2e:
+    image: ${PLAYWRIGHT_IMAGE:-mcr.microsoft.com/playwright:v1.61.1-noble}
+    profiles: [test]
+    working_dir: /workspace
+    init: true
+    depends_on:
+      - workspace
+    environment:
+      BASE_URL: http://workspace:5173
+      npm_config_store_dir: /pnpm/store
+    volumes:
+      - .:/workspace
+      - node_modules:/workspace/node_modules
+      - pnpm_store:/pnpm/store
+    command: ["bash", "-lc", "corepack enable && pnpm exec playwright test"]
+
+volumes:
+  node_modules:
+  pnpm_store:
+  turbo_cache:
+  gh_config:
