@@ -1,5 +1,14 @@
 # ADL — instruções para agentes
 
+## Documentação obrigatória
+
+- Antes de planejar ou implementar alterações, leia e aplique os documentos relevantes em `agent_docs/`:
+  - `agent_docs/architecture.md` para limites, dependências e responsabilidades arquiteturais.
+  - `agent_docs/conventions.md` para convenções de código, nomenclatura e testes.
+  - `agent_docs/workflow.md` para o fluxo de implementação e validação.
+- Em caso de conflito, este `AGENTS.md` prevalece sobre os documentos em `agent_docs/`.
+- Mantenha esses documentos atualizados quando uma decisão alterar a arquitetura, as convenções ou o fluxo do projeto.
+
 ## Ambiente
 
 - Execute instalação, desenvolvimento, lint, typecheck, testes e build no serviço Docker `workspace`.
