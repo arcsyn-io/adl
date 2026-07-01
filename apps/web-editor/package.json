@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@adl/canvas-state": "workspace:*",
     "@adl/diagnostics": "workspace:*",
     "@adl/layout": "workspace:*",
     "@adl/parser": "workspace:*",
