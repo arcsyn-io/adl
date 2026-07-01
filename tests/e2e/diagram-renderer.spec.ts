@@ -1,0 +1,2 @@
+import {expect,test} from '@playwright/test'
+test('renders and inspects semantic entities accessibly',async({page})=>{await page.goto('/');await expect(page.getByRole('heading',{name:'Architecture diagram'})).toBeVisible();const api=page.getByRole('button',{name:/Elemento API/});await expect(api).toBeVisible();await api.click();await expect(page.getByText('Selected: api')).toBeVisible();await api.focus();await expect(api).toHaveAttribute('data-state','selected');await expect(page.getByRole('img')).toHaveAttribute('aria-label',/api → db/)})

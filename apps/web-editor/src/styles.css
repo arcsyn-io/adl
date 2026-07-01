@@ -8,6 +8,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; min-height: 100vh; }
 .shell { display: grid; min-height: 100vh; place-items: center; padding: 24px; }
+.diagram-shell{min-height:100vh;padding:32px;max-width:1000px;margin:auto}.diagram-shell h1{font-size:40px}.diagram{width:100%;background:#161d27;border:1px solid #2d3745;border-radius:18px}.group{fill:#10151d;stroke:#526174;stroke-dasharray:8 6}.element{fill:#243246;stroke:#76a9ff;stroke-width:2}.relation{stroke:#aeb9c7;stroke-width:2}.diagram text{fill:#e8edf3;font-size:16px;pointer-events:none}.diagram .type{fill:#aeb9c7;font-size:13px}.diagram g[role=button]{cursor:pointer;outline:none}.diagram g[data-state=selected] .element{stroke:#ffd166;stroke-width:4}.diagram g[data-state=focused] .element{stroke:#7ee787;stroke-width:4}.inspection{margin-top:16px}
 .card { max-width: 640px; padding: 48px; border: 1px solid #2d3745; border-radius: 18px; background: #161d27; }
 .eyebrow { color: #76a9ff; font-size: 12px; font-weight: 700; letter-spacing: .18em; }
 h1 { margin: 12px 0; font-size: clamp(36px, 7vw, 64px); line-height: 1; }
