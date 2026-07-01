@@ -3,8 +3,8 @@ import { calculateLayout, type LayoutResult } from '@adl/layout'
 import { parse } from '@adl/parser'
 import { createDiagramScene, type EntityView } from '@adl/renderer'
 import { buildSemanticModel, type DiagramModel } from '@adl/semantic'
-import { useEffect, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { CodeEditor } from './features/code-editor/index.js'
+import { useCallback, useEffect, useMemo, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import { CodeEditor, createSourceBinding } from './features/code-editor/index.js'
 import { fromDiagramModel, toDiagramModel, VisualEditor, type VisualModel } from './features/visual-editor/index.js'
 
 const source = `adl version "1.0" diagram {
@@ -41,6 +41,10 @@ function DiagramPreview({ model }: { readonly model: DiagramModel }) {
 export function App() {
   const initialVisualModel = fromDiagramModel(model)
   const [visualModel, setVisualModel] = useState<VisualModel>(initialVisualModel)
+  const [sourceRevision, setSourceRevision] = useState(0)
+  const sourceBinding = useMemo(() => createSourceBinding(nextModel => { setVisualModel(fromDiagramModel(nextModel)); setSourceRevision(current => current + 1) }, 30), [])
+  useEffect(() => () => sourceBinding.dispose(), [sourceBinding])
+  const handleSourceChange = useCallback((nextSource: string) => sourceBinding.schedule(nextSource), [sourceBinding])
   const renderedModel = toDiagramModel(visualModel)
-  return <main className="app-shell"><header><span className="eyebrow">ADL workspace</span><h1>Architecture diagram</h1></header><div className="workspace-grid"><CodeEditor initialText={source}/><DiagramPreview model={renderedModel}/><VisualEditor initialModel={initialVisualModel} onModelChange={setVisualModel}/></div></main>
+  return <main className="app-shell"><header><span className="eyebrow">ADL workspace</span><h1>Architecture diagram</h1></header><div className="workspace-grid"><CodeEditor initialText={source} onChange={handleSourceChange}/><DiagramPreview model={renderedModel}/><VisualEditor key={sourceRevision} initialModel={visualModel} onModelChange={setVisualModel}/></div></main>
 }
