@@ -1,0 +1,1 @@
+import { expect,it } from "vitest"; import { workspaceFixture } from "./fixtures.js"; it("exposes immutable revision provenance",()=>expect(workspaceFixture().revision).toMatchObject({revision:0,origin:"restore"}));

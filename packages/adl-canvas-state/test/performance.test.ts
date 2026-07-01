@@ -1,0 +1,1 @@
+import { expect,it } from "vitest"; import { moveElement } from "../src/index.js"; import { placementFixture } from "./fixtures.js"; it("updates 100 placements deterministically",()=>{let state=placementFixture();for(let i=0;i<100;i++)state=moveElement(state,String(i),{x:i,y:i});expect(Object.keys(state.placements)).toHaveLength(100)});

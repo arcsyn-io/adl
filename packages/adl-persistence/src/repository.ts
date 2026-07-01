@@ -1,0 +1,11 @@
+import type { PersistedRevision, PersistenceRecord, SaveStatus, StorageAdapter } from "./model.js";
+export interface RestoreResult { readonly revision?: PersistedRevision; readonly warning?: string }
+const validRecord = (value: unknown): value is PersistenceRecord => { if (!value || typeof value !== "object") return false; const candidate = value as Partial<PersistenceRecord>; return candidate.format === "adl-local-v1" && typeof candidate.confirmed?.document?.source === "string" && typeof candidate.confirmed.revision === "number"; };
+export class LocalDocumentRepository {
+  readonly #storage: StorageAdapter; readonly #prefix: string; #status: SaveStatus = { status: "idle" };
+  constructor(storage: StorageAdapter, prefix = "adl:document:") { this.#storage = storage; this.#prefix = prefix; }
+  get status(): SaveStatus { return this.#status; }
+  async save(id: string, revision: PersistedRevision): Promise<SaveStatus> { this.#status = { status: "pending", revision: revision.revision }; const key = this.#prefix + id; try { await this.#storage.set(key, JSON.stringify({ format: "adl-local-v1", confirmed: revision } satisfies PersistenceRecord)); this.#status = { status: "saved", revision: revision.revision }; } catch (cause) { this.#status = { status: "failed", message: cause instanceof Error ? cause.message : "Local storage failed." }; } return this.#status; }
+  async restore(id: string): Promise<RestoreResult> { const raw = await this.#storage.get(this.#prefix + id); if (raw === null) return {}; try { const parsed: unknown = JSON.parse(raw); if (!validRecord(parsed)) return { warning: "Stored document is not compatible." }; const visual = parsed.confirmed.visual; if (visual && (visual.version !== 1 || visual.documentRevision !== parsed.confirmed.revision)) return { revision: { ...parsed.confirmed, visual: undefined }, warning: "Incompatible visual state was discarded." }; return { revision: parsed.confirmed }; } catch { return { warning: "Stored document is corrupted." }; } }
+}
+export class MemoryStorage implements StorageAdapter { readonly #values = new Map<string, string>(); get(key: string): string | null { return this.#values.get(key) ?? null; } set(key: string, value: string): void { this.#values.set(key, value); } }

@@ -1,0 +1,1 @@
+import { expect,it } from "vitest"; import { exportSvg } from "../src/index.js"; it("exports a 100-node portable visual",()=>expect(exportSvg({filename:"large",svg:`<svg>${"<g />".repeat(100)}</svg>`}).ok).toBe(true));
