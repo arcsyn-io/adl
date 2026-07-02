@@ -32,6 +32,10 @@ interface ResolvedDiagramStyles {
 
 Cada propriedade visual de pintura é entregue como `Paint` discriminada e normalizada (`solid` ou `linear-gradient`). Layout e renderer não analisam strings de cor/gradiente nem decidem precedência.
 
+`ResolvedElementStyle` pode conter um par posicional fixo; o layout preserva esse par e calcula somente posições ausentes. `ResolvedElementStyle` e `ResolvedRelationStyle` entregam `TextStyle` completo ao renderer.
+
+Movimento/redimensionamento retorna `VisualStylePatch` para atualizar a regra `element id` na fonte gravável. O contrato não inclui viewport, zoom, seleção ou outro estado de sessão.
+
 ## Layer responsibilities
 
 - `@adl/parser`: reconhece referência e bloco embutido no envelope `.adl`, com ranges; não lê arquivos nem resolve estilo.

@@ -24,9 +24,9 @@ Adicionar uma linguagem visual versionada em arquivos `.adls`, referenciável po
 
 **Performance Goals**: Resolver e aplicar estilos em até 100 ms para 100 elementos e 200 relações; preservar atualização interativa do preview
 
-**Constraints**: Pipeline unidirecional; regras visuais fora de React; coordenadas fora do `.adl`/`.adls`; funcionamento local; resultados determinísticos; nenhuma nova dependência sem necessidade demonstrada
+**Constraints**: Pipeline unidirecional; regras visuais fora de React; coordenadas fora do `.adl` semântico e permitidas somente por ID no stylesheet; viewport/zoom/seleção locais; funcionamento local; resultados determinísticos; nenhuma nova dependência sem necessidade demonstrada
 
-**Scale/Scope**: Uma referência externa e um bloco embutido por documento; seletores exatos por tipo e ID; 2 formas de elemento; 9 propriedades de elemento e 4 de relação; pinturas sólidas ou gradientes lineares
+**Scale/Scope**: Uma referência externa e um bloco embutido por documento; seletores exatos por tipo e ID; 2 formas; posição/tamanho persistentes por ID; pinturas sólidas ou gradientes; tipografia e alinhamento completos para elementos e relações
 
 ## Constitution Check
 
@@ -36,7 +36,7 @@ A constituição existente contém apenas placeholders e não impõe gates utili
 
 - **PASS — Separação arquitetural**: parsing de stylesheet e resolução de estilos ficam em pacote de domínio; React apenas coordena e apresenta.
 - **PASS — Pipeline explícito**: AST ADL preserva a declaração visual, modelo semântico permanece independente da sintaxe concreta, estilo resolvido entra como contrato paralelo antes de layout/renderização.
-- **PASS — Coordenadas**: `.adls` controla dimensões, não posição; movimentos manuais continuam no estado de canvas.
+- **PASS — Coordenadas**: `.adl` permanece sem coordenadas; `.adls` registra `x/y` por ID como estado visual portátil. Viewport, zoom e seleção continuam no estado local do canvas.
 - **PASS — Persistência local**: referências externas são arquivos locais; não há backend, banco ou cloud.
 - **PASS — Diagnósticos**: erros de sintaxe, valores e referências são estruturados, determinísticos e localizados.
 - **PASS — TDD e validação**: tarefas exigem red–green–refactor e os gates `lint`, `typecheck`, `test`, `build` e E2E.
@@ -84,7 +84,7 @@ docs/                                       # referência normativa e exemplos `
 agent_docs/architecture.md                  # contrato arquitetural do fluxo de estilos
 ```
 
-**Structure Decision**: Criar `@adl/stylesheet` como pacote independente porque stylesheet possui sintaxe, AST, validação e resolução próprias. `@adl/parser` reconhece somente os pontos de integração no documento ADL. O conteúdo externo é obtido pela aplicação e entregue como texto ao pacote, evitando acesso a arquivos no domínio. O modelo semântico não recebe apresentação; `ResolvedDiagramStyles` é um contrato paralelo consumido por layout e renderer.
+**Structure Decision**: Criar `@adl/stylesheet` como pacote independente porque stylesheet possui sintaxe, AST, validação, resolução e atualização próprias. `@adl/parser` reconhece somente os pontos de integração no documento ADL. O conteúdo externo é obtido pela aplicação e entregue como texto ao pacote, evitando acesso a arquivos no domínio. O modelo semântico não recebe apresentação; `ResolvedDiagramStyles` é um contrato paralelo consumido por layout e renderer. Alterações de posição/tamanho geram patches determinísticos na regra por ID da fonte visual gravável.
 
 ## Design Sequence
 
@@ -92,9 +92,10 @@ agent_docs/architecture.md                  # contrato arquitetural do fluxo de 
 2. Estender o envelope sintático do `.adl` para referência opcional antes do documento e bloco embutido opcional depois dele, preservando ranges.
 3. Implementar parser e validador do stylesheet sem depender de browser, React ou renderer.
 4. Combinar regras externas e embutidas e resolver precedência contra identidades/tipos do modelo semântico.
-5. Passar dimensões resolvidas ao layout e aparência resolvida ao renderer.
+5. Passar posição/dimensões resolvidas ao layout e aparência/tipografia resolvidas ao renderer.
 6. Coordenar carregamento e atualização no editor web; apresentar diagnósticos sem invalidar a semântica arquitetural.
-7. Fechar serialização, conformidade, documentação, desempenho e E2E.
+7. Persistir movimentos/redimensionamentos como patches de regra por ID sem gravar estado de sessão.
+8. Fechar serialização, conformidade, documentação, desempenho e E2E.
 
 ## Complexity Tracking
 

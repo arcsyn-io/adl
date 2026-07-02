@@ -14,12 +14,20 @@ stylesheet version "1.0" {
     border-radius "0px"
     text-paint "linear-gradient(0deg, #102A43FF 0%, #2457A6FF 100%)"
     font-size "16px"
+    font-family "Arial Black, Arial, sans-serif"
+    font-weight "bold"
+    font-style "italic"
+    text-decoration "underline"
+    text-align "center"
+    vertical-align "middle"
   }
 
   element id payments {
     shape "rectangle"
     border-radius "16px"
     fill "#FFF3CDFF"
+    x "320px"
+    y "180px"
   }
 
   relation type "async" {
@@ -27,6 +35,12 @@ stylesheet version "1.0" {
     line-width "3px"
     text-paint "#44337AFF"
     font-size "14px"
+    font-family "Arial, sans-serif"
+    font-weight "normal"
+    font-style "normal"
+    text-decoration "none"
+    text-align "center"
+    vertical-align "top"
   }
 }
 ```
@@ -83,6 +97,19 @@ stop            := HEX_COLOR PERCENTAGE
 - O espaço do gradiente é a caixa delimitadora do objeto: elemento para preenchimento/borda, caminho completo para relação e limites do texto para texto.
 - Gradientes radiais, cônicos e em malha não pertencem à versão 1.0.
 - `border-radius` é válido somente com `shape "rectangle"`; não existe forma `rounded-rectangle`.
+
+## Position and typography
+
+- `x` e `y` aceitam pixels lógicos finitos, devem aparecer juntos e são válidos somente em `element id`.
+- Uma entidade com `x/y` é fixa; a ausência das duas propriedades delega posição ao layout automático.
+- `text-align`: `left`, `center` ou `right`.
+- `vertical-align`: `top`, `middle` ou `bottom`.
+- `font-family`: lista separada por vírgula, encerrada por `serif`, `sans-serif` ou `monospace`.
+- `font-weight`: `normal` ou `bold`.
+- `font-style`: `normal` ou `italic`.
+- `text-decoration`: `none` ou `underline`.
+- As propriedades tipográficas são válidas para elemento e relação; em relação, aplicam-se ao rótulo.
+- Viewport, zoom, seleção e estado de painéis não fazem parte da gramática.
 
 ## Cascade
 

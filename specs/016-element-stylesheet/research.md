@@ -56,6 +56,22 @@
 
 **Alternatives considered**: Adicionar `style` a cada entidade semântica foi rejeitado por misturar significado e apresentação. Resolver dentro do renderer foi rejeitado porque dimensões já afetam layout e porque renderizadores não devem interpretar linguagem.
 
+## Posição persistente e estado de sessão
+
+**Decision**: Permitir `x` e `y` somente em regras `element id`, sempre como par em pixels lógicos. Elementos posicionados são tratados como fixos; elementos sem posição passam pelo layout automático. Movimento e redimensionamento produzem patch na regra por ID da fonte gravável. Viewport, zoom, seleção e preferências do editor permanecem fora do stylesheet.
+
+**Rationale**: Posição e tamanho determinam a composição portátil do diagrama. Estados de navegação são específicos de usuário/sessão, mudam com frequência e gerariam conflitos sem alterar a apresentação canônica.
+
+**Alternatives considered**: Posição por tipo foi rejeitada porque sobreporia todas as entidades correspondentes. Armazenar viewport/seleção foi rejeitado por falta de portabilidade. Manter posição apenas no repositório local do editor foi rejeitado porque impediria reproduzir o diagrama em outro renderer.
+
+## Tipografia
+
+**Decision**: Usar um `TextStyle` comum para texto interno de elementos e rótulos de relações: `text-align` (`left|center|right`), `vertical-align` (`top|middle|bottom`), `font-family` (lista ordenada terminando em família genérica), `font-weight` (`normal|bold`), `font-style` (`normal|italic`) e `text-decoration` (`none|underline`).
+
+**Rationale**: Um contrato compartilhado evita diferenças arbitrárias entre texto de elemento e relação. Lista de fallback permite solicitar `Arial Black` sem exigir incorporação de fontes e define comportamento quando ela não existe.
+
+**Alternatives considered**: Pesos numéricos, múltiplas decorações e fontes incorporadas foram adiados. Usar nomes de fonte sem fallback foi rejeitado por produzir resultados dependentes do ambiente sem recuperação definida.
+
 ## Tratamento de falhas
 
 **Decision**: Erros de parsing/validação invalidam somente a fonte de estilo afetada. O `.adl` semanticamente válido continua compilável; a cena é marcada como não integralmente estilizada e usa apenas fontes válidas/padrões. Referência externa ausente é erro de estilo; seletor sem correspondência é aviso.

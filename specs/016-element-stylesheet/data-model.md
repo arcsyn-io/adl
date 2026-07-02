@@ -33,16 +33,28 @@ Regras são imutáveis depois do parsing. Um seletor de tipo compara `type` por 
 
 - `shape`: `rectangle | ellipse`
 - `width`, `height`: pixels, inteiro entre 24 e 4096
+- `x`, `y`: pixels lógicos finitos, opcionais e presentes somente em conjunto após regra por ID
 - `fill`, `borderPaint`, `textPaint`: `Paint` normalizada
 - `borderWidth`: pixels, inteiro entre 0 e 32
 - `borderRadius`: pixels, inteiro entre 0 e 2048
-- `fontSize`: pixels, inteiro entre 8 e 256
+- `textStyle`: `TextStyle`
 
 ### RelationStyle
 
 - `linePaint`, `textPaint`: `Paint` normalizada
 - `lineWidth`: pixels, inteiro entre 0 e 32
-- `fontSize`: pixels, inteiro entre 8 e 256
+- `textStyle`: `TextStyle`
+
+### TextStyle
+
+- `paint`: `Paint` normalizada.
+- `fontSize`: pixels, inteiro entre 8 e 256.
+- `fontFamilies`: lista não vazia de nomes, encerrada por `serif`, `sans-serif` ou `monospace`.
+- `fontWeight`: `normal | bold`.
+- `fontStyle`: `normal | italic`.
+- `textDecoration`: `none | underline`.
+- `horizontalAlignment`: `left | center | right`.
+- `verticalAlignment`: `top | middle | bottom`.
 
 ### Paint
 
@@ -62,6 +74,18 @@ Regras são imutáveis depois do parsing. Um seletor de tipo compara `type` por 
 - `completeness`: `complete` ou `fallback`, indicando se alguma fonte solicitada falhou.
 
 Cada estilo resolvido contém todas as propriedades após aplicar padrões e cascata. Não contém seletores, strings cruas ou dependências de renderizador.
+
+Posição resolvida é opcional. Quando ausente, layout calcula `x/y`; quando presente, layout preserva o par e organiza apenas entidades não fixadas.
+
+## VisualStylePatch
+
+- `entityId`: ID exato do elemento movido/redimensionado.
+- `x`, `y`: nova posição lógica.
+- `width`, `height`: dimensões atuais quando alteradas.
+- `targetOrigin`: `embedded` quando disponível, senão `external`.
+- `result`: texto atualizado ou diagnóstico `READ_ONLY_STYLE_SOURCE`.
+
+O patch cria ou atualiza uma regra `element id` e preserva declarações desconhecidas, comentários e regras não relacionadas.
 
 ## StyleDiagnostic
 

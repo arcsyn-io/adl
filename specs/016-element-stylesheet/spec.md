@@ -14,7 +14,7 @@ Permitir a personalização declarativa da aparência de diagramas ADL sem mistu
 
 ## Problem
 
-Sem um stylesheet próprio, todos os elementos de um mesmo tipo ficam limitados à apresentação padrão ou exigem que detalhes visuais sejam incorporados ao conteúdo semântico. Autores precisam variar forma, dimensões, bordas, preenchimento, linhas e texto por tipo ou por elemento específico, mantendo o `.adl` legível e portátil.
+Sem um stylesheet próprio, todos os elementos de um mesmo tipo ficam limitados à apresentação padrão ou exigem que detalhes visuais sejam incorporados ao conteúdo semântico. Autores precisam variar forma, dimensões, posição, bordas, preenchimento, linhas e texto por tipo ou por elemento específico, mantendo o `.adl` legível e portátil. Também precisam recuperar o mesmo arranjo visual ao reabrir ou renderizar o diagrama.
 
 ## Dependencies
 
@@ -54,6 +54,9 @@ Como autor, quero definir uma aparência comum para um tipo de elemento e sobres
 2. **Given** regras aplicáveis por tipo e por ID, **When** ambas definem a mesma propriedade, **Then** o valor da regra por ID prevalece somente para a entidade identificada.
 3. **Given** regras aplicáveis por tipo e por ID que definem propriedades diferentes, **When** a entidade é apresentada, **Then** as propriedades são combinadas sem descartar valores não conflitantes.
 4. **Given** um seletor por ID sem entidade correspondente, **When** o stylesheet é validado, **Then** o autor recebe um aviso e as demais regras válidas continuam aplicáveis.
+5. **Given** uma regra por ID com posição e tamanho, **When** o diagrama é reaberto ou renderizado novamente, **Then** o elemento retorna aos mesmos limites no canvas.
+6. **Given** um elemento sem posição declarada, **When** o diagrama é apresentado, **Then** ele recebe posição automática sem deslocar elementos explicitamente posicionados.
+7. **Given** um autor move ou redimensiona um elemento, **When** a alteração visual é confirmada, **Then** a regra por ID na fonte visual gravável é atualizada sem modificar o `.adl`.
 
 ---
 
@@ -77,6 +80,9 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - Uma regra parcialmente válida não pode aplicar silenciosamente valores inválidos; cada propriedade inválida gera diagnóstico localizado sem apagar propriedades válidas independentes.
 - IDs e nomes de tipos inexistentes ou incompatíveis não podem causar a estilização de outra entidade por aproximação.
 - Dimensões menores que o necessário para o texto seguem um comportamento previsível de conteúdo excedente e não alteram o modelo semântico.
+- Regras de posição em seletores por tipo ou de relação são rejeitadas, pois posição é válida somente para um elemento identificado.
+- Uma posição parcial (`x` sem `y` ou `y` sem `x`) é inválida e não fixa o elemento pela metade.
+- Dois elementos podem ocupar limites sobrepostos quando isso for declarado explicitamente; o sistema não altera silenciosamente posições persistidas.
 - Pinturas sólidas ou gradientes inválidos, tamanhos não positivos, formas desconhecidas e combinações de borda inválidas são rejeitados com diagnóstico acionável.
 - Texto Unicode e rótulos longos mantêm o mesmo conteúdo, ainda que sua apresentação precise ser limitada pelas dimensões declaradas.
 - Auto-relações, relações paralelas e relações sem rótulo mantêm identidade e conectividade ao receber estilos de linha.
@@ -108,6 +114,14 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - **FR-020**: A aplicação do stylesheet MUST produzir o mesmo resultado visual para o mesmo documento, stylesheet, padrões de apresentação e dimensões disponíveis.
 - **FR-021**: A referência normativa MUST documentar seletores, propriedades, valores permitidos, precedência, padrões, diagnósticos e exemplos externos e embutidos.
 - **FR-022**: A suíte de conformidade MUST cobrir regras válidas, conflitos de precedência, referências ausentes, seletores sem correspondência e valores inválidos.
+- **FR-023**: Uma regra de elemento por ID MUST poder declarar `x` e `y` para persistir sua posição no canvas; as duas coordenadas MUST ser fornecidas juntas.
+- **FR-024**: Coordenadas MUST ser permitidas somente em seletores de elemento por ID e MUST ser rejeitadas em seletores por tipo e em regras de relação.
+- **FR-025**: Elementos com posição declarada MUST manter essa posição entre renderizações; elementos sem posição MUST continuar elegíveis para layout automático.
+- **FR-026**: Mover ou redimensionar um elemento MUST atualizar sua regra por ID na fonte visual gravável sem alterar o conteúdo semântico do `.adl`.
+- **FR-027**: Viewport, zoom, seleção, painéis e outros estados de sessão MUST NOT ser armazenados no stylesheet.
+- **FR-028**: Texto de elementos e rótulos de relações MUST admitir alinhamento horizontal `left`, `center` ou `right` e alinhamento vertical `top`, `middle` ou `bottom` dentro da área de texto disponível.
+- **FR-029**: Texto de elementos e rótulos de relações MUST admitir família de fonte com lista ordenada de alternativas, peso `normal` ou `bold`, estilo `normal` ou `italic` e decoração `none` ou `underline`.
+- **FR-030**: Quando uma família solicitada estiver indisponível, a próxima alternativa declarada MUST ser usada; a lista MUST terminar em uma família genérica suportada.
 
 ### Key Entities
 
@@ -118,22 +132,26 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - **Seletor de ID**: corresponde a uma única entidade pela identidade exata.
 - **Propriedade visual**: atributo de apresentação com nome, valor válido e padrão definido.
 - **Estilo resolvido**: combinação determinística dos padrões e regras aplicáveis a uma entidade.
+- **Posição visual persistente**: par de coordenadas associado exclusivamente ao ID de um elemento.
+- **Estilo de texto**: alinhamento, família, peso, estilo, decoração, tamanho e pintura aplicáveis ao conteúdo textual.
 
 ## Scope
 
 - Definição e aplicação de stylesheets externos e embutidos.
 - Seletores por tipo e ID para elementos e relações.
 - Formas básicas, dimensões, preenchimento, bordas, linhas e tipografia descritos nos requisitos.
+- Posição persistente por ID e atualização dessa posição após mover ou redimensionar um elemento.
 - Precedência, validação, diagnósticos, documentação e casos de conformidade necessários ao comportamento inicial.
 
 ## Out of Scope
 
-- Coordenadas, posicionamento manual ou regras de layout.
+- Regras de posição por tipo, posicionamento explícito de relações e configuração do algoritmo de layout.
 - Animações, imagens, ícones, sombras, gradientes radiais, cônicos ou em malha e estilos condicionais por estado de interação.
 - Seletores por classe, atributo, hierarquia, grupo, origem ou destino de relação.
 - Variáveis, funções, herança arbitrária, temas múltiplos e importação encadeada de stylesheets.
 - Editor visual dedicado para criar ou alterar stylesheets.
 - Fontes externas ou incorporação de arquivos de fonte.
+- Viewport, zoom, seleção, painéis abertos, grupos recolhidos e outras preferências de sessão do editor.
 - Alterações no significado do `.adl` motivadas por aparência.
 
 ## Success Criteria *(mandatory)*
@@ -147,6 +165,8 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - **SC-005**: 100% dos casos inválidos da suíte produzem diagnóstico com origem e orientação, sem alterar o modelo semântico válido.
 - **SC-006**: Em um diagrama de 100 elementos e 200 relações, a aplicação dos estilos acrescenta no máximo 100 ms ao tempo entre uma alteração e a apresentação atualizada no ambiente de referência.
 - **SC-007**: Todos os diagramas estilizados permanecem compreensíveis quando avaliados sem depender exclusivamente da cor para distinguir o significado das entidades.
+- **SC-008**: 100% dos elementos com `x/y` nos casos de conformidade retornam às mesmas coordenadas após salvar, fechar e reabrir o diagrama.
+- **SC-009**: 100% das combinações válidas de alinhamento, peso, estilo, decoração e fallback de fonte produzem o resultado documentado nos casos de conformidade.
 
 ## Assumptions
 
@@ -155,6 +175,9 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - Seletores correspondem somente a nomes de tipos e IDs exatos; não há correspondência parcial ou sensível ao contexto.
 - A primeira versão de gradientes oferece somente gradiente linear; cada parada usa uma cor suportada e uma posição percentual entre 0% e 100%.
 - O gradiente de preenchimento e borda usa a caixa do elemento; o gradiente de linha usa os limites do caminho completo; o gradiente de texto usa os limites do texto pintado.
-- Dimensões personalizadas influenciam o espaço usado pelo layout, mas não permitem declarar coordenadas no stylesheet nem no `.adl`.
+- Dimensões e coordenadas por ID influenciam o layout; coordenadas continuam proibidas no `.adl` semântico e em regras de tipo.
+- Coordenadas são pixels finitos no espaço lógico do canvas e existem somente no `.adls` ou bloco stylesheet embutido, nunca no `.adl` semântico.
+- A fonte visual gravável é o bloco embutido quando ele existir; caso contrário, é o arquivo externo referenciado. Um consumidor somente leitura informa que a posição não pôde ser persistida.
+- Fontes são referenciadas por uma lista de famílias instalada no ambiente; carregamento ou incorporação de arquivos de fonte permanece fora do escopo.
 - O formato concreto, a extensão do arquivo e a lista normativa de unidades e formatos de cor serão definidos no planejamento sem ampliar o comportamento desta spec.
 - A apresentação padrão existente continua válida quando nenhum stylesheet é fornecido.
