@@ -8,10 +8,20 @@ import { CodeEditor, createSourceBinding } from './features/code-editor/index.js
 import { fromDiagramModel, toDiagramModel, VisualEditor, type VisualModel } from './features/visual-editor/index.js'
 
 const source = `adl version "1.0" diagram {
-  element api { name "API" type "service" }
-  element db { name "Database" type "database" }
-  relation writes { source api target db name "writes" }
-  group backend { name "Backend" elements [api, db] }
+  element customer { name "Customer" type "user" }
+  element database { name "Database" type "data" }
+  element api { name "API" type "backend" }
+  element web { name "Web application" type "frontend" }
+  element partner { name "Partner system" type "black-box" }
+  element auth { name "Authentication module" type "part" }
+
+  relation uses { source customer target web name "1. uses application" type "link" }
+  relation calls { source web target api name "validates every request" type "always-link" }
+  relation extends { source partner target api type "specialization" }
+  relation reads { source api target database name "optional data lookup" type "virtual-link" }
+  relation contains { source auth target api type "composition" }
+
+  group solution { name "Solution boundary" elements [customer, database, api, web, partner, auth] }
 }`
 const parsed = parse(source)
 if (!parsed.ok) throw new Error('Invalid fixture')
