@@ -44,7 +44,7 @@ export async function calculateLayout(model: DiagramModel, input: LayoutOptions 
     children: group.members.map(member => model.elements.find(element => element.identity.value === member.identity.value)).filter(element => element !== undefined).map(element => elementNode(element.identity.value, element.name)),
   }));
   const children = [...model.elements].filter(element => !grouped.has(element.identity.value)).sort((a,b)=>a.identity.value.localeCompare(b.identity.value)).map(element => elementNode(element.identity.value, element.name)).concat(groups);
-  const edges: ElkExtendedEdge[] = [...model.relations].sort((a,b)=>a.identity.value.localeCompare(b.identity.value)).map(relation => ({ id: relation.identity.value, sources: [relation.source.identity.value], targets: [relation.target.identity.value] }));
+  const edges: ElkExtendedEdge[] = [...model.relations].sort((a,b)=>a.identity.value.localeCompare(b.identity.value)).map(relation => { const label=relation.name??relation.type??relation.identity.value;return { id: relation.identity.value, sources: [relation.source.identity.value], targets: [relation.target.identity.value], labels: [{ text: label, width: Array.from(label).length*8+24, height: 24 }] }; });
   try {
     const graph = await elk.layout({ id: "root", children, edges, layoutOptions: { "elk.algorithm": "layered", "elk.direction": config.direction, "elk.spacing.nodeNode": String(config.spacing), "elk.layered.spacing.nodeNodeBetweenLayers": String(config.spacing), "elk.hierarchyHandling": "INCLUDE_CHILDREN" } });
     const nodes: Record<string, NodeGeometry> = {}; absoluteGeometry(graph, 0, 0, nodes);
