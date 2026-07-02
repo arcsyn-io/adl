@@ -14,7 +14,7 @@ O campo `type` de uma relação aceita os valores canônicos da
 - `link`: linha contínua com seta aberta em V no destino;
 - `always-link`: círculo preenchido na origem e seta aberta em V no destino;
 - `specialization`: triângulo vazado no destino;
-- `virtual-link`: linha tracejada, sem marcador terminal;
+- `virtual-link`: linha tracejada com seta aberta em V no destino;
 - `composition`: losango preenchido no destino.
 
 Tipos não reconhecidos mantêm compatibilidade visual usando `link`.

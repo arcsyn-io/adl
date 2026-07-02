@@ -31,7 +31,7 @@ const model = semantic.model
 type BoxEntity = Exclude<EntityView,{kind:'relation'}>
 const center = (entity: BoxEntity) => ({ x: entity.geometry.x + entity.geometry.width / 2, y: entity.geometry.y + entity.geometry.height / 2 })
 const boundaryPoint=(from:BoxEntity,to:BoxEntity)=>{const a=center(from),b=center(to),dx=b.x-a.x,dy=b.y-a.y;if(dx===0&&dy===0)return a;const scale=.5/Math.max(Math.abs(dx)/from.geometry.width,Math.abs(dy)/from.geometry.height);return{x:a.x+dx*scale,y:a.y+dy*scale}}
-const relationMarkers=(kind:Extract<EntityView,{kind:'relation'}>['connectorKind'])=>({markerStart:kind==='always-link'?'url(#mdl-circle)':undefined,markerEnd:kind==='virtual-link'?undefined:kind==='specialization'?'url(#mdl-specialization)':kind==='composition'?'url(#mdl-composition)':'url(#mdl-arrow)'})
+const relationMarkers=(kind:Extract<EntityView,{kind:'relation'}>['connectorKind'])=>({markerStart:kind==='always-link'?'url(#mdl-circle)':undefined,markerEnd:kind==='specialization'?'url(#mdl-specialization)':kind==='composition'?'url(#mdl-composition)':'url(#mdl-arrow)'})
 type ResizeCorner = 'nw' | 'ne' | 'sw' | 'se'
 type ResizeGesture = { readonly id: string; readonly corner: ResizeCorner; readonly clientX: number; readonly clientY: number; readonly box: Box }
 const resizeHandles = [{ corner: 'nw', x: 0, y: 0, label: 'superior esquerdo' }, { corner: 'ne', x: 1, y: 0, label: 'superior direito' }, { corner: 'sw', x: 0, y: 1, label: 'inferior esquerdo' }, { corner: 'se', x: 1, y: 1, label: 'inferior direito' }] as const
