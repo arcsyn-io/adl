@@ -1,4 +1,4 @@
-import { emptyPlacementState, MIN_ELEMENT_HEIGHT, MIN_ELEMENT_WIDTH, moveElement, resizeElement, setPinned, type Box } from '@adl/canvas-state'
+import { emptyPlacementState, expandContainerToFit, MIN_ELEMENT_HEIGHT, MIN_ELEMENT_WIDTH, moveElement, resizeElement, setPinned, type Box } from '@adl/canvas-state'
 import { calculateLayout, type LayoutResult } from '@adl/layout'
 import { parse } from '@adl/parser'
 import { createDiagramScene, type EntityView } from '@adl/renderer'
@@ -36,7 +36,7 @@ function DiagramPreview({ model }: { readonly model: DiagramModel }) {
   if (!result.ok) return <section className="preview"><h2>Diagrama</h2><p>Diagrama indisponível.</p></section>
   const elements = result.scene.entities.filter(entity => entity.kind === 'element'), groups = result.scene.entities.filter(entity => entity.kind === 'group'), relations = result.scene.entities.filter(entity => entity.kind === 'relation'), byId = new Map(elements.map(entity => [entity.identity.value, entity]))
   const boxes = [...elements, ...groups], right = Math.max(...boxes.map(item => item.geometry.x + item.geometry.width), 650), bottom = Math.max(...boxes.map(item => item.geometry.y + item.geometry.height), 280)
-  const place = (id: string, x: number, y: number, input: 'pointer' | 'keyboard') => setPlacements(current => setPinned(moveElement(current, id, { x, y }, input), id, true))
+  const place = (id: string, x: number, y: number, input: 'pointer' | 'keyboard') => setPlacements(current => { let next=setPinned(moveElement(current,id,{x,y},input),id,true);const element=elements.find(item=>item.identity.value===id);if(!element)return next;for(const group of groups.filter(item=>item.memberIds.includes(id)))next=expandContainerToFit(next,group.identity.value,group.geometry,{...element.geometry,x,y});return next })
   const startDrag = (event: ReactPointerEvent<SVGGElement>, id: string, x: number, y: number) => { event.currentTarget.setPointerCapture(event.pointerId); setSelectedId(id); setDrag({ id, clientX: event.clientX, clientY: event.clientY, x, y }) }
   const continueDrag = (event: ReactPointerEvent<SVGGElement>) => { if (!drag || drag.id !== event.currentTarget.dataset.entityId) return; const svg = event.currentTarget.ownerSVGElement; if (!svg) return; const bounds = svg.getBoundingClientRect(); const viewBox = svg.viewBox.baseVal; place(drag.id, drag.x + (event.clientX - drag.clientX) * viewBox.width / bounds.width, drag.y + (event.clientY - drag.clientY) * viewBox.height / bounds.height, 'pointer') }
   const startResize = (event: ReactPointerEvent<SVGRectElement>, element: EntityView, corner: ResizeCorner) => { if (element.kind === 'relation') return; event.stopPropagation(); event.currentTarget.setPointerCapture(event.pointerId); setResize({ id: element.identity.value, corner, clientX: event.clientX, clientY: event.clientY, box: element.geometry }) }
