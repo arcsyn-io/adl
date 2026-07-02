@@ -10,7 +10,7 @@
 
 ## Sintaxe de valores
 
-**Decision**: Usar strings para valores na versão 1.0. Dimensões e espessuras usam pixels inteiros positivos escritos como `"160px"`; arredondamento aceita pixels inteiros não negativos; fonte aceita pixels inteiros positivos. Formas aceitam `rectangle` e `ellipse`; `border-radius` é a única forma de arredondar um retângulo.
+**Decision**: Usar strings para valores na versão 1.0. Dimensões e espessuras usam pixels inteiros positivos escritos como `"160px"`; arredondamento aceita pixels inteiros não negativos; fonte aceita pixels inteiros positivos. Formas aceitam `rectangle`, `ellipse`, `cylinder`, `user` e `parallelogram`; `border-radius` é a única forma de arredondar um retângulo.
 
 **Rationale**: Strings já são um primitivo estável da ADL, evitam ampliar o lexer com números, `#` e unidades contextuais, e mantêm validação de domínio explícita. Restringir formatos garante portabilidade e resultados determinísticos.
 
@@ -34,9 +34,9 @@
 
 ## Precedência e ordem
 
-**Decision**: Resolver cada propriedade nesta ordem crescente: padrão do renderer, externo por tipo, embutido por tipo, externo por ID, embutido por ID. Dentro da mesma origem e especificidade, a última declaração da propriedade vence e gera aviso de sobrescrita.
+**Decision**: Resolver cada propriedade por especificidade crescente: padrão, `*`, universal por categoria, tipo e ID. Em cada especificidade, embedded vence external. Dentro da mesma origem e especificidade, a última declaração vence e gera aviso de sobrescrita. `*` aceita apenas propriedades comuns; `element *` e `relation *` aceitam propriedades específicas da categoria.
 
-**Rationale**: Implementa exatamente a precedência assumida na spec e define duplicatas sem tornar o documento inteiro inválido.
+**Rationale**: O seletor global reduz repetição de tipografia/pintura de texto, enquanto universais por categoria cobrem preenchimento, borda e linha sem aplicação parcial. A especificidade previsível preserva exceções por tipo e ID.
 
 **Alternatives considered**: Ordem puramente textual foi rejeitada porque permitiria regra de tipo superar ID. Rejeitar toda duplicata foi considerado rígido demais para ajustes progressivos.
 
@@ -71,6 +71,14 @@
 **Rationale**: Um contrato compartilhado evita diferenças arbitrárias entre texto de elemento e relação. Lista de fallback permite solicitar `Arial Black` sem exigir incorporação de fontes e define comportamento quando ela não existe.
 
 **Alternatives considered**: Pesos numéricos, múltiplas decorações e fontes incorporadas foram adiados. Usar nomes de fonte sem fallback foi rejeitado por produzir resultados dependentes do ambiente sem recuperação definida.
+
+## Shapes, orientação e rotação
+
+**Decision**: Suportar `rectangle`, `ellipse`, `cylinder`, `user` e `parallelogram`. `orientation` (`horizontal|vertical`) define o eixo estrutural da geometria-base; `rotation` aceita graus finitos, normalizados para `[0, 360)`, e é aplicada depois ao redor do centro. `x/y` continuam sendo o canto superior esquerdo da caixa não rotacionada. Layout usa a caixa delimitadora transformada e conectores intersectam o contorno transformado.
+
+**Rationale**: Separar orientação de rotação permite expressar a variante estrutural do símbolo e depois posicioná-la visualmente. Manter a caixa canônica evita que apenas mudar o ângulo reescreva `x/y`.
+
+**Alternatives considered**: Tratar orientação como rotação de 90° foi rejeitado porque perderia a intenção estrutural do shape. Rotacionar ao redor do canto foi rejeitado porque deslocaria o elemento. Persistir a caixa já rotacionada foi rejeitado por criar deriva em edições sucessivas.
 
 ## Tratamento de falhas
 

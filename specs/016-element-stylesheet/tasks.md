@@ -29,12 +29,12 @@
 
 **⚠️ CRITICAL**: Nenhuma user story começa antes desta fase estar verde.
 
-- [ ] T004 [P] Escrever testes falhos do contrato léxico e sintático `.adls` 1.0, incluindo ranges e recuperação de erro, em `packages/adl-stylesheet/test/parser.test.ts`
-- [ ] T005 [P] Escrever testes falhos de valores válidos/inválidos, limites, pinturas, posição por ID e propriedades tipográficas por alvo em `packages/adl-stylesheet/test/validation.test.ts`
+- [ ] T004 [P] Escrever testes falhos do contrato `.adls` para `*`, universais por categoria, tipo/ID, shapes, orientação, rotação, ranges e recuperação em `packages/adl-stylesheet/test/parser.test.ts`
+- [ ] T005 [P] Escrever testes falhos de valores, pinturas, posição, transforms e propriedades permitidas em seletores globais/categoriais em `packages/adl-stylesheet/test/validation.test.ts`
 - [ ] T006 [P] Escrever testes falhos dos tipos públicos imutáveis e exports do pacote em `packages/adl-stylesheet/test/contract.test.ts`
 - [ ] T007 Definir AST, seletores, declarações, estilos normalizados e diagnósticos discriminados em `packages/adl-stylesheet/src/syntax.ts`
 - [ ] T008 Implementar lexer/parser puro para arquivo externo e corpo de regras embutidas em `packages/adl-stylesheet/src/parser.ts`
-- [ ] T009 Implementar normalização e validação de formas, pixels, pinturas, pares `x/y`, alinhamentos e tipografia em `packages/adl-stylesheet/src/validate.ts`
+- [ ] T009 Implementar normalização/validação de cinco shapes, orientação, rotação, pinturas, posição, tipografia e alcance de `*` em `packages/adl-stylesheet/src/validate.ts`
 - [ ] T010 Publicar somente os contratos necessários em `packages/adl-stylesheet/src/index.ts` e concluir o ciclo verde dos testes em `packages/adl-stylesheet/test/parser.test.ts`, `packages/adl-stylesheet/test/validation.test.ts` e `packages/adl-stylesheet/test/contract.test.ts`
 
 **Checkpoint**: Um `.adls` isolado pode ser analisado e validado deterministicamente, sem filesystem, modelo semântico, layout ou renderer.
@@ -51,8 +51,8 @@
 
 - [ ] T011 [P] [US1] Escrever testes falhos da referência externa, resolução relativa e round-trip no envelope ADL em `packages/adl-parser/test/stylesheet-reference.test.ts` e `packages/adl-serializer/test/stylesheet-reference.test.ts`
 - [ ] T012 [P] [US1] Escrever testes falhos de resolução externa por tipo, defaults e falha de carregamento em `packages/adl-stylesheet/test/external-resolution.test.ts`
-- [ ] T013 [P] [US1] Escrever testes falhos de dimensões e posições fixas por ID combinadas com layout automático em `packages/adl-layout/test/stylesheet-layout.test.ts`
-- [ ] T014 [P] [US1] Escrever testes falhos de forma, arredondamento exclusivo de retângulo e pinturas sólidas/gradientes em preenchimento, borda e texto nas entidades da cena em `packages/adl-renderer/test/stylesheet-renderer.test.ts`
+- [ ] T013 [P] [US1] Escrever testes falhos de posições fixas, layout automático e caixas transformadas por orientação/rotação em `packages/adl-layout/test/stylesheet-layout.test.ts`
+- [ ] T014 [P] [US1] Escrever testes falhos dos cinco shapes, orientação/rotação, arredondamento e pinturas nas entidades da cena em `packages/adl-renderer/test/stylesheet-renderer.test.ts`
 
 ### Implementation for User Story 1
 
@@ -61,10 +61,10 @@
 - [ ] T017 [US1] Preservar a referência externa na serialização determinística em `packages/adl-serializer/src/serialize.ts` e `packages/adl-serializer/src/policy.ts`
 - [ ] T018 [US1] Implementar a fronteira de carregamento, diagnósticos de URI e criação de fontes externas em `packages/adl-stylesheet/src/source.ts` e exportá-la em `packages/adl-stylesheet/src/index.ts`
 - [ ] T019 [US1] Implementar matching por tipo de elemento, preenchimento por defaults e `ResolvedDiagramStyles` em `packages/adl-stylesheet/src/resolve.ts`
-- [ ] T020 [US1] Aceitar overrides numéricos de largura/altura e preservar pares `x/y` fixos sem interpretar a DSL em `packages/adl-layout/src/model.ts` e `packages/adl-layout/src/layout.ts`
+- [ ] T020 [US1] Preservar `x/y`, calcular caixas transformadas e organizar entidades livres sem interpretar a DSL em `packages/adl-layout/src/model.ts` e `packages/adl-layout/src/layout.ts`
 - [ ] T021 [US1] Adicionar `ResolvedElementStyle` às entradas/entidades da cena e manter defaults compatíveis em `packages/adl-renderer/src/scene.ts` e `packages/adl-renderer/src/render.ts`
 - [ ] T022 [US1] Coordenar referência, carregamento, resolução, layout e cena fora dos componentes visuais em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.ts` e integrar o resultado em `apps/web-editor/src/App.tsx`
-- [ ] T023 [US1] Renderizar retângulo ou elipse, aplicar `border-radius` somente ao retângulo e materializar pinturas sólidas/gradientes validadas no SVG em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
+- [ ] T023 [US1] Renderizar os cinco shapes com orientação/rotação, contorno compartilhado para conexões/seleção e pinturas validadas em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
 - [ ] T024 [US1] Adicionar teste de integração do pipeline externo, posições restauradas e modelo semântico inalterado em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.test.ts`
 
 **Checkpoint**: O fluxo externo por tipo funciona fim a fim e pode ser demonstrado como MVP.
@@ -73,19 +73,19 @@
 
 ## Phase 4: User Story 2 — Estilizar por tipo e por identidade (Priority: P2)
 
-**Goal**: Completar seletores por ID/tipo para elementos e relações, combinação propriedade a propriedade, precedência, avisos e estilo de linhas/rótulos.
+**Goal**: Completar seletores globais, universais por categoria, tipo e ID, cascata, avisos e estilo de linhas/rótulos.
 
-**Independent Test**: Uma regra de tipo estiliza todos os serviços e uma regra por ID modifica somente `payments`; relações do mesmo tipo recebem linha/rótulo configurados e seletores órfãos geram aviso.
+**Independent Test**: `*` define tipografia comum, `element *`/`relation *` definem aparência categorial, tipo e ID sobrescrevem propriedades específicas, e seletores órfãos geram aviso.
 
 ### Tests for User Story 2
 
-- [ ] T025 [P] [US2] Escrever testes falhos da matriz de precedência, combinação, posição exclusiva por ID e última declaração vencedora em `packages/adl-stylesheet/test/cascade.test.ts`
+- [ ] T025 [P] [US2] Escrever testes falhos da matriz `*`/categoria/tipo/ID, external/embedded, posição por ID e última declaração em `packages/adl-stylesheet/test/cascade.test.ts`
 - [ ] T026 [P] [US2] Escrever testes falhos de seletores por ID/tipo de relação e avisos sem correspondência em `packages/adl-stylesheet/test/relation-resolution.test.ts`
 - [ ] T027 [P] [US2] Escrever testes falhos de pinturas, alinhamentos, família/fallback, peso, itálico e sublinhado em elementos e relações em `packages/adl-renderer/test/relation-styles.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Implementar matching exato por ID e tipo para elementos/relações e aviso de seletor órfão em `packages/adl-stylesheet/src/resolve.ts`
+- [ ] T028 [US2] Implementar matching `*`, universal categorial, tipo e ID com diagnóstico de propriedade incompatível/seletor órfão em `packages/adl-stylesheet/src/resolve.ts`
 - [ ] T029 [US2] Implementar cascata propriedade a propriedade, `TextStyle`, posição opcional e aviso de sobrescrita em `packages/adl-stylesheet/src/resolve.ts`
 - [ ] T030 [US2] Transportar `ResolvedRelationStyle` para entidades da cena sem interpretar regras em `packages/adl-renderer/src/scene.ts` e `packages/adl-renderer/src/render.ts`
 - [ ] T031 [US2] Aplicar pinturas, alinhamentos, família/fallback, negrito, itálico e sublinhado em elementos/rótulos preservando marcadores e acessibilidade em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`

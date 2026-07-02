@@ -4,6 +4,17 @@
 
 ```adl
 stylesheet version "1.0" {
+  * {
+    font-size "14px"
+    font-family "Arial, sans-serif"
+    text-paint "#102A43FF"
+  }
+
+  element * {
+    border-paint "#2457A6FF"
+    border-width "2px"
+  }
+
   element type "service" {
     shape "ellipse"
     width "180px"
@@ -23,7 +34,9 @@ stylesheet version "1.0" {
   }
 
   element id payments {
-    shape "rectangle"
+    shape "parallelogram"
+    orientation "horizontal"
+    rotation "15deg"
     border-radius "16px"
     fill "#FFF3CDFF"
     x "320px"
@@ -72,14 +85,17 @@ stylesheet-file     := "stylesheet" "version" STRING "{" rule* "}"
 adl-envelope        := stylesheet-reference? adl-document embedded-stylesheet? EOF
 stylesheet-reference:= "stylesheet" STRING
 embedded-stylesheet := "stylesheet" "{" rule* "}"
-rule                := target selector-kind selector-value "{" declaration* "}"
+rule                := global-rule | category-rule
+global-rule         := "*" "{" common-declaration* "}"
+category-rule       := target category-selector "{" declaration* "}"
 target              := "element" | "relation"
+category-selector   := "*" | selector-kind selector-value
 selector-kind       := "type" | "id"
 selector-value      := STRING | IDENTIFIER
 declaration         := PROPERTY STRING
 ```
 
-Seletores `type` usam string; seletores `id` usam identificador. Palavras de propriedade são reservadas somente dentro de regras de stylesheet.
+`*` global aceita apenas propriedades comuns a elementos e relações. `element *` e `relation *` aceitam todas as propriedades válidas da categoria. Seletores `type` usam string; seletores `id` usam identificador.
 
 ## Paint values
 
@@ -111,15 +127,28 @@ stop            := HEX_COLOR PERCENTAGE
 - As propriedades tipográficas são válidas para elemento e relação; em relação, aplicam-se ao rótulo.
 - Viewport, zoom, seleção e estado de painéis não fazem parte da gramática.
 
+## Shapes and transforms
+
+- `shape`: `rectangle`, `ellipse`, `cylinder`, `user` ou `parallelogram`.
+- `orientation`: `horizontal` ou `vertical`; define o eixo estrutural antes da rotação.
+- `rotation`: número finito seguido de `deg`, normalizado para `[0, 360)` e aplicado ao redor do centro.
+- `x/y` permanecem no canto superior esquerdo da caixa canônica não rotacionada.
+- Layout, hit testing e conectores usam o contorno e a caixa delimitadora depois de orientação e rotação.
+- Em shapes sem diferença estrutural visível entre orientações, o valor permanece no modelo resolvido e orienta conteúdo interno, sem alterar a caixa canônica.
+
 ## Cascade
 
 Precedência por propriedade, da menor para a maior:
 
 1. padrão do renderer;
-2. externo por tipo;
-3. embutido por tipo;
-4. externo por ID;
-5. embutido por ID.
+2. externo `*`;
+3. embutido `*`;
+4. externo universal por categoria;
+5. embutido universal por categoria;
+6. externo por tipo;
+7. embutido por tipo;
+8. externo por ID;
+9. embutido por ID.
 
 Na mesma origem e especificidade, a última declaração vence e gera aviso. Propriedades diferentes são combinadas.
 

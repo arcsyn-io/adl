@@ -16,11 +16,11 @@
 ## StyleRule
 
 - `targetKind`: `element` ou `relation`.
-- `selector`: `TypeSelector` ou `IdSelector`.
+- `selector`: `GlobalSelector`, `CategoryUniversalSelector`, `TypeSelector` ou `IdSelector`.
 - `declarations`: lista ordenada de `StyleDeclaration`.
 - `provenance`: range completo da regra.
 
-Regras são imutáveis depois do parsing. Um seletor de tipo compara `type` por igualdade exata; um seletor de ID compara a identidade por igualdade exata.
+Regras são imutáveis depois do parsing. `*` corresponde a elementos e relações, `element *`/`relation *` limitam a categoria, tipo compara `type` por igualdade exata e ID compara a identidade por igualdade exata.
 
 ## StyleDeclaration
 
@@ -31,7 +31,9 @@ Regras são imutáveis depois do parsing. Um seletor de tipo compara `type` por 
 
 ### ElementStyle
 
-- `shape`: `rectangle | ellipse`
+- `shape`: `rectangle | ellipse | cylinder | user | parallelogram`
+- `orientation`: `horizontal | vertical`
+- `rotationDegrees`: número finito normalizado para `[0, 360)`
 - `width`, `height`: pixels, inteiro entre 24 e 4096
 - `x`, `y`: pixels lógicos finitos, opcionais e presentes somente em conjunto após regra por ID
 - `fill`, `borderPaint`, `textPaint`: `Paint` normalizada
@@ -64,7 +66,9 @@ Regras são imutáveis depois do parsing. Um seletor de tipo compara `type` por 
 - `GradientStop`: cor sólida normalizada e posição percentual entre 0 e 100.
 - `coordinateSpace`: sempre `object-bounding-box`; não é configurável na versão 1.0.
 
-`borderRadius` somente altera elementos com `shape: rectangle`. Em elipses, declarar `border-radius` é erro de combinação, evitando uma propriedade silenciosamente sem efeito.
+`borderRadius` somente altera elementos com `shape: rectangle`. Nos demais shapes, declarar `border-radius` é erro de combinação, evitando uma propriedade silenciosamente sem efeito.
+
+`x/y/width/height` formam a caixa canônica antes da rotação. O estilo resolvido também expõe a caixa delimitadora transformada para layout e a transformação centro-orientação-rotação para renderer, hit testing e conectores.
 
 ## ResolvedDiagramStyles
 

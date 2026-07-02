@@ -40,11 +40,11 @@ Como autor de diagramas, quero manter as regras visuais em um arquivo separado e
 
 ---
 
-### User Story 2 - Estilizar por tipo e por identidade (Priority: P2)
+### User Story 2 - Aplicar estilos globais, por tipo e por identidade (Priority: P2)
 
 Como autor, quero definir uma aparência comum para um tipo de elemento e sobrescrevê-la para uma identidade específica, para combinar consistência visual com exceções intencionais.
 
-**Why this priority**: Seletores por tipo e ID entregam o nível de controle solicitado sem exigir estilos repetidos em cada elemento.
+**Why this priority**: Seletores globais, por categoria, tipo e ID reduzem repetição sem perder exceções específicas.
 
 **Independent Test**: Uma regra transforma todos os elementos `service` em elipses, enquanto uma regra por ID altera somente um desses serviços; os demais preservam a regra do tipo.
 
@@ -57,6 +57,8 @@ Como autor, quero definir uma aparência comum para um tipo de elemento e sobres
 5. **Given** uma regra por ID com posição e tamanho, **When** o diagrama é reaberto ou renderizado novamente, **Then** o elemento retorna aos mesmos limites no canvas.
 6. **Given** um elemento sem posição declarada, **When** o diagrama é apresentado, **Then** ele recebe posição automática sem deslocar elementos explicitamente posicionados.
 7. **Given** um autor move ou redimensiona um elemento, **When** a alteração visual é confirmada, **Then** a regra por ID na fonte visual gravável é atualizada sem modificar o `.adl`.
+8. **Given** uma regra global `*` com tipografia, **When** elementos e relações são apresentados, **Then** todo texto compatível recebe os valores globais salvo sobrescrita mais específica.
+9. **Given** elementos com shapes `cylinder`, `user` e `parallelogram`, **When** orientação e rotação são declaradas, **Then** cada contorno é desenhado no eixo solicitado e rotacionado pelo ângulo declarado.
 
 ---
 
@@ -83,6 +85,8 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - Regras de posição em seletores por tipo ou de relação são rejeitadas, pois posição é válida somente para um elemento identificado.
 - Uma posição parcial (`x` sem `y` ou `y` sem `x`) é inválida e não fixa o elemento pela metade.
 - Dois elementos podem ocupar limites sobrepostos quando isso for declarado explicitamente; o sistema não altera silenciosamente posições persistidas.
+- Rotação conserva o centro do elemento e pode ampliar seus limites efetivos para layout e conexões.
+- Propriedades específicas de elemento em `*` global são rejeitadas; devem usar `element *`. O mesmo vale para propriedades específicas de relação, que usam `relation *`.
 - Pinturas sólidas ou gradientes inválidos, tamanhos não positivos, formas desconhecidas e combinações de borda inválidas são rejeitados com diagnóstico acionável.
 - Texto Unicode e rótulos longos mantêm o mesmo conteúdo, ainda que sua apresentação precise ser limitada pelas dimensões declaradas.
 - Auto-relações, relações paralelas e relações sem rótulo mantêm identidade e conectividade ao receber estilos de linha.
@@ -102,7 +106,7 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - **FR-008**: Regras embutidas MUST prevalecer sobre regras externas de igual especificidade para a mesma propriedade e a mesma entidade.
 - **FR-009**: Propriedades não declaradas por uma regra mais específica MUST preservar valores de regras menos específicas; na ausência destas, MUST preservar os padrões do renderer.
 - **FR-010**: Regras para elementos MUST admitir, no mínimo, forma, largura, altura, pintura de preenchimento, pintura de borda, espessura de borda, arredondamento de borda, pintura do texto e tamanho da fonte.
-- **FR-011**: As formas iniciais suportadas MUST incluir retângulo e elipse; retângulos arredondados MUST ser obtidos exclusivamente pela propriedade de arredondamento de borda.
+- **FR-011**: As formas iniciais suportadas MUST incluir retângulo, elipse, cilindro, usuário e paralelogramo; retângulos arredondados MUST ser obtidos exclusivamente pela propriedade de arredondamento de borda.
 - **FR-012**: Regras para relações MUST admitir, no mínimo, pintura da linha, espessura da linha, pintura do texto do rótulo e tamanho da fonte do rótulo.
 - **FR-013**: Uma pintura de texto definida para um elemento MUST ser aplicada a todo texto interno, salvo quando uma regra mais específica para uma categoria de texto definir outro valor.
 - **FR-014**: Toda propriedade de pintura MUST aceitar uma cor sólida ou um gradiente linear com ângulo e pelo menos duas paradas de cor posicionadas.
@@ -122,6 +126,13 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - **FR-028**: Texto de elementos e rótulos de relações MUST admitir alinhamento horizontal `left`, `center` ou `right` e alinhamento vertical `top`, `middle` ou `bottom` dentro da área de texto disponível.
 - **FR-029**: Texto de elementos e rótulos de relações MUST admitir família de fonte com lista ordenada de alternativas, peso `normal` ou `bold`, estilo `normal` ou `italic` e decoração `none` ou `underline`.
 - **FR-030**: Quando uma família solicitada estiver indisponível, a próxima alternativa declarada MUST ser usada; a lista MUST terminar em uma família genérica suportada.
+- **FR-031**: Toda regra de elemento MUST poder declarar orientação estrutural `horizontal` ou `vertical` e rotação como ângulo finito em graus.
+- **FR-032**: A orientação MUST ser aplicada à geometria-base antes da rotação; a rotação MUST ocorrer ao redor do centro do elemento e ser normalizada para o intervalo de 0 a menos de 360 graus.
+- **FR-033**: Layout, limites de conexão, seleção e exportação MUST considerar a geometria transformada do elemento sem alterar seu `x/y` canônico.
+- **FR-034**: O stylesheet MUST aceitar um seletor global `*` para propriedades compartilhadas por elementos e relações.
+- **FR-035**: O stylesheet MUST aceitar `element *` e `relation *` para propriedades universais específicas de cada categoria.
+- **FR-036**: A especificidade MUST crescer na ordem `*`, universal por categoria, tipo e ID; na mesma especificidade, a origem embutida MUST prevalecer sobre a externa.
+- **FR-037**: Propriedades incompatíveis com o alcance de um seletor universal MUST produzir diagnóstico em vez de serem parcialmente aplicadas.
 
 ### Key Entities
 
@@ -130,6 +141,8 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - **Regra de estilo**: seletor acompanhado das propriedades visuais aplicáveis.
 - **Seletor de tipo**: corresponde a todas as entidades de um tipo semântico exato.
 - **Seletor de ID**: corresponde a uma única entidade pela identidade exata.
+- **Seletor global**: `*`, corresponde a elementos e relações e aceita somente propriedades comuns.
+- **Seletor universal por categoria**: `element *` ou `relation *`, corresponde a todas as entidades daquela categoria.
 - **Propriedade visual**: atributo de apresentação com nome, valor válido e padrão definido.
 - **Estilo resolvido**: combinação determinística dos padrões e regras aplicáveis a uma entidade.
 - **Posição visual persistente**: par de coordenadas associado exclusivamente ao ID de um elemento.
@@ -138,7 +151,7 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 ## Scope
 
 - Definição e aplicação de stylesheets externos e embutidos.
-- Seletores por tipo e ID para elementos e relações.
+- Seletores globais, universais por categoria, por tipo e por ID para elementos e relações.
 - Formas básicas, dimensões, preenchimento, bordas, linhas e tipografia descritos nos requisitos.
 - Posição persistente por ID e atualização dessa posição após mover ou redimensionar um elemento.
 - Precedência, validação, diagnósticos, documentação e casos de conformidade necessários ao comportamento inicial.
@@ -159,7 +172,7 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 ### Measurable Outcomes
 
 - **SC-001**: 100% dos exemplos de conformidade aplicam corretamente estilos por tipo, por ID e a combinação de ambos.
-- **SC-002**: 100% dos conflitos cobertos pela suíte produzem o resultado de precedência documentado entre padrões, arquivo externo, bloco embutido, tipo e ID.
+- **SC-002**: 100% dos conflitos cobertos pela suíte produzem o resultado documentado entre padrões, global, categoria, tipo, ID, arquivo externo e bloco embutido.
 - **SC-003**: Um autor familiarizado com ADL consegue criar, referenciar e visualizar um stylesheet externo com uma regra por tipo em até 10 minutos usando apenas a documentação.
 - **SC-004**: Um mesmo stylesheet pode ser aplicado a pelo menos 10 documentos de exemplo sem duplicação de regras dentro desses documentos.
 - **SC-005**: 100% dos casos inválidos da suíte produzem diagnóstico com origem e orientação, sem alterar o modelo semântico válido.
@@ -167,11 +180,13 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - **SC-007**: Todos os diagramas estilizados permanecem compreensíveis quando avaliados sem depender exclusivamente da cor para distinguir o significado das entidades.
 - **SC-008**: 100% dos elementos com `x/y` nos casos de conformidade retornam às mesmas coordenadas após salvar, fechar e reabrir o diagrama.
 - **SC-009**: 100% das combinações válidas de alinhamento, peso, estilo, decoração e fallback de fonte produzem o resultado documentado nos casos de conformidade.
+- **SC-010**: Os cinco shapes, nas duas orientações e em rotações representativas de 0°, 45°, 90° e 270°, mantêm contorno, texto, seleção e conexões corretos em 100% dos casos de conformidade.
+- **SC-011**: 100% dos conflitos entre `*`, universal por categoria, tipo, ID, origem externa e origem embutida produzem o resultado da cascata documentada.
 
 ## Assumptions
 
 - A primeira versão aceita uma referência externa por documento e, opcionalmente, um bloco embutido; composição de múltiplos arquivos fica fora do escopo.
-- A ordem de precedência, do menor para o maior peso, é: padrão do renderer, regra externa por tipo, regra embutida por tipo, regra externa por ID e regra embutida por ID.
+- A ordem de precedência, do menor para o maior peso, é: padrão, externo `*`, embutido `*`, externo universal por categoria, embutido universal por categoria, externo por tipo, embutido por tipo, externo por ID e embutido por ID.
 - Seletores correspondem somente a nomes de tipos e IDs exatos; não há correspondência parcial ou sensível ao contexto.
 - A primeira versão de gradientes oferece somente gradiente linear; cada parada usa uma cor suportada e uma posição percentual entre 0% e 100%.
 - O gradiente de preenchimento e borda usa a caixa do elemento; o gradiente de linha usa os limites do caminho completo; o gradiente de texto usa os limites do texto pintado.
@@ -179,5 +194,6 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - Coordenadas são pixels finitos no espaço lógico do canvas e existem somente no `.adls` ou bloco stylesheet embutido, nunca no `.adl` semântico.
 - A fonte visual gravável é o bloco embutido quando ele existir; caso contrário, é o arquivo externo referenciado. Um consumidor somente leitura informa que a posição não pôde ser persistida.
 - Fontes são referenciadas por uma lista de famílias instalada no ambiente; carregamento ou incorporação de arquivos de fonte permanece fora do escopo.
+- `x/y` representam o canto superior esquerdo da caixa não rotacionada; orientação altera a geometria-base e rotação ocorre ao redor do centro dessa caixa.
 - O formato concreto, a extensão do arquivo e a lista normativa de unidades e formatos de cor serão definidos no planejamento sem ampliar o comportamento desta spec.
 - A apresentação padrão existente continua válida quando nenhum stylesheet é fornecido.

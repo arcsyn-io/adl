@@ -12,6 +12,7 @@
 3. Abrir a fixture no editor ou executar o teste de integração correspondente.
 4. Verificar que ambos os serviços usam o estilo, que o layout respeita as dimensões e que o modelo semântico é idêntico ao obtido sem stylesheet.
 5. Mover um serviço, reabrir o documento e verificar que `x/y` foram atualizados no stylesheet e restaurados.
+6. Aplicar `*` para tipografia, `element *` para borda e confirmar que regras por tipo/ID prevalecem.
 
 ## Scenario 2 — ID and embedded precedence
 
@@ -25,6 +26,7 @@
 2. Incluir um seletor sem correspondência e um valor de cor inválido em fixtures separadas.
 3. Verificar o estilo da relação, o aviso para seletor órfão e o erro localizado para a cor, sem invalidar o `DiagramModel`.
 4. Verificar alinhamento, fallback de família, negrito, itálico e sublinhado no texto do elemento e no rótulo da relação.
+5. Verificar `cylinder`, `user` e `parallelogram` nas duas orientações e com rotação, incluindo conexões e seleção.
 
 ## Scenario 4 — missing external file
 

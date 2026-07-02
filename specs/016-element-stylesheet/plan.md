@@ -26,7 +26,7 @@ Adicionar uma linguagem visual versionada em arquivos `.adls`, referenciável po
 
 **Constraints**: Pipeline unidirecional; regras visuais fora de React; coordenadas fora do `.adl` semântico e permitidas somente por ID no stylesheet; viewport/zoom/seleção locais; funcionamento local; resultados determinísticos; nenhuma nova dependência sem necessidade demonstrada
 
-**Scale/Scope**: Uma referência externa e um bloco embutido por documento; seletores exatos por tipo e ID; 2 formas; posição/tamanho persistentes por ID; pinturas sólidas ou gradientes; tipografia e alinhamento completos para elementos e relações
+**Scale/Scope**: Uma referência externa e um bloco embutido; seletores `*`, categoria, tipo e ID; 5 shapes; orientação/rotação; posição/tamanho por ID; pinturas sólidas/gradientes; tipografia completa
 
 ## Constitution Check
 
@@ -91,8 +91,8 @@ agent_docs/architecture.md                  # contrato arquitetural do fluxo de 
 1. Definir contrato normativo `.adls`, AST visual, propriedades, unidades, pinturas sólidas/gradientes e códigos de diagnóstico.
 2. Estender o envelope sintático do `.adl` para referência opcional antes do documento e bloco embutido opcional depois dele, preservando ranges.
 3. Implementar parser e validador do stylesheet sem depender de browser, React ou renderer.
-4. Combinar regras externas e embutidas e resolver precedência contra identidades/tipos do modelo semântico.
-5. Passar posição/dimensões resolvidas ao layout e aparência/tipografia resolvidas ao renderer.
+4. Combinar regras globais, por categoria, tipo e ID das fontes externa/embutida conforme a cascata.
+5. Passar posição, dimensões e limites transformados ao layout e shape/orientação/rotação/aparência ao renderer.
 6. Coordenar carregamento e atualização no editor web; apresentar diagnósticos sem invalidar a semântica arquitetural.
 7. Persistir movimentos/redimensionamentos como patches de regra por ID sem gravar estado de sessão.
 8. Fechar serialização, conformidade, documentação, desempenho e E2E.

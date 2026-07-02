@@ -34,6 +34,8 @@ Cada propriedade visual de pintura é entregue como `Paint` discriminada e norma
 
 `ResolvedElementStyle` pode conter um par posicional fixo; o layout preserva esse par e calcula somente posições ausentes. `ResolvedElementStyle` e `ResolvedRelationStyle` entregam `TextStyle` completo ao renderer.
 
+O resolvedor entrega shape, orientação, rotação, caixa canônica e transformação normalizados. Layout consome a caixa delimitadora transformada; renderer, seleção e conectores consomem o mesmo contorno transformado para evitar divergência visual.
+
 Movimento/redimensionamento retorna `VisualStylePatch` para atualizar a regra `element id` na fonte gravável. O contrato não inclui viewport, zoom, seleção ou outro estado de sessão.
 
 ## Layer responsibilities
