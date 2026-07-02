@@ -16,6 +16,13 @@ describe("visual command bus", () => {
     expect(dispatchVisualCommand(one.history, { type: "create-relation", id: "calls", sourceId: "api", targetId: "missing", name: "calls" })).toMatchObject({ ok: false, error: { code: "UNRESOLVED_REFERENCE" } });
   });
 
+  it("stores the selected MDL connector type", () => {
+    let history = createVisualHistory();
+    for (const command of [{ type: "create-element", id: "api", name: "API", elementType: "service" }, { type: "create-element", id: "db", name: "DB", elementType: "database" }] as const) { const result=dispatchVisualCommand(history,command);if(result.ok)history=result.history; }
+    const result=dispatchVisualCommand(history,{type:"create-relation",id:"owns",sourceId:"api",targetId:"db",name:"owns",relationType:"composition"});
+    expect(result.ok&&result.history.present.relations.owns?.type).toBe("composition");
+  });
+
   it("requires explicit cascade and makes deletion reversible", () => {
     const commands = [
       { type: "create-element", id: "api", name: "API", elementType: "service" },
