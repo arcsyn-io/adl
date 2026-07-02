@@ -1,0 +1,1 @@
+import { expect,it } from "vitest"; import { persistedFixture } from "./fixtures.js"; it("correlates source with a confirmed revision",()=>expect(persistedFixture.document.source).toContain("diagram"));

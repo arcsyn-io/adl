@@ -1,0 +1,1 @@
+import { expect,it } from "vitest"; import { workspaceFixture } from "./fixtures.js"; it("creates 100-element revisions within the interaction budget",()=>{const start=performance.now();for(let i=0;i<100;i++)workspaceFixture();expect(performance.now()-start).toBeLessThan(500)});
