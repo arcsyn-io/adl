@@ -30,11 +30,11 @@
 **⚠️ CRITICAL**: Nenhuma user story começa antes desta fase estar verde.
 
 - [ ] T004 [P] Escrever testes falhos do contrato léxico e sintático `.adls` 1.0, incluindo ranges e recuperação de erro, em `packages/adl-stylesheet/test/parser.test.ts`
-- [ ] T005 [P] Escrever testes falhos de valores válidos/invalidos, limites numéricos e propriedades por alvo em `packages/adl-stylesheet/test/validation.test.ts`
+- [ ] T005 [P] Escrever testes falhos de valores válidos/inválidos, limites numéricos, pinturas sólidas/gradientes e propriedades por alvo em `packages/adl-stylesheet/test/validation.test.ts`
 - [ ] T006 [P] Escrever testes falhos dos tipos públicos imutáveis e exports do pacote em `packages/adl-stylesheet/test/contract.test.ts`
 - [ ] T007 Definir AST, seletores, declarações, estilos normalizados e diagnósticos discriminados em `packages/adl-stylesheet/src/syntax.ts`
 - [ ] T008 Implementar lexer/parser puro para arquivo externo e corpo de regras embutidas em `packages/adl-stylesheet/src/parser.ts`
-- [ ] T009 Implementar normalização e validação de formas, pixels, cores e propriedades permitidas em `packages/adl-stylesheet/src/validate.ts`
+- [ ] T009 Implementar normalização e validação de formas, pixels, pinturas sólidas/gradientes e propriedades permitidas em `packages/adl-stylesheet/src/validate.ts`
 - [ ] T010 Publicar somente os contratos necessários em `packages/adl-stylesheet/src/index.ts` e concluir o ciclo verde dos testes em `packages/adl-stylesheet/test/parser.test.ts`, `packages/adl-stylesheet/test/validation.test.ts` e `packages/adl-stylesheet/test/contract.test.ts`
 
 **Checkpoint**: Um `.adls` isolado pode ser analisado e validado deterministicamente, sem filesystem, modelo semântico, layout ou renderer.
@@ -45,14 +45,14 @@
 
 **Goal**: Referenciar um `.adls` externo, carregá-lo pela fronteira do consumidor e aplicar uma regra por tipo a elementos, incluindo dimensões no layout e aparência no renderer.
 
-**Independent Test**: Dois elementos `service` em um `.adl` que referencia `theme.adls` tornam-se elipses com as dimensões/cores declaradas; o mesmo tema funciona em dois documentos e uma referência ausente gera diagnóstico sem alterar o modelo semântico.
+**Independent Test**: Dois elementos `service` em um `.adl` que referencia `theme.adls` tornam-se elipses com as dimensões/pinturas declaradas; o mesmo tema funciona em dois documentos e uma referência ausente gera diagnóstico sem alterar o modelo semântico.
 
 ### Tests for User Story 1
 
 - [ ] T011 [P] [US1] Escrever testes falhos da referência externa, resolução relativa e round-trip no envelope ADL em `packages/adl-parser/test/stylesheet-reference.test.ts` e `packages/adl-serializer/test/stylesheet-reference.test.ts`
 - [ ] T012 [P] [US1] Escrever testes falhos de resolução externa por tipo, defaults e falha de carregamento em `packages/adl-stylesheet/test/external-resolution.test.ts`
 - [ ] T013 [P] [US1] Escrever testes falhos de dimensões estilizadas como entrada de layout em `packages/adl-layout/test/stylesheet-layout.test.ts`
-- [ ] T014 [P] [US1] Escrever testes falhos de forma, preenchimento, borda e texto nas entidades da cena em `packages/adl-renderer/test/stylesheet-renderer.test.ts`
+- [ ] T014 [P] [US1] Escrever testes falhos de forma, arredondamento exclusivo de retângulo e pinturas sólidas/gradientes em preenchimento, borda e texto nas entidades da cena em `packages/adl-renderer/test/stylesheet-renderer.test.ts`
 
 ### Implementation for User Story 1
 
@@ -64,7 +64,7 @@
 - [ ] T020 [US1] Aceitar overrides numéricos de largura/altura sem interpretar a DSL em `packages/adl-layout/src/model.ts` e `packages/adl-layout/src/layout.ts`
 - [ ] T021 [US1] Adicionar `ResolvedElementStyle` às entradas/entidades da cena e manter defaults compatíveis em `packages/adl-renderer/src/scene.ts` e `packages/adl-renderer/src/render.ts`
 - [ ] T022 [US1] Coordenar referência, carregamento, resolução, layout e cena fora dos componentes visuais em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.ts` e integrar o resultado em `apps/web-editor/src/App.tsx`
-- [ ] T023 [US1] Renderizar retângulo, retângulo arredondado ou elipse e aplicar estilos validados no SVG em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
+- [ ] T023 [US1] Renderizar retângulo ou elipse, aplicar `border-radius` somente ao retângulo e materializar pinturas sólidas/gradientes validadas no SVG em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
 - [ ] T024 [US1] Adicionar teste de integração do pipeline externo e confirmar modelo semântico inalterado em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.test.ts`
 
 **Checkpoint**: O fluxo externo por tipo funciona fim a fim e pode ser demonstrado como MVP.
@@ -81,14 +81,14 @@
 
 - [ ] T025 [P] [US2] Escrever testes falhos da matriz de precedência, combinação e última declaração vencedora em `packages/adl-stylesheet/test/cascade.test.ts`
 - [ ] T026 [P] [US2] Escrever testes falhos de seletores por ID/tipo de relação e avisos sem correspondência em `packages/adl-stylesheet/test/relation-resolution.test.ts`
-- [ ] T027 [P] [US2] Escrever testes falhos de cor/espessura da linha e tipografia do rótulo na cena em `packages/adl-renderer/test/relation-styles.test.ts`
+- [ ] T027 [P] [US2] Escrever testes falhos de pintura sólida/gradiente e espessura da linha e pintura/tipografia do rótulo na cena em `packages/adl-renderer/test/relation-styles.test.ts`
 
 ### Implementation for User Story 2
 
 - [ ] T028 [US2] Implementar matching exato por ID e tipo para elementos/relações e aviso de seletor órfão em `packages/adl-stylesheet/src/resolve.ts`
 - [ ] T029 [US2] Implementar cascata propriedade a propriedade e aviso de sobrescrita na mesma camada em `packages/adl-stylesheet/src/resolve.ts`
 - [ ] T030 [US2] Transportar `ResolvedRelationStyle` para entidades da cena sem interpretar regras em `packages/adl-renderer/src/scene.ts` e `packages/adl-renderer/src/render.ts`
-- [ ] T031 [US2] Aplicar cor/espessura da relação e cor/tamanho do rótulo no SVG preservando marcadores e acessibilidade em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
+- [ ] T031 [US2] Aplicar pintura sólida/gradiente e espessura da relação e pintura/tamanho do rótulo no SVG preservando marcadores e acessibilidade em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
 - [ ] T032 [US2] Expor diagnósticos de stylesheet com severidade e origem no editor em `apps/web-editor/src/features/code-editor/language-service.ts` e `apps/web-editor/src/features/code-editor/CodeEditor.tsx`
 
 **Checkpoint**: Tipo, ID, elementos, relações e conflitos externos estão completos e testáveis sem stylesheet embutido.

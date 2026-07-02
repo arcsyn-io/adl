@@ -8,7 +8,7 @@
 ## Scenario 1 — external stylesheet
 
 1. Criar uma fixture `.adl` com `stylesheet "./theme.adls"` e dois elementos `service`.
-2. Criar `theme.adls` conforme [stylesheet-language.md](./contracts/stylesheet-language.md), aplicando elipse e dimensões ao tipo.
+2. Criar `theme.adls` conforme [stylesheet-language.md](./contracts/stylesheet-language.md), aplicando elipse, dimensões e gradiente de preenchimento ao tipo.
 3. Abrir a fixture no editor ou executar o teste de integração correspondente.
 4. Verificar que ambos os serviços usam o estilo, que o layout respeita as dimensões e que o modelo semântico é idêntico ao obtido sem stylesheet.
 
@@ -20,7 +20,7 @@
 
 ## Scenario 3 — relation styling and diagnostics
 
-1. Aplicar cor/espessura de linha e cor/tamanho do rótulo por tipo de relação.
+1. Aplicar gradiente/espessura de linha e pintura sólida/tamanho do rótulo por tipo de relação.
 2. Incluir um seletor sem correspondência e um valor de cor inválido em fixtures separadas.
 3. Verificar o estilo da relação, o aviso para seletor órfão e o erro localizado para a cor, sem invalidar o `DiagramModel`.
 

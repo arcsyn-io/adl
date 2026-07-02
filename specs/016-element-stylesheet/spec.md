@@ -77,7 +77,7 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - Uma regra parcialmente válida não pode aplicar silenciosamente valores inválidos; cada propriedade inválida gera diagnóstico localizado sem apagar propriedades válidas independentes.
 - IDs e nomes de tipos inexistentes ou incompatíveis não podem causar a estilização de outra entidade por aproximação.
 - Dimensões menores que o necessário para o texto seguem um comportamento previsível de conteúdo excedente e não alteram o modelo semântico.
-- Cores inválidas, tamanhos não positivos, formas desconhecidas e combinações de borda inválidas são rejeitados com diagnóstico acionável.
+- Pinturas sólidas ou gradientes inválidos, tamanhos não positivos, formas desconhecidas e combinações de borda inválidas são rejeitados com diagnóstico acionável.
 - Texto Unicode e rótulos longos mantêm o mesmo conteúdo, ainda que sua apresentação precise ser limitada pelas dimensões declaradas.
 - Auto-relações, relações paralelas e relações sem rótulo mantêm identidade e conectividade ao receber estilos de linha.
 - A indisponibilidade do stylesheet externo não impede a análise semântica do `.adl`; ela impede apenas que o resultado seja tratado como integralmente estilizado.
@@ -95,17 +95,19 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - **FR-007**: Regras por ID MUST prevalecer sobre regras por tipo para a mesma propriedade e a mesma entidade.
 - **FR-008**: Regras embutidas MUST prevalecer sobre regras externas de igual especificidade para a mesma propriedade e a mesma entidade.
 - **FR-009**: Propriedades não declaradas por uma regra mais específica MUST preservar valores de regras menos específicas; na ausência destas, MUST preservar os padrões do renderer.
-- **FR-010**: Regras para elementos MUST admitir, no mínimo, forma, largura, altura, cor de preenchimento, cor de borda, espessura de borda, arredondamento de borda, cor do texto e tamanho da fonte.
-- **FR-011**: As formas iniciais suportadas MUST incluir, no mínimo, retângulo, retângulo arredondado e elipse.
-- **FR-012**: Regras para relações MUST admitir, no mínimo, cor da linha, espessura da linha, cor do texto do rótulo e tamanho da fonte do rótulo.
-- **FR-013**: Uma cor de texto definida para um elemento MUST ser aplicada a todo texto interno, salvo quando uma regra mais específica para uma categoria de texto definir outro valor.
-- **FR-014**: Largura, altura, espessura de borda, arredondamento, espessura de linha e tamanhos de fonte MUST aceitar somente valores finitos dentro dos limites documentados e compatíveis com a propriedade.
-- **FR-015**: Formas, propriedades, seletores e valores desconhecidos ou inválidos MUST produzir diagnósticos determinísticos que indiquem origem e correção esperada.
-- **FR-016**: Uma referência externa ausente, inacessível ou inválida MUST produzir diagnóstico associado à declaração de referência.
-- **FR-017**: Um seletor sintaticamente válido que não corresponda a nenhuma entidade MUST produzir aviso sem impedir a aplicação das demais regras válidas.
-- **FR-018**: A aplicação do stylesheet MUST produzir o mesmo resultado visual para o mesmo documento, stylesheet, padrões de apresentação e dimensões disponíveis.
-- **FR-019**: A referência normativa MUST documentar seletores, propriedades, valores permitidos, precedência, padrões, diagnósticos e exemplos externos e embutidos.
-- **FR-020**: A suíte de conformidade MUST cobrir regras válidas, conflitos de precedência, referências ausentes, seletores sem correspondência e valores inválidos.
+- **FR-010**: Regras para elementos MUST admitir, no mínimo, forma, largura, altura, pintura de preenchimento, pintura de borda, espessura de borda, arredondamento de borda, pintura do texto e tamanho da fonte.
+- **FR-011**: As formas iniciais suportadas MUST incluir retângulo e elipse; retângulos arredondados MUST ser obtidos exclusivamente pela propriedade de arredondamento de borda.
+- **FR-012**: Regras para relações MUST admitir, no mínimo, pintura da linha, espessura da linha, pintura do texto do rótulo e tamanho da fonte do rótulo.
+- **FR-013**: Uma pintura de texto definida para um elemento MUST ser aplicada a todo texto interno, salvo quando uma regra mais específica para uma categoria de texto definir outro valor.
+- **FR-014**: Toda propriedade de pintura MUST aceitar uma cor sólida ou um gradiente linear com ângulo e pelo menos duas paradas de cor posicionadas.
+- **FR-015**: Gradientes MUST ser aplicáveis de modo uniforme a preenchimentos, bordas, linhas e textos, usando como referência os limites do objeto pintado.
+- **FR-016**: Largura, altura, espessura de borda, arredondamento, espessura de linha e tamanhos de fonte MUST aceitar somente valores finitos dentro dos limites documentados e compatíveis com a propriedade.
+- **FR-017**: Formas, propriedades, seletores e valores desconhecidos ou inválidos MUST produzir diagnósticos determinísticos que indiquem origem e correção esperada.
+- **FR-018**: Uma referência externa ausente, inacessível ou inválida MUST produzir diagnóstico associado à declaração de referência.
+- **FR-019**: Um seletor sintaticamente válido que não corresponda a nenhuma entidade MUST produzir aviso sem impedir a aplicação das demais regras válidas.
+- **FR-020**: A aplicação do stylesheet MUST produzir o mesmo resultado visual para o mesmo documento, stylesheet, padrões de apresentação e dimensões disponíveis.
+- **FR-021**: A referência normativa MUST documentar seletores, propriedades, valores permitidos, precedência, padrões, diagnósticos e exemplos externos e embutidos.
+- **FR-022**: A suíte de conformidade MUST cobrir regras válidas, conflitos de precedência, referências ausentes, seletores sem correspondência e valores inválidos.
 
 ### Key Entities
 
@@ -127,7 +129,7 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 ## Out of Scope
 
 - Coordenadas, posicionamento manual ou regras de layout.
-- Animações, imagens, ícones, sombras, gradientes e estilos condicionais por estado de interação.
+- Animações, imagens, ícones, sombras, gradientes radiais, cônicos ou em malha e estilos condicionais por estado de interação.
 - Seletores por classe, atributo, hierarquia, grupo, origem ou destino de relação.
 - Variáveis, funções, herança arbitrária, temas múltiplos e importação encadeada de stylesheets.
 - Editor visual dedicado para criar ou alterar stylesheets.
@@ -151,6 +153,8 @@ Como autor, quero adicionar um stylesheet embutido ao final do `.adl`, para dist
 - A primeira versão aceita uma referência externa por documento e, opcionalmente, um bloco embutido; composição de múltiplos arquivos fica fora do escopo.
 - A ordem de precedência, do menor para o maior peso, é: padrão do renderer, regra externa por tipo, regra embutida por tipo, regra externa por ID e regra embutida por ID.
 - Seletores correspondem somente a nomes de tipos e IDs exatos; não há correspondência parcial ou sensível ao contexto.
+- A primeira versão de gradientes oferece somente gradiente linear; cada parada usa uma cor suportada e uma posição percentual entre 0% e 100%.
+- O gradiente de preenchimento e borda usa a caixa do elemento; o gradiente de linha usa os limites do caminho completo; o gradiente de texto usa os limites do texto pintado.
 - Dimensões personalizadas influenciam o espaço usado pelo layout, mas não permitem declarar coordenadas no stylesheet nem no `.adl`.
 - O formato concreto, a extensão do arquivo e a lista normativa de unidades e formatos de cor serão definidos no planejamento sem ampliar o comportamento desta spec.
 - A apresentação padrão existente continua válida quando nenhum stylesheet é fornecido.

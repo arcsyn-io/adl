@@ -26,7 +26,7 @@ Adicionar uma linguagem visual versionada em arquivos `.adls`, referenciável po
 
 **Constraints**: Pipeline unidirecional; regras visuais fora de React; coordenadas fora do `.adl`/`.adls`; funcionamento local; resultados determinísticos; nenhuma nova dependência sem necessidade demonstrada
 
-**Scale/Scope**: Uma referência externa e um bloco embutido por documento; seletores exatos por tipo e ID; 3 formas de elemento; 9 propriedades de elemento e 4 de relação
+**Scale/Scope**: Uma referência externa e um bloco embutido por documento; seletores exatos por tipo e ID; 2 formas de elemento; 9 propriedades de elemento e 4 de relação; pinturas sólidas ou gradientes lineares
 
 ## Constitution Check
 
@@ -88,7 +88,7 @@ agent_docs/architecture.md                  # contrato arquitetural do fluxo de 
 
 ## Design Sequence
 
-1. Definir contrato normativo `.adls`, AST visual, propriedades, unidades, cores e códigos de diagnóstico.
+1. Definir contrato normativo `.adls`, AST visual, propriedades, unidades, pinturas sólidas/gradientes e códigos de diagnóstico.
 2. Estender o envelope sintático do `.adl` para referência opcional antes do documento e bloco embutido opcional depois dele, preservando ranges.
 3. Implementar parser e validador do stylesheet sem depender de browser, React ou renderer.
 4. Combinar regras externas e embutidas e resolver precedência contra identidades/tipos do modelo semântico.

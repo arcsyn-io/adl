@@ -30,6 +30,8 @@ interface ResolvedDiagramStyles {
 }
 ```
 
+Cada propriedade visual de pintura é entregue como `Paint` discriminada e normalizada (`solid` ou `linear-gradient`). Layout e renderer não analisam strings de cor/gradiente nem decidem precedência.
+
 ## Layer responsibilities
 
 - `@adl/parser`: reconhece referência e bloco embutido no envelope `.adl`, com ranges; não lê arquivos nem resolve estilo.

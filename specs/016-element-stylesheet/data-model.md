@@ -31,18 +31,28 @@ Regras são imutáveis depois do parsing. Um seletor de tipo compara `type` por 
 
 ### ElementStyle
 
-- `shape`: `rectangle | rounded-rectangle | ellipse`
+- `shape`: `rectangle | ellipse`
 - `width`, `height`: pixels, inteiro entre 24 e 4096
-- `fillColor`, `borderColor`, `textColor`: cor normalizada `#RRGGBB` ou `#RRGGBBAA`
+- `fill`, `borderPaint`, `textPaint`: `Paint` normalizada
 - `borderWidth`: pixels, inteiro entre 0 e 32
 - `borderRadius`: pixels, inteiro entre 0 e 2048
 - `fontSize`: pixels, inteiro entre 8 e 256
 
 ### RelationStyle
 
-- `lineColor`, `textColor`: cor normalizada
+- `linePaint`, `textPaint`: `Paint` normalizada
 - `lineWidth`: pixels, inteiro entre 0 e 32
 - `fontSize`: pixels, inteiro entre 8 e 256
+
+### Paint
+
+- `kind`: `solid` ou `linear-gradient`.
+- `solid`: cor normalizada `#RRGGBB` ou `#RRGGBBAA`.
+- `linear-gradient`: ângulo normalizado em graus e lista ordenada de pelo menos duas `GradientStop`.
+- `GradientStop`: cor sólida normalizada e posição percentual entre 0 e 100.
+- `coordinateSpace`: sempre `object-bounding-box`; não é configurável na versão 1.0.
+
+`borderRadius` somente altera elementos com `shape: rectangle`. Em elipses, declarar `border-radius` é erro de combinação, evitando uma propriedade silenciosamente sem efeito.
 
 ## ResolvedDiagramStyles
 

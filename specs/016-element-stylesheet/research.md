@@ -10,11 +10,19 @@
 
 ## Sintaxe de valores
 
-**Decision**: Usar strings para valores na versão 1.0. Dimensões e espessuras usam pixels inteiros positivos escritos como `"160px"`; arredondamento aceita pixels inteiros não negativos; fonte aceita pixels inteiros positivos. Cores aceitam `#RRGGBB` e `#RRGGBBAA`. Formas aceitam `rectangle`, `rounded-rectangle` e `ellipse`.
+**Decision**: Usar strings para valores na versão 1.0. Dimensões e espessuras usam pixels inteiros positivos escritos como `"160px"`; arredondamento aceita pixels inteiros não negativos; fonte aceita pixels inteiros positivos. Formas aceitam `rectangle` e `ellipse`; `border-radius` é a única forma de arredondar um retângulo.
 
 **Rationale**: Strings já são um primitivo estável da ADL, evitam ampliar o lexer com números, `#` e unidades contextuais, e mantêm validação de domínio explícita. Restringir formatos garante portabilidade e resultados determinísticos.
 
-**Alternatives considered**: Números sem unidade foram rejeitados por deixarem o significado implícito. Cores nomeadas e formatos funcionais foram adiados para impedir diferenças entre plataformas. Valores percentuais foram rejeitados porque dependem de contexto de layout.
+**Alternatives considered**: Uma forma separada `rounded-rectangle` foi rejeitada por duplicar `rectangle` com `border-radius`. Números sem unidade foram rejeitados por deixarem o significado implícito. Valores dimensionais percentuais foram rejeitados porque dependem de contexto de layout.
+
+## Pinturas sólidas e gradientes
+
+**Decision**: Modelar preenchimento, borda, linha e texto como `Paint`, uma união entre cor sólida (`#RRGGBB` ou `#RRGGBBAA`) e `linear-gradient(<ângulo>deg, <cor> <posição>%, ...)`. O gradiente exige ângulo finito, ao menos duas paradas, posições entre 0% e 100% em ordem não decrescente e usa os limites do objeto pintado como espaço de referência.
+
+**Rationale**: “Cor” não representa corretamente gradientes. Um único tipo de pintura e a mesma sintaxe para todas as superfícies evitam capacidades inconsistentes entre preenchimento, borda, linha e texto. Limitar a primeira versão a gradientes lineares mantém validação e renderização determinísticas.
+
+**Alternatives considered**: Gradientes radiais, cônicos e em malha foram adiados. Cores nomeadas e outros formatos funcionais foram adiados para impedir diferenças entre plataformas. Coordenadas absolutas de gradiente foram rejeitadas porque acoplariam o stylesheet ao layout.
 
 ## Limites iniciais
 
