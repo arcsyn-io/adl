@@ -1,5 +1,6 @@
 import { IDENTIFIER_PATTERN, LANGUAGE_VERSION } from "@adl/language";
 import type { DiagramModel, SemanticElement, SemanticGroup, SemanticRelation } from "@adl/semantic";
+import type { DocumentNode } from "@adl/parser";
 import type { SerializationError, SerializationOptions, SerializationResult } from "./policy.js";
 
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
@@ -101,4 +102,26 @@ export function serializeModel(model: unknown, options: SerializationOptions = {
   }
   lines.push("}");
   return { ok: true, text: `${lines.join("\n")}\n`, targetVersion: LANGUAGE_VERSION };
+}
+
+export function serializeDocument(document: DocumentNode): string {
+  const lines: string[] = [];
+  if (document.stylesheetReference) lines.push(`stylesheet ${quoted(document.stylesheetReference.value)}`, "");
+  lines.push(`adl version ${quoted(document.version.value)} diagram {`);
+  for (const declaration of document.declarations) {
+    const fields = declaration.fields as Readonly<Record<string, string | readonly string[] | Readonly<Record<string, string>> | undefined>>;
+    lines.push(`  ${declaration.kind.toLowerCase()} ${declaration.id.name} {`);
+    for (const key of ["source", "target", "name", "type", "description", "elements", "properties"]) {
+      const value = fields[key];
+      if (value === undefined) continue;
+      if (key === "source" || key === "target") lines.push(`    ${key} ${value as string}`);
+      else if (key === "elements") lines.push(`    elements [${(value as readonly string[]).join(", ")}]`);
+      else if (key === "properties") lines.push(`    properties { ${Object.entries(value as Readonly<Record<string,string>>).sort(([a],[b])=>a.localeCompare(b)).map(([name,item])=>`${name} ${quoted(item)}`).join(" ")} }`);
+      else lines.push(`    ${key} ${quoted(value as string)}`);
+    }
+    lines.push("  }");
+  }
+  lines.push("}");
+  if (document.embeddedStylesheet) lines.push("", document.embeddedStylesheet.text);
+  return `${lines.join("\n")}\n`;
 }

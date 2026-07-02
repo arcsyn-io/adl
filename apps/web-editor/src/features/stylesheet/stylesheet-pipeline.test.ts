@@ -1,0 +1,3 @@
+import { expect,it } from 'vitest'
+import { runStylesheetPipeline } from './stylesheet-pipeline.js'
+it('runs an external stylesheet without changing semantic data',async()=>{const adl='stylesheet "./theme.adls"\nadl version "1.0" diagram { element api { name "API" type "service" } }';const result=await runStylesheetPipeline({adlText:adl,adlUri:'file:///workspace/main.adl',loadStylesheet:async()=>({uri:'file:///workspace/theme.adls',text:'stylesheet version "1.0" { element type "service" { shape "ellipse" width "240px" height "100px" } }'})});expect(result.ok).toBe(true);if(result.ok){expect(result.model.elements[0]?.type).toBe('service');expect(result.styles.elements.api?.shape).toBe('ellipse');expect(result.layout.nodes.api?.width).toBe(240)}})

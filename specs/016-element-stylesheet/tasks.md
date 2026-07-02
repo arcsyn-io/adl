@@ -17,9 +17,9 @@
 
 **Purpose**: Criar a estrutura do pacote e registrar os contratos sem implementar comportamento.
 
-- [ ] T001 Criar o pacote `@adl/stylesheet` com scripts, exports e configuração TypeScript em `packages/adl-stylesheet/package.json`, `packages/adl-stylesheet/tsconfig.json`, `packages/adl-stylesheet/tsconfig.build.json` e `packages/adl-stylesheet/eslint.config.js`
-- [ ] T002 [P] Criar os pontos de entrada vazios do pacote em `packages/adl-stylesheet/src/index.ts`, `packages/adl-stylesheet/src/syntax.ts`, `packages/adl-stylesheet/src/parser.ts`, `packages/adl-stylesheet/src/validate.ts` e `packages/adl-stylesheet/src/resolve.ts`
-- [ ] T003 [P] Documentar a responsabilidade inicial e a fronteira pública do pacote em `packages/adl-stylesheet/README.md`
+- [x] T001 Criar o pacote `@adl/stylesheet` com scripts, exports e configuração TypeScript em `packages/adl-stylesheet/package.json`, `packages/adl-stylesheet/tsconfig.json`, `packages/adl-stylesheet/tsconfig.build.json` e `packages/adl-stylesheet/eslint.config.js`
+- [x] T002 [P] Criar os pontos de entrada vazios do pacote em `packages/adl-stylesheet/src/index.ts`, `packages/adl-stylesheet/src/syntax.ts`, `packages/adl-stylesheet/src/parser.ts`, `packages/adl-stylesheet/src/validate.ts` e `packages/adl-stylesheet/src/resolve.ts`
+- [x] T003 [P] Documentar a responsabilidade inicial e a fronteira pública do pacote em `packages/adl-stylesheet/README.md`
 
 ---
 
@@ -29,13 +29,13 @@
 
 **⚠️ CRITICAL**: Nenhuma user story começa antes desta fase estar verde.
 
-- [ ] T004 [P] Escrever testes falhos do contrato `.adls` para `*`, universais por categoria, tipo/ID, shapes, orientação, rotação, ranges e recuperação em `packages/adl-stylesheet/test/parser.test.ts`
-- [ ] T005 [P] Escrever testes falhos de valores, pinturas, posição, transforms e propriedades permitidas em seletores globais/categoriais em `packages/adl-stylesheet/test/validation.test.ts`
-- [ ] T006 [P] Escrever testes falhos dos tipos públicos imutáveis e exports do pacote em `packages/adl-stylesheet/test/contract.test.ts`
-- [ ] T007 Definir AST, seletores, declarações, estilos normalizados e diagnósticos discriminados em `packages/adl-stylesheet/src/syntax.ts`
-- [ ] T008 Implementar lexer/parser puro para arquivo externo e corpo de regras embutidas em `packages/adl-stylesheet/src/parser.ts`
-- [ ] T009 Implementar normalização/validação de cinco shapes, orientação, rotação, pinturas, posição, tipografia e alcance de `*` em `packages/adl-stylesheet/src/validate.ts`
-- [ ] T010 Publicar somente os contratos necessários em `packages/adl-stylesheet/src/index.ts` e concluir o ciclo verde dos testes em `packages/adl-stylesheet/test/parser.test.ts`, `packages/adl-stylesheet/test/validation.test.ts` e `packages/adl-stylesheet/test/contract.test.ts`
+- [x] T004 [P] Escrever testes falhos do contrato `.adls` para `*`, universais por categoria, tipo/ID, shapes, orientação, rotação, ranges e recuperação em `packages/adl-stylesheet/test/parser.test.ts`
+- [x] T005 [P] Escrever testes falhos de valores, pinturas, posição, transforms e propriedades permitidas em seletores globais/categoriais em `packages/adl-stylesheet/test/validation.test.ts`
+- [x] T006 [P] Escrever testes falhos dos tipos públicos imutáveis e exports do pacote em `packages/adl-stylesheet/test/contract.test.ts`
+- [x] T007 Definir AST, seletores, declarações, estilos normalizados e diagnósticos discriminados em `packages/adl-stylesheet/src/syntax.ts`
+- [x] T008 Implementar lexer/parser puro para arquivo externo e corpo de regras embutidas em `packages/adl-stylesheet/src/parser.ts`
+- [x] T009 Implementar normalização/validação de cinco shapes, orientação, rotação, pinturas, posição, tipografia e alcance de `*` em `packages/adl-stylesheet/src/validate.ts`
+- [x] T010 Publicar somente os contratos necessários em `packages/adl-stylesheet/src/index.ts` e concluir o ciclo verde dos testes em `packages/adl-stylesheet/test/parser.test.ts`, `packages/adl-stylesheet/test/validation.test.ts` e `packages/adl-stylesheet/test/contract.test.ts`
 
 **Checkpoint**: Um `.adls` isolado pode ser analisado e validado deterministicamente, sem filesystem, modelo semântico, layout ou renderer.
 
@@ -49,23 +49,23 @@
 
 ### Tests for User Story 1
 
-- [ ] T011 [P] [US1] Escrever testes falhos da referência externa, resolução relativa e round-trip no envelope ADL em `packages/adl-parser/test/stylesheet-reference.test.ts` e `packages/adl-serializer/test/stylesheet-reference.test.ts`
-- [ ] T012 [P] [US1] Escrever testes falhos de resolução externa por tipo, defaults e falha de carregamento em `packages/adl-stylesheet/test/external-resolution.test.ts`
-- [ ] T013 [P] [US1] Escrever testes falhos de posições fixas, layout automático e caixas transformadas por orientação/rotação em `packages/adl-layout/test/stylesheet-layout.test.ts`
-- [ ] T014 [P] [US1] Escrever testes falhos dos cinco shapes, orientação/rotação, arredondamento e pinturas nas entidades da cena em `packages/adl-renderer/test/stylesheet-renderer.test.ts`
+- [x] T011 [P] [US1] Escrever testes falhos da referência externa, resolução relativa e round-trip no envelope ADL em `packages/adl-parser/test/stylesheet-reference.test.ts` e `packages/adl-serializer/test/stylesheet-reference.test.ts`
+- [x] T012 [P] [US1] Escrever testes falhos de resolução externa por tipo, defaults e falha de carregamento em `packages/adl-stylesheet/test/external-resolution.test.ts`
+- [x] T013 [P] [US1] Escrever testes falhos de posições fixas, layout automático e caixas transformadas por orientação/rotação em `packages/adl-layout/test/stylesheet-layout.test.ts`
+- [x] T014 [P] [US1] Escrever testes falhos dos cinco shapes, orientação/rotação, arredondamento e pinturas nas entidades da cena em `packages/adl-renderer/test/stylesheet-renderer.test.ts`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Estender tokens e AST do envelope ADL com referência externa e ranges em `packages/adl-parser/src/lexer.ts` e `packages/adl-parser/src/index.ts`
-- [ ] T016 [US1] Analisar uma referência externa opcional antes do documento e rejeitar duplicatas em `packages/adl-parser/src/parser.ts`
-- [ ] T017 [US1] Preservar a referência externa na serialização determinística em `packages/adl-serializer/src/serialize.ts` e `packages/adl-serializer/src/policy.ts`
-- [ ] T018 [US1] Implementar a fronteira de carregamento, diagnósticos de URI e criação de fontes externas em `packages/adl-stylesheet/src/source.ts` e exportá-la em `packages/adl-stylesheet/src/index.ts`
-- [ ] T019 [US1] Implementar matching por tipo de elemento, preenchimento por defaults e `ResolvedDiagramStyles` em `packages/adl-stylesheet/src/resolve.ts`
-- [ ] T020 [US1] Preservar `x/y`, calcular caixas transformadas e organizar entidades livres sem interpretar a DSL em `packages/adl-layout/src/model.ts` e `packages/adl-layout/src/layout.ts`
-- [ ] T021 [US1] Adicionar `ResolvedElementStyle` às entradas/entidades da cena e manter defaults compatíveis em `packages/adl-renderer/src/scene.ts` e `packages/adl-renderer/src/render.ts`
-- [ ] T022 [US1] Coordenar referência, carregamento, resolução, layout e cena fora dos componentes visuais em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.ts` e integrar o resultado em `apps/web-editor/src/App.tsx`
-- [ ] T023 [US1] Renderizar os cinco shapes com orientação/rotação, contorno compartilhado para conexões/seleção e pinturas validadas em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
-- [ ] T024 [US1] Adicionar teste de integração do pipeline externo, posições restauradas e modelo semântico inalterado em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.test.ts`
+- [x] T015 [US1] Estender tokens e AST do envelope ADL com referência externa e ranges em `packages/adl-parser/src/lexer.ts` e `packages/adl-parser/src/index.ts`
+- [x] T016 [US1] Analisar uma referência externa opcional antes do documento e rejeitar duplicatas em `packages/adl-parser/src/parser.ts`
+- [x] T017 [US1] Preservar a referência externa na serialização determinística em `packages/adl-serializer/src/serialize.ts` e `packages/adl-serializer/src/policy.ts`
+- [x] T018 [US1] Implementar a fronteira de carregamento, diagnósticos de URI e criação de fontes externas em `packages/adl-stylesheet/src/source.ts` e exportá-la em `packages/adl-stylesheet/src/index.ts`
+- [x] T019 [US1] Implementar matching por tipo de elemento, preenchimento por defaults e `ResolvedDiagramStyles` em `packages/adl-stylesheet/src/resolve.ts`
+- [x] T020 [US1] Preservar `x/y`, calcular caixas transformadas e organizar entidades livres sem interpretar a DSL em `packages/adl-layout/src/model.ts` e `packages/adl-layout/src/layout.ts`
+- [x] T021 [US1] Adicionar `ResolvedElementStyle` às entradas/entidades da cena e manter defaults compatíveis em `packages/adl-renderer/src/scene.ts` e `packages/adl-renderer/src/render.ts`
+- [x] T022 [US1] Coordenar referência, carregamento, resolução, layout e cena fora dos componentes visuais em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.ts` e integrar o resultado em `apps/web-editor/src/App.tsx`
+- [x] T023 [US1] Renderizar os cinco shapes com orientação/rotação, contorno compartilhado para conexões/seleção e pinturas validadas em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
+- [x] T024 [US1] Adicionar teste de integração do pipeline externo, posições restauradas e modelo semântico inalterado em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.test.ts`
 
 **Checkpoint**: O fluxo externo por tipo funciona fim a fim e pode ser demonstrado como MVP.
 
@@ -79,17 +79,17 @@
 
 ### Tests for User Story 2
 
-- [ ] T025 [P] [US2] Escrever testes falhos da matriz `*`/categoria/tipo/ID, external/embedded, posição por ID e última declaração em `packages/adl-stylesheet/test/cascade.test.ts`
-- [ ] T026 [P] [US2] Escrever testes falhos de seletores por ID/tipo de relação e avisos sem correspondência em `packages/adl-stylesheet/test/relation-resolution.test.ts`
-- [ ] T027 [P] [US2] Escrever testes falhos de pinturas, alinhamentos, família/fallback, peso, itálico e sublinhado em elementos e relações em `packages/adl-renderer/test/relation-styles.test.ts`
+- [x] T025 [P] [US2] Escrever testes falhos da matriz `*`/categoria/tipo/ID, external/embedded, posição por ID e última declaração em `packages/adl-stylesheet/test/cascade.test.ts`
+- [x] T026 [P] [US2] Escrever testes falhos de seletores por ID/tipo de relação e avisos sem correspondência em `packages/adl-stylesheet/test/relation-resolution.test.ts`
+- [x] T027 [P] [US2] Escrever testes falhos de pinturas, alinhamentos, família/fallback, peso, itálico e sublinhado em elementos e relações em `packages/adl-renderer/test/relation-styles.test.ts`
 
 ### Implementation for User Story 2
 
-- [ ] T028 [US2] Implementar matching `*`, universal categorial, tipo e ID com diagnóstico de propriedade incompatível/seletor órfão em `packages/adl-stylesheet/src/resolve.ts`
-- [ ] T029 [US2] Implementar cascata propriedade a propriedade, `TextStyle`, posição opcional e aviso de sobrescrita em `packages/adl-stylesheet/src/resolve.ts`
-- [ ] T030 [US2] Transportar `ResolvedRelationStyle` para entidades da cena sem interpretar regras em `packages/adl-renderer/src/scene.ts` e `packages/adl-renderer/src/render.ts`
-- [ ] T031 [US2] Aplicar pinturas, alinhamentos, família/fallback, negrito, itálico e sublinhado em elementos/rótulos preservando marcadores e acessibilidade em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
-- [ ] T032 [US2] Implementar patch de `x/y/width/height` na regra por ID, expor falha somente leitura e diagnósticos no editor em `packages/adl-stylesheet/src/update.ts`, `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.ts` e `apps/web-editor/src/features/code-editor/CodeEditor.tsx`
+- [x] T028 [US2] Implementar matching `*`, universal categorial, tipo e ID com diagnóstico de propriedade incompatível/seletor órfão em `packages/adl-stylesheet/src/resolve.ts`
+- [x] T029 [US2] Implementar cascata propriedade a propriedade, `TextStyle`, posição opcional e aviso de sobrescrita em `packages/adl-stylesheet/src/resolve.ts`
+- [x] T030 [US2] Transportar `ResolvedRelationStyle` para entidades da cena sem interpretar regras em `packages/adl-renderer/src/scene.ts` e `packages/adl-renderer/src/render.ts`
+- [x] T031 [US2] Aplicar pinturas, alinhamentos, família/fallback, negrito, itálico e sublinhado em elementos/rótulos preservando marcadores e acessibilidade em `apps/web-editor/src/App.tsx` e `apps/web-editor/src/styles.css`
+- [x] T032 [US2] Implementar patch de `x/y/width/height` na regra por ID, expor falha somente leitura e diagnósticos no editor em `packages/adl-stylesheet/src/update.ts`, `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.ts` e `apps/web-editor/src/features/code-editor/CodeEditor.tsx`
 
 **Checkpoint**: Tipo, ID, elementos, relações e conflitos externos estão completos e testáveis sem stylesheet embutido.
 
@@ -103,18 +103,18 @@
 
 ### Tests for User Story 3
 
-- [ ] T033 [P] [US3] Escrever testes falhos de parsing, duplicata, range e erro do bloco embutido em `packages/adl-parser/test/embedded-stylesheet.test.ts`
-- [ ] T034 [P] [US3] Escrever testes falhos de round-trip do bloco embutido em `packages/adl-serializer/test/embedded-stylesheet.test.ts`
-- [ ] T035 [P] [US3] Escrever testes falhos da precedência externo/embedded por tipo/ID em `packages/adl-stylesheet/test/embedded-cascade.test.ts`
-- [ ] T036 [P] [US3] Escrever teste E2E do fluxo autocontido, persistência de movimento/tamanho e tipografia no preview em `tests/e2e/element-stylesheet.spec.ts`
+- [x] T033 [P] [US3] Escrever testes falhos de parsing, duplicata, range e erro do bloco embutido em `packages/adl-parser/test/embedded-stylesheet.test.ts`
+- [x] T034 [P] [US3] Escrever testes falhos de round-trip do bloco embutido em `packages/adl-serializer/test/embedded-stylesheet.test.ts`
+- [x] T035 [P] [US3] Escrever testes falhos da precedência externo/embedded por tipo/ID em `packages/adl-stylesheet/test/embedded-cascade.test.ts`
+- [x] T036 [P] [US3] Escrever teste E2E do fluxo autocontido, persistência de movimento/tamanho e tipografia no preview em `tests/e2e/element-stylesheet.spec.ts`
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Estender o envelope AST com bloco embutido e ranges sem adicioná-lo ao `DiagramModel` em `packages/adl-parser/src/lexer.ts` e `packages/adl-parser/src/index.ts`
-- [ ] T038 [US3] Analisar exatamente um bloco após `diagram` e integrar diagnósticos do corpo em `packages/adl-parser/src/parser.ts`
-- [ ] T039 [US3] Serializar deterministicamente o bloco embutido após o diagrama em `packages/adl-serializer/src/serialize.ts` e `packages/adl-serializer/src/policy.ts`
-- [ ] T040 [US3] Combinar fontes externas/embutidas conforme a matriz de precedência e propagar `completeness` em `packages/adl-stylesheet/src/resolve.ts`
-- [ ] T041 [US3] Atualizar o pipeline do editor para invalidar estilos obsoletos e reaplicar embedded a cada revisão em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.ts` e `apps/web-editor/src/App.tsx`
+- [x] T037 [US3] Estender o envelope AST com bloco embutido e ranges sem adicioná-lo ao `DiagramModel` em `packages/adl-parser/src/lexer.ts` e `packages/adl-parser/src/index.ts`
+- [x] T038 [US3] Analisar exatamente um bloco após `diagram` e integrar diagnósticos do corpo em `packages/adl-parser/src/parser.ts`
+- [x] T039 [US3] Serializar deterministicamente o bloco embutido após o diagrama em `packages/adl-serializer/src/serialize.ts` e `packages/adl-serializer/src/policy.ts`
+- [x] T040 [US3] Combinar fontes externas/embutidas conforme a matriz de precedência e propagar `completeness` em `packages/adl-stylesheet/src/resolve.ts`
+- [x] T041 [US3] Atualizar o pipeline do editor para invalidar estilos obsoletos e reaplicar embedded a cada revisão em `apps/web-editor/src/features/stylesheet/stylesheet-pipeline.ts` e `apps/web-editor/src/App.tsx`
 
 **Checkpoint**: Os três fluxos da spec funcionam e permanecem independentemente verificáveis.
 
@@ -124,13 +124,13 @@
 
 **Purpose**: Conformidade, documentação, desempenho e gates globais.
 
-- [ ] T042 [P] Adicionar fixtures válidas/inválidas e resultados normativos de stylesheet em `packages/adl-conformance/test/fixtures.ts` e `packages/adl-conformance/test/conformance.test.ts`
-- [ ] T043 [P] Adicionar referência da linguagem, tabela de propriedades, precedência e exemplos em `docs/stylesheet.md` e `docs/examples/stylesheet/theme.adls`
-- [ ] T044 [P] Registrar o fluxo paralelo de estilo resolvido e as novas responsabilidades de pacote em `agent_docs/architecture.md`
-- [ ] T045 Medir e otimizar resolução/aplicação para 100 elementos e 200 relações em `packages/adl-stylesheet/test/performance.test.ts`
-- [ ] T046 Executar os quatro cenários de `specs/016-element-stylesheet/quickstart.md` e registrar eventuais desvios no próprio arquivo `specs/016-element-stylesheet/quickstart.md`
-- [ ] T047 Executar `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` e `pnpm test:e2e` no serviço Docker `workspace` e corrigir somente falhas relacionadas à feature nos arquivos afetados
-- [ ] T048 Revisar compatibilidade, exports públicos e diff final, removendo código morto e atualizando contratos divergentes em `packages/adl-stylesheet/README.md` e `specs/016-element-stylesheet/contracts/`
+- [x] T042 [P] Adicionar fixtures válidas/inválidas e resultados normativos de stylesheet em `packages/adl-conformance/test/fixtures.ts` e `packages/adl-conformance/test/conformance.test.ts`
+- [x] T043 [P] Adicionar referência da linguagem, tabela de propriedades, precedência e exemplos em `docs/stylesheet.md` e `docs/examples/stylesheet/theme.adls`
+- [x] T044 [P] Registrar o fluxo paralelo de estilo resolvido e as novas responsabilidades de pacote em `agent_docs/architecture.md`
+- [x] T045 Medir e otimizar resolução/aplicação para 100 elementos e 200 relações em `packages/adl-stylesheet/test/performance.test.ts`
+- [x] T046 Executar os quatro cenários de `specs/016-element-stylesheet/quickstart.md` e registrar eventuais desvios no próprio arquivo `specs/016-element-stylesheet/quickstart.md`
+- [x] T047 Executar `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build` e `pnpm test:e2e` no serviço Docker `workspace` e corrigir somente falhas relacionadas à feature nos arquivos afetados
+- [x] T048 Revisar compatibilidade, exports públicos e diff final, removendo código morto e atualizando contratos divergentes em `packages/adl-stylesheet/README.md` e `specs/016-element-stylesheet/contracts/`
 
 ---
 
