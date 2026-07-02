@@ -4,7 +4,7 @@ import type {
   ParseError, ParseResult, RelationFields, SourcePosition, SourceRange, Token, TokenKind,
 } from "./lexer.js";
 
-const keywords = new Set<string>([...RESERVED_WORDS, "name", "type", "description", "source", "target", "elements"]);
+const keywords = new Set<string>([...RESERVED_WORDS, "name", "type", "description", "source", "target", "elements", "stylesheet"]);
 const punctuation: Readonly<Record<string, TokenKind>> = {
   "{": "LeftBrace", "}": "RightBrace", "[": "LeftBracket", "]": "RightBracket", ",": "Comma",
 };
@@ -97,7 +97,15 @@ class Parser {
   private string(): string { return this.expect("String").value ?? ""; }
 
   parseDocument(): DocumentNode {
-    const start = this.keyword("adl").range.start;
+    const start = this.token.range.start;
+    let stylesheetReference: DocumentNode["stylesheetReference"];
+    if (this.is("Keyword", "stylesheet")) {
+      this.take();
+      const reference = this.expect("String");
+      stylesheetReference = { value: reference.value ?? "", range: reference.range };
+      if (this.is("Keyword", "stylesheet")) this.error("UNEXPECTED_TOKEN", "Only one external stylesheet reference is allowed.");
+    }
+    this.keyword("adl");
     this.keyword("version");
     const versionToken = this.expect("String");
     this.keyword("diagram");
@@ -110,12 +118,29 @@ class Parser {
       if (this.index === before) this.take();
     }
     const close = this.expect("RightBrace");
+    let embeddedStylesheet: DocumentNode["embeddedStylesheet"];
+    if (this.is("Keyword", "stylesheet")) {
+      const embeddedStart = this.take().range.start;
+      const opening = this.expect("LeftBrace");
+      let depth = opening.text ? 1 : 0;
+      let embeddedClose = opening;
+      while (depth > 0 && !this.is("Eof")) {
+        const current = this.take();
+        if (current.kind === "LeftBrace") depth++;
+        if (current.kind === "RightBrace") { depth--; embeddedClose = current; }
+      }
+      if (depth > 0) this.error("EXPECTED_TOKEN", "Expected closing brace for embedded stylesheet.");
+      embeddedStylesheet = { text: this.source.slice(embeddedStart.offset, embeddedClose.range.end.offset), range: { start: embeddedStart, end: embeddedClose.range.end } };
+      if (this.is("Keyword", "stylesheet")) this.error("UNEXPECTED_TOKEN", "Only one embedded stylesheet block is allowed.");
+    }
     if (!this.is("Eof")) {
       this.error("UNEXPECTED_TOKEN", `Unexpected token ${JSON.stringify(this.token.text)} after document.`);
       while (!this.is("Eof")) this.take();
     }
     return {
       kind: "Document",
+      ...(stylesheetReference ? { stylesheetReference } : {}),
+      ...(embeddedStylesheet ? { embeddedStylesheet } : {}),
       version: { kind: "StringLiteral", value: versionToken.value ?? "", range: versionToken.range },
       declarations,
       range: { start, end: close.text ? close.range.end : this.token.range.end },

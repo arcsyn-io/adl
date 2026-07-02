@@ -53,6 +53,8 @@ export type DeclarationNode =
 
 export interface DocumentNode {
   readonly kind: "Document";
+  readonly stylesheetReference?: { readonly value: string; readonly range: SourceRange };
+  readonly embeddedStylesheet?: { readonly text: string; readonly range: SourceRange };
   readonly version: { readonly kind: "StringLiteral"; readonly value: string; readonly range: SourceRange };
   readonly declarations: readonly DeclarationNode[];
   readonly range: SourceRange;

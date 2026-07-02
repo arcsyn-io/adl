@@ -1,6 +1,6 @@
 import ELK, { type ElkExtendedEdge, type ElkNode } from "elkjs/lib/elk.bundled.js";
 import type { DiagramModel } from "@adl/semantic";
-import type { EdgeRoute, LayoutOptions, LayoutOutcome, LayoutResult, NodeGeometry } from "./model.js";
+import { transformedBounds, type EdgeRoute, type LayoutOptions, type LayoutOutcome, type LayoutResult, type NodeGeometry } from "./model.js";
 
 const elk = new ELK();
 const freeze = <T>(value: T): T => {
@@ -11,7 +11,7 @@ const freeze = <T>(value: T): T => {
   return value;
 };
 
-function options(input: LayoutOptions): Required<LayoutOptions> | null {
+function options(input: LayoutOptions): Required<Omit<LayoutOptions,"elementStyles">> | null {
   const result = { direction: input.direction ?? "RIGHT", spacing: input.spacing ?? 60, nodeWidth: input.nodeWidth ?? 180, nodeHeight: input.nodeHeight ?? 84, maxElements: input.maxElements ?? 5000 };
   return result.spacing >= 0 && result.nodeWidth > 0 && result.nodeHeight > 0 && Number.isInteger(result.maxElements) && result.maxElements > 0 ? result : null;
 }
@@ -36,7 +36,7 @@ export async function calculateLayout(model: DiagramModel, input: LayoutOptions 
   const memberGroup = new Map<string, string>();
   for (const group of [...model.groups].sort((a,b)=>a.identity.value.localeCompare(b.identity.value)))
     for (const member of group.members) if (!memberGroup.has(member.identity.value)) memberGroup.set(member.identity.value, group.identity.value);
-  const elementNode = (id: string, label: string): ElkNode => ({ id, width: Math.max(config.nodeWidth, Array.from(label).length * 8 + 32), height: config.nodeHeight });
+  const elementNode = (id: string, label: string): ElkNode => { const style=input.elementStyles?.[id]; return { id, width:style?.width??Math.max(config.nodeWidth, Array.from(label).length * 8 + 32), height:style?.height??config.nodeHeight }; };
   const grouped = new Set(memberGroup.keys());
   const groups: ElkNode[] = [...model.groups].sort((a,b)=>a.identity.value.localeCompare(b.identity.value)).map(group => ({
     id: group.identity.value,
@@ -49,6 +49,7 @@ export async function calculateLayout(model: DiagramModel, input: LayoutOptions 
   try {
     const graph = await elk.layout({ id: "root", children, edges, layoutOptions: { "elk.algorithm": "layered", "elk.direction": config.direction, "elk.spacing.nodeNode": String(config.spacing), "elk.layered.spacing.nodeNodeBetweenLayers": String(config.spacing), "elk.hierarchyHandling": "INCLUDE_CHILDREN" } });
     const nodes: Record<string, NodeGeometry> = {}; absoluteGeometry(graph, 0, 0, nodes);
+    for(const [id,style] of Object.entries(input.elementStyles??{})){const node=nodes[id];if(!node)continue;const canonical={...node,width:style.width,height:style.height,...(style.position??{})};nodes[id]=transformedBounds(canonical,style.rotation??0)}
     const edgeRoutes = Object.fromEntries((graph.edges ?? []).map(edge => [edge.id, route(edge)]));
     return freeze({ ok: true, layout: { revision: `${model.version}:${model.elements.map(e=>e.identity.value).join(",")}:${model.relations.map(e=>e.identity.value).join(",")}`, nodes, edges: edgeRoutes } });
   } catch (error) {

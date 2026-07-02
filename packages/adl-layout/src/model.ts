@@ -6,6 +6,7 @@ export interface LayoutOptions {
   readonly nodeWidth?: number;
   readonly nodeHeight?: number;
   readonly maxElements?: number;
+  readonly elementStyles?: Readonly<Record<string, { readonly width:number; readonly height:number; readonly rotation?:number; readonly position?:{readonly x:number;readonly y:number} }>>;
 }
 
 export interface NodeGeometry {
@@ -14,6 +15,7 @@ export interface NodeGeometry {
   readonly width: number;
   readonly height: number;
 }
+export function transformedBounds(geometry:NodeGeometry,rotation=0):NodeGeometry{const radians=rotation*Math.PI/180,cos=Math.abs(Math.cos(radians)),sin=Math.abs(Math.sin(radians));const width=geometry.width*cos+geometry.height*sin,height=geometry.width*sin+geometry.height*cos;return{x:geometry.x-(width-geometry.width)/2,y:geometry.y-(height-geometry.height)/2,width,height}}
 
 export interface RoutePoint { readonly x: number; readonly y: number }
 export interface EdgeRoute { readonly points: readonly RoutePoint[] }

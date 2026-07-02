@@ -46,3 +46,11 @@ pnpm test:e2e
 ```
 
 Os resultados esperados são todos os comandos aprovados e os quatro cenários acima cobertos. O orçamento de desempenho é no máximo 100 ms adicionais para resolver/aplicar estilos em 100 elementos e 200 relações.
+
+## Resultado da implementação
+
+Validado em 2026-07-02 no serviço `workspace`: os cenários externo, cascata por
+tipo/ID, relações/diagnósticos e fallback por referência ausente estão cobertos
+por testes de pacote e pipeline; o fluxo embedded está coberto por E2E. O teste
+de 100 elementos e 200 relações permaneceu abaixo do orçamento de 100 ms.
+`lint`, `typecheck`, `test`, `build` e `test:e2e` foram aprovados.

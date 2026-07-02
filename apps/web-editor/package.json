@@ -17,6 +17,7 @@
     "@adl/parser": "workspace:*",
     "@adl/renderer": "workspace:*",
     "@adl/semantic": "workspace:*",
+    "@adl/stylesheet": "workspace:*",
     "@adl/serializer": "workspace:*",
     "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/commands": "^6.10.4",
