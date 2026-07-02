@@ -26,7 +26,7 @@ const source = `adl version "1.0" diagram {
   group solution { name "Solution boundary" elements [customer, database, api, web, partner, auth] }
 }`
 const appliedStylesheet=`stylesheet version "1.0" {
-  element type "service" {
+  element type "backend" {
     shape "ellipse"
     fill "#243246FF"
     border-paint "#76A9FFFF"
