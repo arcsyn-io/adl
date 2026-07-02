@@ -11,8 +11,8 @@ calcula layout nem altera modelo, geometria ou estado recebidos.
 O campo `type` de uma relação aceita os valores canônicos da
 [especificação MDL 2.0](https://mdlmodel.com/pt-BR):
 
-- `link`: linha contínua com seta preenchida no destino;
-- `always-link`: círculo preenchido na origem e seta preenchida no destino;
+- `link`: linha contínua com seta vazada no destino;
+- `always-link`: círculo preenchido na origem e seta vazada no destino;
 - `specialization`: triângulo vazado no destino;
 - `virtual-link`: linha tracejada, sem marcador terminal;
 - `composition`: losango preenchido no destino.
