@@ -1,11 +1,13 @@
 export interface VisualElement { readonly id: string; readonly name: string; readonly type: string; readonly description?: string }
-export interface VisualRelation { readonly id: string; readonly sourceId: string; readonly targetId: string; readonly name?: string }
+export const MDL_CONNECTOR_TYPES = ["link","always-link","specialization","virtual-link","composition"] as const;
+export type MdlConnectorType = typeof MDL_CONNECTOR_TYPES[number];
+export interface VisualRelation { readonly id: string; readonly sourceId: string; readonly targetId: string; readonly type: MdlConnectorType; readonly name?: string }
 export interface VisualGroup { readonly id: string; readonly name: string; readonly memberIds: readonly string[] }
 export interface VisualModel { readonly elements: Readonly<Record<string, VisualElement>>; readonly relations: Readonly<Record<string, VisualRelation>>; readonly groups: Readonly<Record<string, VisualGroup>>; readonly selection: readonly string[] }
 export interface VisualHistory { readonly past: readonly VisualModel[]; readonly present: VisualModel; readonly future: readonly VisualModel[] }
 export type VisualCommand =
   | { readonly type: "create-element"; readonly id: string; readonly name: string; readonly elementType: string }
-  | { readonly type: "create-relation"; readonly id: string; readonly sourceId: string; readonly targetId: string; readonly name?: string }
+  | { readonly type: "create-relation"; readonly id: string; readonly sourceId: string; readonly targetId: string; readonly name?: string; readonly relationType?: MdlConnectorType }
   | { readonly type: "create-group"; readonly id: string; readonly name: string; readonly memberIds: readonly string[] }
   | { readonly type: "update-element"; readonly id: string; readonly name: string; readonly elementType: string }
   | { readonly type: "select"; readonly ids: readonly string[] }
@@ -42,7 +44,7 @@ export function dispatchVisualCommand(history: VisualHistory, command: VisualCom
   }
   if (command.type === "create-relation") {
     if (!model.elements[command.sourceId] || !model.elements[command.targetId]) return fail(history, "UNRESOLVED_REFERENCE", "Origem e destino devem apontar para elementos existentes.");
-    return commit(history, { ...model, relations: { ...model.relations, [command.id]: { id: command.id, sourceId: command.sourceId, targetId: command.targetId, ...(command.name ? { name: command.name } : {}) } } });
+    return commit(history, { ...model, relations: { ...model.relations, [command.id]: { id: command.id, sourceId: command.sourceId, targetId: command.targetId, type: command.relationType ?? "link", ...(command.name ? { name: command.name } : {}) } } });
   }
   if (command.type === "create-group") {
     if (!command.name.trim() || command.memberIds.some(id => !model.elements[id])) return fail(history, "UNRESOLVED_REFERENCE", "O grupo precisa de nome e membros existentes.");

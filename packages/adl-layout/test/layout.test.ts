@@ -29,4 +29,18 @@ describe("automatic layout", () => {
     const result = await calculateLayout(model(), { spacing: -1 }, previous.layout);
     expect(result).toMatchObject({ ok: false, errors: [{ code: "INVALID_OPTIONS" }], previous: previous.layout });
   });
+
+  it("reserves horizontal space for long relation labels", async () => {
+    const label = "dispatches asynchronous processing requests";
+    const result = await calculateLayout(model(`adl version "1.0" diagram {
+      element api { name "API" type "service" }
+      element worker { name "Worker" type "service" }
+      relation dispatches { source api target worker name "${label}" }
+    }`), { direction: "RIGHT", spacing: 20 });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const { api, worker } = result.layout.nodes;
+    const gap = worker.x >= api.x ? worker.x - (api.x + api.width) : api.x - (worker.x + worker.width);
+    expect(gap).toBeGreaterThanOrEqual(Array.from(label).length * 8 + 24);
+  });
 });
