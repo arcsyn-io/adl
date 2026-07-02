@@ -16,6 +16,7 @@ const source = `adl version "1.0" diagram {
   element web { name "Web application" type "frontend" }
   element partner { name "Partner system" type "black-box" }
   element auth { name "Authentication module" type "part" }
+  element queue { name "Message queue" type "queue" }
 
   relation uses { source customer target web name "1. uses application" type "link" }
   relation calls { source web target api name "validates every request" type "always-link" }
@@ -23,15 +24,18 @@ const source = `adl version "1.0" diagram {
   relation reads { source api target database name "optional data lookup" type "virtual-link" }
   relation contains { source auth target api type "composition" }
 
-  group solution { name "Solution boundary" elements [customer, database, api, web, partner, auth] }
+  group solution { name "Solution boundary" elements [customer, database, api, web, partner, auth, queue] }
 }`
 const appliedStylesheet=`stylesheet version "1.0" {
   element type "backend" {
     shape "ellipse"
-    fill "#243246FF"
-    border-paint "#76A9FFFF"
-    border-width "2px"
   }
+  element type "data" { shape "cylinder" orientation "vertical" }
+  element type "user" { shape "user" }
+  element type "frontend" { shape "parallelogram" }
+  element type "black-box" { shape "rectangle" }
+  element type "part" { shape "rectangle" }
+  element type "queue" { shape "cylinder" orientation "horizontal" }
 }`
 const parsed = parse(source)
 if (!parsed.ok) throw new Error('Invalid fixture')
@@ -47,7 +51,7 @@ type ResizeGesture = { readonly id: string; readonly corner: ResizeCorner; reado
 const resizeHandles = [{ corner: 'nw', x: 0, y: 0, label: 'superior esquerdo' }, { corner: 'ne', x: 1, y: 0, label: 'superior direito' }, { corner: 'sw', x: 0, y: 1, label: 'inferior esquerdo' }, { corner: 'se', x: 1, y: 1, label: 'inferior direito' }] as const
 const paintValue=(paint:Paint|undefined,fallback:string)=>paint?.kind==='solid'?paint.color:fallback
 const textAttributes=(style:TextStyle|undefined)=>{if(!style)return{};const textAnchor:'start'|'end'|'middle'=style.textAlign==='left'?'start':style.textAlign==='right'?'end':'middle';return{fill:paintValue(style.paint,'currentColor'),fontSize:style.fontSize,fontFamily:style.fontFamily.join(', '),fontWeight:style.fontWeight,fontStyle:style.fontStyle,textDecoration:style.textDecoration,textAnchor}}
-function ElementShape({geometry,style}:{readonly geometry:Box;readonly style?:ResolvedElementStyle}){const common={fill:paintValue(style?.fill,'white'),stroke:paintValue(style?.borderPaint,'#64748b'),strokeWidth:style?.borderWidth??1,transform:style?.rotation?`rotate(${style.rotation} ${geometry.x+geometry.width/2} ${geometry.y+geometry.height/2})`:undefined};if(style?.shape==='ellipse')return <ellipse className="element" cx={geometry.x+geometry.width/2} cy={geometry.y+geometry.height/2} rx={geometry.width/2} ry={geometry.height/2} {...common}/>;if(style?.shape==='parallelogram'){const skew=Math.min(24,geometry.width/5);return <path className="element" d={`M ${geometry.x+skew} ${geometry.y} H ${geometry.x+geometry.width} L ${geometry.x+geometry.width-skew} ${geometry.y+geometry.height} H ${geometry.x} Z`} {...common}/>};if(style?.shape==='cylinder'){const cap=Math.min(18,geometry.height/4);return <path className="element" d={`M ${geometry.x} ${geometry.y+cap} A ${geometry.width/2} ${cap} 0 0 1 ${geometry.x+geometry.width} ${geometry.y+cap} V ${geometry.y+geometry.height-cap} A ${geometry.width/2} ${cap} 0 0 1 ${geometry.x} ${geometry.y+geometry.height-cap} Z M ${geometry.x} ${geometry.y+cap} A ${geometry.width/2} ${cap} 0 0 0 ${geometry.x+geometry.width} ${geometry.y+cap}`} {...common}/>};if(style?.shape==='user'){const radius=Math.min(18,geometry.height/5),cx=geometry.x+geometry.width/2;return <path className="element" d={`M ${cx-radius} ${geometry.y+radius} A ${radius} ${radius} 0 1 0 ${cx+radius} ${geometry.y+radius} A ${radius} ${radius} 0 1 0 ${cx-radius} ${geometry.y+radius} M ${geometry.x+geometry.width*.2} ${geometry.y+geometry.height} Q ${geometry.x+geometry.width*.2} ${geometry.y+radius*2.5} ${cx} ${geometry.y+radius*2.5} Q ${geometry.x+geometry.width*.8} ${geometry.y+radius*2.5} ${geometry.x+geometry.width*.8} ${geometry.y+geometry.height} Z`} {...common}/>};return <rect className="element" {...geometry} rx={style?.borderRadius} {...common}/>}
+function ElementShape({geometry,style}:{readonly geometry:Box;readonly style?:ResolvedElementStyle}){const common={fill:paintValue(style?.fill,'white'),stroke:paintValue(style?.borderPaint,'#64748b'),strokeWidth:style?.borderWidth??1,transform:style?.rotation?`rotate(${style.rotation} ${geometry.x+geometry.width/2} ${geometry.y+geometry.height/2})`:undefined};if(style?.shape==='ellipse')return <ellipse className="element" data-shape="ellipse" cx={geometry.x+geometry.width/2} cy={geometry.y+geometry.height/2} rx={geometry.width/2} ry={geometry.height/2} {...common}/>;if(style?.shape==='parallelogram'){const skew=Math.min(24,geometry.width/5);return <path className="element" data-shape="parallelogram" d={`M ${geometry.x+skew} ${geometry.y} H ${geometry.x+geometry.width} L ${geometry.x+geometry.width-skew} ${geometry.y+geometry.height} H ${geometry.x} Z`} {...common}/>};if(style?.shape==='cylinder'){if(style.orientation==='horizontal'){const cap=Math.min(18,geometry.width/4);return <path className="element" data-shape="cylinder" data-orientation="horizontal" d={`M ${geometry.x+cap} ${geometry.y} A ${cap} ${geometry.height/2} 0 0 0 ${geometry.x+cap} ${geometry.y+geometry.height} H ${geometry.x+geometry.width-cap} A ${cap} ${geometry.height/2} 0 0 0 ${geometry.x+geometry.width-cap} ${geometry.y} Z M ${geometry.x+cap} ${geometry.y} A ${cap} ${geometry.height/2} 0 0 1 ${geometry.x+cap} ${geometry.y+geometry.height}`} {...common}/>};const cap=Math.min(18,geometry.height/4);return <path className="element" data-shape="cylinder" data-orientation="vertical" d={`M ${geometry.x} ${geometry.y+cap} A ${geometry.width/2} ${cap} 0 0 1 ${geometry.x+geometry.width} ${geometry.y+cap} V ${geometry.y+geometry.height-cap} A ${geometry.width/2} ${cap} 0 0 1 ${geometry.x} ${geometry.y+geometry.height-cap} Z M ${geometry.x} ${geometry.y+cap} A ${geometry.width/2} ${cap} 0 0 0 ${geometry.x+geometry.width} ${geometry.y+cap}`} {...common}/>};if(style?.shape==='user'){const radius=Math.min(18,geometry.height/5),cx=geometry.x+geometry.width/2;return <path className="element" data-shape="user" d={`M ${cx-radius} ${geometry.y+radius} A ${radius} ${radius} 0 1 0 ${cx+radius} ${geometry.y+radius} A ${radius} ${radius} 0 1 0 ${cx-radius} ${geometry.y+radius} M ${geometry.x+geometry.width*.2} ${geometry.y+geometry.height} Q ${geometry.x+geometry.width*.2} ${geometry.y+radius*2.5} ${cx} ${geometry.y+radius*2.5} Q ${geometry.x+geometry.width*.8} ${geometry.y+radius*2.5} ${geometry.x+geometry.width*.8} ${geometry.y+geometry.height} Z`} {...common}/>};return <rect className="element" data-shape="rectangle" {...geometry} rx={style?.borderRadius} {...common}/>}
 
 function DiagramPreview({ model, styles }: { readonly model: DiagramModel; readonly styles?:ResolvedDiagramStyles }) {
   const [layout, setLayout] = useState<LayoutResult | null>(null)
