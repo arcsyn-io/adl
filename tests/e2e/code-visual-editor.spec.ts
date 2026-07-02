@@ -11,17 +11,6 @@ test('edits ADL with current diagnostics and keyboard controls', async ({ page }
   await page.getByRole('button', { name: 'Desfazer' }).first().click()
 })
 
-test('creates, relates, selects and safely removes visual entities by keyboard', async ({ page }) => {
-  await page.goto('/')
-  const visual = page.getByRole('heading', { name: 'Editor visual' }).locator('..').locator('..')
-  await expect(visual.getByLabel('Tipo').first()).toHaveRole('combobox')
-  await visual.getByLabel('ID').first().fill('worker'); await visual.getByLabel('Nome').first().fill('Worker'); await visual.getByLabel('Tipo').first().selectOption('service'); await visual.getByRole('button', { name: 'Adicionar elemento' }).click()
-  await expect(page.getByRole('img', { name: /Worker/ }).getByText('Worker', { exact: true })).toBeVisible()
-  const relation = visual.getByRole('heading', { name: 'Nova relação' }).locator('..'); await relation.locator('input[name="id"]').fill('dispatches'); await relation.locator('select[name="source"]').selectOption('api'); await relation.locator('select[name="target"]').selectOption('worker'); await relation.locator('select[name="relationType"]').selectOption('composition'); await relation.getByRole('button', { name: 'Adicionar relação' }).click(); await expect(page.locator('[data-relation-id="dispatches"]')).toHaveAttribute('data-connector-kind','composition')
-  await visual.getByRole('button', { name: /Worker.*worker/ }).focus(); await page.keyboard.press('Enter')
-  await visual.getByRole('button', { name: 'Remover Worker' }).click(); await expect(visual.getByRole('alert')).toContainText('dependentes'); await visual.getByRole('button', { name: /Confirmar remoção/ }).click(); await expect(visual.getByText('Worker', { exact: true })).toHaveCount(0)
-})
-
 test('moves diagram elements with pointer and keyboard without changing ADL', async ({ page }) => {
   await page.goto('/')
   const sourceBefore = await page.locator('.cm-content').textContent()

@@ -3,3 +3,7 @@
 .source-tablist { display: flex; gap: 4px; padding: 8px 8px 0; border-bottom: 1px solid #2d3745; }
 .source-tablist button { border-color: transparent; border-radius: 8px 8px 0 0; background: transparent; color: #aeb9c7; }
 .source-tablist button[aria-selected="true"] { border-color: #526174; border-bottom-color: #161d27; background: #161d27; color: #e8edf3; }
+.app-shell { width: 100%; max-width: none; }
+.app-shell .workspace-grid { grid-template-columns: minmax(200px, 1fr) minmax(0, 5fr); }
+.source-tabs, .preview { min-width: 0; }
+@media (max-width: 900px) { .app-shell .workspace-grid { grid-template-columns: 1fr; } }

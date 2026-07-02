@@ -6,7 +6,6 @@ import { buildSemanticModel, type DiagramModel } from '@adl/semantic'
 import type { Paint, ResolvedDiagramStyles, ResolvedElementStyle, TextStyle } from '@adl/stylesheet'
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { EditorTabs, createSourceBinding } from './features/code-editor/index.js'
-import { fromDiagramModel, toDiagramModel, VisualEditor, type VisualModel } from './features/visual-editor/index.js'
 import { runStylesheetPipeline } from './features/stylesheet/stylesheet-pipeline.js'
 import './source-tabs.css'
 
@@ -84,17 +83,14 @@ function DiagramPreview({ model, styles }: { readonly model: DiagramModel; reado
 }
 
 export function App() {
-  const initialVisualModel = fromDiagramModel(model)
-  const [visualModel, setVisualModel] = useState<VisualModel>(initialVisualModel)
-  const [sourceRevision, setSourceRevision] = useState(0)
+  const [renderedModel, setRenderedModel] = useState<DiagramModel>(model)
   const [resolvedStyles, setResolvedStyles] = useState<ResolvedDiagramStyles|undefined>()
   const adlText=useRef(source),stylesheetText=useRef(appliedStylesheet)
-  const sourceBinding = useMemo(() => createSourceBinding(nextModel => { setVisualModel(fromDiagramModel(nextModel)); setSourceRevision(current => current + 1) }, 30), [])
+  const sourceBinding = useMemo(() => createSourceBinding(setRenderedModel, 30), [])
   useEffect(() => () => sourceBinding.dispose(), [sourceBinding])
   const applyStyles=useCallback((nextAdl:string,nextStylesheet:string)=>{const document=parse(nextAdl),hasReference=document.ok&&document.document.stylesheetReference!==undefined;const pipelineSource=hasReference?nextAdl:`stylesheet "./applied.adls"\n${nextAdl}`;void runStylesheetPipeline({adlText:pipelineSource,adlUri:'memory:/editor.adl',loadStylesheet:async()=>({text:nextStylesheet,uri:'memory:/applied.adls'})}).then(result=>{if(result.ok)setResolvedStyles(result.styles)})},[])
   const handleSourceChange = useCallback((nextSource: string) => {adlText.current=nextSource;sourceBinding.schedule(nextSource);applyStyles(nextSource,stylesheetText.current)}, [applyStyles,sourceBinding])
   const handleStylesheetChange=useCallback((nextStylesheet:string)=>{stylesheetText.current=nextStylesheet;applyStyles(adlText.current,nextStylesheet)},[applyStyles])
   useEffect(()=>applyStyles(source,appliedStylesheet),[applyStyles])
-  const renderedModel = toDiagramModel(visualModel)
-  return <main className="app-shell"><header><span className="eyebrow">ADL workspace</span><h1>Architecture diagram</h1></header><div className="workspace-grid"><EditorTabs adlText={source} stylesheetText={appliedStylesheet} onAdlChange={handleSourceChange} onStylesheetChange={handleStylesheetChange}/>{resolvedStyles?<DiagramPreview model={renderedModel} styles={resolvedStyles}/>:<section className="preview"><h2>Diagrama</h2><p>Aplicando stylesheet…</p></section>}<VisualEditor key={sourceRevision} initialModel={visualModel} onModelChange={setVisualModel}/></div></main>
+  return <main className="app-shell"><header><span className="eyebrow">ADL workspace</span><h1>Architecture diagram</h1></header><div className="workspace-grid"><EditorTabs adlText={source} stylesheetText={appliedStylesheet} onAdlChange={handleSourceChange} onStylesheetChange={handleStylesheetChange}/>{resolvedStyles?<DiagramPreview model={renderedModel} styles={resolvedStyles}/>:<section className="preview"><h2>Diagrama</h2><p>Aplicando stylesheet…</p></section>}</div></main>
 }
