@@ -1,0 +1,6 @@
+stylesheet version "1.0" {
+  * { font-size "14px" font-family "Arial, sans-serif" text-paint "#172033FF" }
+  element * { border-paint "#2457A6FF" border-width "2px" }
+  element type "service" { shape "ellipse" width "180px" height "96px" fill "linear-gradient(90deg, #E8F0FFFF 0%, #B8CCFFFF 100%)" }
+  relation type "async" { line-paint "#6B46C1FF" line-width "3px" }
+}

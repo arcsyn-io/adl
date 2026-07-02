@@ -1,0 +1,1 @@
+import { expect,it } from "vitest"; import { previewProposal } from "../src/index.js"; it("validates proposals locally",()=>expect(previewProposal("a",{requestId:"r",baseRevision:1,source:"b",summary:"s"},1,{validate:()=>({ok:true})}).ok).toBe(true));

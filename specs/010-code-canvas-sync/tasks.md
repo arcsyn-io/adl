@@ -6,9 +6,9 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Create the feature package/entry structure in packages/adl-workspace/package.json and packages/adl-workspace/src/index.ts
-- [ ] T002 [P] Add reusable feature fixtures in packages/adl-workspace/test/fixtures.ts
-- [ ] T003 [P] Configure package test/typecheck scripts in packages/adl-workspace/package.json
+- [X] T001 Create the feature package/entry structure in packages/adl-workspace/package.json and packages/adl-workspace/src/index.ts
+- [X] T002 [P] Add reusable feature fixtures in packages/adl-workspace/test/fixtures.ts
+- [X] T003 [P] Configure package test/typecheck scripts in packages/adl-workspace/package.json
 
 ---
 
@@ -16,9 +16,9 @@
 
 **Goal**: establish the public contract and domain primitives shared by all stories.
 
-- [ ] T004 Add public domain types and invariants from data-model.md in packages/adl-workspace/src/revision.ts
-- [ ] T005 [P] Add public contract tests from contracts/ in packages/adl-workspace/test/contract.test.ts
-- [ ] T006 Export the minimal public API without reverse dependencies in packages/adl-workspace/src/index.ts
+- [X] T004 Add public domain types and invariants from data-model.md in packages/adl-workspace/src/revision.ts
+- [X] T005 [P] Add public contract tests from contracts/ in packages/adl-workspace/test/contract.test.ts
+- [X] T006 Export the minimal public API without reverse dependencies in packages/adl-workspace/src/index.ts
 
 **Checkpoint**: contract compiles and foundational tests fail only for unimplemented story behavior.
 
@@ -29,9 +29,9 @@
 **Goal**: deliver the first user story from spec.md as an independently testable slice.
 **Independent Test**: execute the first acceptance scenarios using feature fixtures without requiring stories 2 or 3.
 
-- [ ] T007 [P] [US1] Add acceptance and failure tests for User Story 1 in packages/adl-workspace/test/synchronize.test.ts
-- [ ] T008 [US1] Implement the primary domain behavior in packages/adl-workspace/src/synchronize.ts
-- [ ] T009 [US1] Connect the primary behavior to the public API in packages/adl-workspace/src/index.ts
+- [X] T007 [P] [US1] Add acceptance and failure tests for User Story 1 in packages/adl-workspace/test/synchronize.test.ts
+- [X] T008 [US1] Implement the primary domain behavior in packages/adl-workspace/src/synchronize.ts
+- [X] T009 [US1] Connect the primary behavior to the public API in packages/adl-workspace/src/index.ts
 
 **Checkpoint**: User Story 1 passes independently and constitutes the MVP.
 
@@ -42,9 +42,9 @@
 **Goal**: add the second journey without changing the User Story 1 contract.
 **Independent Test**: execute only the second story scenarios and verify User Story 1 remains green.
 
-- [ ] T010 [P] [US2] Add acceptance and edge-case tests for User Story 2 in packages/adl-workspace/test/synchronize.test.ts
-- [ ] T011 [US2] Implement the second-story rules in packages/adl-workspace/src/synchronize.ts
-- [ ] T012 [US2] Expose second-story results through packages/adl-workspace/src/index.ts
+- [X] T010 [P] [US2] Add acceptance and edge-case tests for User Story 2 in packages/adl-workspace/test/synchronize.test.ts
+- [X] T011 [US2] Implement the second-story rules in packages/adl-workspace/src/synchronize.ts
+- [X] T012 [US2] Expose second-story results through packages/adl-workspace/src/index.ts
 
 **Checkpoint**: stories 1 and 2 are independently usable.
 
@@ -55,19 +55,19 @@
 **Goal**: implement the third journey, including version/error or recovery behavior.
 **Independent Test**: exercise the third story with valid, invalid and stale/incompatible inputs.
 
-- [ ] T013 [P] [US3] Add acceptance and resilience tests for User Story 3 in packages/adl-workspace/test/synchronize.test.ts
-- [ ] T014 [US3] Implement third-story state/error behavior in packages/adl-workspace/src/synchronize.ts
-- [ ] T015 [US3] Publish third-story outcomes through packages/adl-workspace/src/index.ts
+- [X] T013 [P] [US3] Add acceptance and resilience tests for User Story 3 in packages/adl-workspace/test/synchronize.test.ts
+- [X] T014 [US3] Implement third-story state/error behavior in packages/adl-workspace/src/synchronize.ts
+- [X] T015 [US3] Publish third-story outcomes through packages/adl-workspace/src/index.ts
 
 ---
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T016 [P] Add performance/reference cases for the SC limits in packages/adl-workspace/test/performance.test.ts
-- [ ] T017 [P] Document public usage and constraints in packages/adl-workspace/README.md
-- [ ] T018 Validate the feature quickstart and record any corrected commands in specs/010-code-canvas-sync/quickstart.md
-- [ ] T019 Run repository gates declared in package.json and fix only feature-owned files under packages/adl-workspace
-- [ ] T020 Run relevant interaction/visual E2E scenarios in tests/e2e/code-canvas-sync.spec.ts
+- [X] T016 [P] Add performance/reference cases for the SC limits in packages/adl-workspace/test/performance.test.ts
+- [X] T017 [P] Document public usage and constraints in packages/adl-workspace/README.md
+- [X] T018 Validate the feature quickstart and record any corrected commands in specs/010-code-canvas-sync/quickstart.md
+- [X] T019 Run repository gates declared in package.json and fix only feature-owned files under packages/adl-workspace
+- [X] T020 Run relevant interaction/visual E2E scenarios in tests/e2e/code-canvas-sync.spec.ts
 
 ## Dependencies
 

@@ -20,6 +20,42 @@ importers:
 
   apps/web-editor:
     dependencies:
+      '@adl/canvas-state':
+        specifier: workspace:*
+        version: link:../../packages/adl-canvas-state
+      '@adl/diagnostics':
+        specifier: workspace:*
+        version: link:../../packages/adl-diagnostics
+      '@adl/layout':
+        specifier: workspace:*
+        version: link:../../packages/adl-layout
+      '@adl/parser':
+        specifier: workspace:*
+        version: link:../../packages/adl-parser
+      '@adl/renderer':
+        specifier: workspace:*
+        version: link:../../packages/adl-renderer
+      '@adl/semantic':
+        specifier: workspace:*
+        version: link:../../packages/adl-semantic
+      '@adl/serializer':
+        specifier: workspace:*
+        version: link:../../packages/adl-serializer
+      '@adl/stylesheet':
+        specifier: workspace:*
+        version: link:../../packages/adl-stylesheet
+      '@codemirror/autocomplete':
+        specifier: ^6.20.3
+        version: 6.20.3
+      '@codemirror/commands':
+        specifier: ^6.10.4
+        version: 6.10.4
+      '@codemirror/state':
+        specifier: ^6.7.0
+        version: 6.7.0
+      '@codemirror/view':
+        specifier: ^6.43.4
+        version: 6.43.4
       '@xyflow/react':
         specifier: ^12.11.1
         version: 12.11.1(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -85,6 +121,121 @@ importers:
         specifier: ^4.1.9
         version: 4.1.9(vite@8.1.0(jiti@2.7.0))
 
+  packages/adl-ai-contracts:
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-canvas-state:
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-conformance:
+    devDependencies:
+      '@adl/stylesheet':
+        specifier: workspace:*
+        version: link:../adl-stylesheet
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-diagnostics:
+    dependencies:
+      '@adl/parser':
+        specifier: workspace:*
+        version: link:../adl-parser
+      '@adl/semantic':
+        specifier: workspace:*
+        version: link:../adl-semantic
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-io:
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
   packages/adl-language:
     devDependencies:
       '@eslint/js':
@@ -105,6 +256,228 @@ importers:
       vitest:
         specifier: ^4.1.9
         version: 4.1.9(vite@8.1.0(jiti@2.7.0))
+
+  packages/adl-layout:
+    dependencies:
+      '@adl/semantic':
+        specifier: workspace:*
+        version: link:../adl-semantic
+      elkjs:
+        specifier: ^0.11.1
+        version: 0.11.1
+    devDependencies:
+      '@adl/parser':
+        specifier: workspace:*
+        version: link:../adl-parser
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-parser:
+    dependencies:
+      '@adl/language':
+        specifier: workspace:*
+        version: link:../adl-language
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-persistence:
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-renderer:
+    dependencies:
+      '@adl/diagnostics':
+        specifier: workspace:*
+        version: link:../adl-diagnostics
+      '@adl/semantic':
+        specifier: workspace:*
+        version: link:../adl-semantic
+      '@adl/stylesheet':
+        specifier: workspace:*
+        version: link:../adl-stylesheet
+    devDependencies:
+      '@adl/parser':
+        specifier: workspace:*
+        version: link:../adl-parser
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-semantic:
+    dependencies:
+      '@adl/language':
+        specifier: workspace:*
+        version: link:../adl-language
+      '@adl/parser':
+        specifier: workspace:*
+        version: link:../adl-parser
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-serializer:
+    dependencies:
+      '@adl/diagnostics':
+        specifier: workspace:*
+        version: link:../adl-diagnostics
+      '@adl/language':
+        specifier: workspace:*
+        version: link:../adl-language
+      '@adl/semantic':
+        specifier: workspace:*
+        version: link:../adl-semantic
+    devDependencies:
+      '@adl/parser':
+        specifier: workspace:*
+        version: link:../adl-parser
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-stylesheet:
+    dependencies:
+      '@adl/parser':
+        specifier: workspace:*
+        version: link:../adl-parser
+      '@adl/semantic':
+        specifier: workspace:*
+        version: link:../adl-semantic
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
+
+  packages/adl-workspace:
+    devDependencies:
+      '@eslint/js':
+        specifier: ^10.0.1
+        version: 10.0.1(eslint@10.6.0)
+      eslint:
+        specifier: ^10.6.0
+        version: 10.6.0
+      globals:
+        specifier: ^17.7.0
+        version: 17.7.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+      typescript-eslint:
+        specifier: ^8.62.0
+        version: 8.62.0(eslint@10.6.0)(typescript@6.0.3)
+      vitest:
+        specifier: ^4.1.9
+        version: 4.1.9(vite@8.1.0)
 
 packages:
 
@@ -190,6 +563,21 @@ packages:
   '@chevrotain/utils@12.0.0':
     resolution: {integrity: sha512-lB59uJoaGIfOOL9knQqQRfhl9g7x8/wqFkp13zTdkRu1huG9kg6IJs1O8hqj9rs6h7orGxHJUKb+mX3rPbWGhA==}
 
+  '@codemirror/autocomplete@6.20.3':
+    resolution: {integrity: sha512-tlosUqb+3BbxCxZdu4tKeRghPFC+QM7q4X5YhKV2eCmPG+1r2F3f4AaSz5sCrFqUtX4Jh20VFTKecl16MgiV9g==}
+
+  '@codemirror/commands@6.10.4':
+    resolution: {integrity: sha512-Ryk9y9T0FFVF0cUGhAknveAyUOl/A1qReTFi+qPKtOh2Z9F4AUBz3XOrYD4ZEgZirdugVzHvd/2/Wcwy5OliTg==}
+
+  '@codemirror/language@6.12.4':
+    resolution: {integrity: sha512-1q4PaT+o6PbgpkJt4Q8Fv5XJxTy4FUZ4MWETtyiDw3J0Pyr9E2vqcKL+k9wcvjNTIsauxvE7OfmWj3FRPHQ76A==}
+
+  '@codemirror/state@6.7.0':
+    resolution: {integrity: sha512-Zbl9NyscLMZkfXPQnNAIIAFftidrA1UbcJEIMp24C0Bukc2I5T8wJS0wsXYsnDOqCFJUeJ1BITGNs5CqPDSmSg==}
+
+  '@codemirror/view@6.43.4':
+    resolution: {integrity: sha512-YImu23iyKfncJzT7sRy+rEqEhSc8RhOHqDxwy4WzXRKJwYm6iwf/9OJk5ctCAdZ6yi2ZqaGEvmf55fSVqMDrgg==}
+
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
 
@@ -273,6 +661,18 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@lezer/common@1.5.2':
+    resolution: {integrity: sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ==}
+
+  '@lezer/highlight@1.2.3':
+    resolution: {integrity: sha512-qXdH7UqTvGfdVBINrgKhDsVTJTxactNNxLk7+UMwZhU13lMHaOBlJe9Vqp907ya56Y3+ed2tlqzys7jDkTmW0g==}
+
+  '@lezer/lr@1.4.10':
+    resolution: {integrity: sha512-rnCpTIBafOx4mRp43xOxDJbFipJm/c0cia/V5TiGlhmMa+wsSdoGmUN3w5Bqrks/09Q/D4tNAmWaT8p6NRi77A==}
+
+  '@marijn/find-cluster-break@1.0.3':
+    resolution: {integrity: sha512-FY+MKLBoTsLNJF/eLWaOsXGdz6uh3Iu1axjPf6TUq92IYumcTcXWHoS747JARLkcdlJ/Waiaxc5wQfFO8jC6NA==}
 
   '@napi-rs/wasm-runtime@1.1.6':
     resolution: {integrity: sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg==}
@@ -723,6 +1123,9 @@ packages:
 
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
+
+  crelt@1.0.7:
+    resolution: {integrity: sha512-aK6BbWfhf4U/wCcLHKPJl/xa6VkVstRaPywWtMKGwuOLc/wZTyQYuoxgvZnNsBvv7Kg3YTBQYYBCggcviQczuA==}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -1206,12 +1609,8 @@ packages:
   std-env@4.1.0:
     resolution: {integrity: sha512-Rq7ybcX2RuC55r9oaPVEW7/xu3tj8u4GeBYHBWCychFtzMIr86A7e3PPEBPT37sHStKX3+TiX/Fr/ACmJLVlLQ==}
 
-  tailwindcss@4.3.2:
-    resolution: {integrity: sha512-WtctNNSH8A9jlMIqxzuYumOHU5uGZyRv0Q5svQl+oEPy5w84YpBxdb7MdqyiSPQge5jTJ6zFQLq0PFygdccSBA==}
-
-  tapable@2.3.3:
-    resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
-    engines: {node: '>=6'}
+  style-mod@4.1.3:
+    resolution: {integrity: sha512-i/n8VsZydrugj3Iuzll8+x/00GH2vnYsk1eomD8QiRrSAeW6ItbCQDtfXCeJHd0iwiNagqjQkvpvREEPtW3IoQ==}
 
   tinybench@2.9.0:
     resolution: {integrity: sha512-0+DUvqWMValLmha6lr4kD8iAMK1HzV0/aKnCtWb9v9641TnP/MFb7Pc2bxoxQjTXAErryXVgUOfv2YqNllqGeg==}
@@ -1374,6 +1773,9 @@ packages:
 
   vscode-uri@3.1.0:
     resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
+
+  w3c-keyname@2.2.8:
+    resolution: {integrity: sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -1555,6 +1957,40 @@ snapshots:
 
   '@chevrotain/utils@12.0.0': {}
 
+  '@codemirror/autocomplete@6.20.3':
+    dependencies:
+      '@codemirror/language': 6.12.4
+      '@codemirror/state': 6.7.0
+      '@codemirror/view': 6.43.4
+      '@lezer/common': 1.5.2
+
+  '@codemirror/commands@6.10.4':
+    dependencies:
+      '@codemirror/language': 6.12.4
+      '@codemirror/state': 6.7.0
+      '@codemirror/view': 6.43.4
+      '@lezer/common': 1.5.2
+
+  '@codemirror/language@6.12.4':
+    dependencies:
+      '@codemirror/state': 6.7.0
+      '@codemirror/view': 6.43.4
+      '@lezer/common': 1.5.2
+      '@lezer/highlight': 1.2.3
+      '@lezer/lr': 1.4.10
+      style-mod: 4.1.3
+
+  '@codemirror/state@6.7.0':
+    dependencies:
+      '@marijn/find-cluster-break': 1.0.3
+
+  '@codemirror/view@6.43.4':
+    dependencies:
+      '@codemirror/state': 6.7.0
+      crelt: 1.0.7
+      style-mod: 4.1.3
+      w3c-keyname: 2.2.8
+
   '@emnapi/core@1.11.1':
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
@@ -1639,6 +2075,18 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@lezer/common@1.5.2': {}
+
+  '@lezer/highlight@1.2.3':
+    dependencies:
+      '@lezer/common': 1.5.2
+
+  '@lezer/lr@1.4.10':
+    dependencies:
+      '@lezer/common': 1.5.2
+
+  '@marijn/find-cluster-break@1.0.3': {}
 
   '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
@@ -2055,6 +2503,8 @@ snapshots:
   classcat@5.0.5: {}
 
   convert-source-map@2.0.0: {}
+
+  crelt@1.0.7: {}
 
   cross-spawn@7.0.6:
     dependencies:
@@ -2487,9 +2937,7 @@ snapshots:
 
   std-env@4.1.0: {}
 
-  tailwindcss@4.3.2: {}
-
-  tapable@2.3.3: {}
+  style-mod@4.1.3: {}
 
   tinybench@2.9.0: {}
 
@@ -2601,6 +3049,8 @@ snapshots:
       vscode-languageserver-protocol: 3.18.1
 
   vscode-uri@3.1.0: {}
+
+  w3c-keyname@2.2.8: {}
 
   which@2.0.2:
     dependencies:

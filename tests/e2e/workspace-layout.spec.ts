@@ -1,0 +1,3 @@
+import { expect,test } from '@playwright/test'
+
+test('uses a full-width two-panel workspace without the visual editor card',async({page})=>{await page.goto('/');await expect(page.getByRole('heading',{name:'Editor visual'})).toHaveCount(0);const sizes=await page.evaluate(()=>{const shell=document.querySelector<HTMLElement>('.app-shell')!,editor=document.querySelector<HTMLElement>('.source-tabs')!,preview=document.querySelector<HTMLElement>('.preview')!;return{shell:shell.getBoundingClientRect().width,viewport:document.documentElement.clientWidth,editor:editor.getBoundingClientRect().width,preview:preview.getBoundingClientRect().width}});expect(sizes.shell).toBeGreaterThan(sizes.viewport*.9);expect(sizes.preview/sizes.editor).toBeGreaterThan(4)})

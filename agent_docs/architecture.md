@@ -8,6 +8,11 @@ O fluxo de dados deve permanecer explícito e unidirecional:
 
 `texto .adl → parser → AST → modelo semântico → compilador → layout → renderizadores`
 
+O fluxo visual segue em paralelo: `referência/bloco → @adl/stylesheet → estilo
+resolvido → layout/renderizadores`. O `DiagramModel` não contém estilos. O
+carregamento de arquivos é fornecido pelo consumidor; o pacote de stylesheet
+permanece puro e independente de filesystem, browser e React.
+
 Cada etapa deve expor contratos próprios e não depender de detalhes internos das etapas posteriores.
 
 ## Responsabilidades

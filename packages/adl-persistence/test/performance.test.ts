@@ -1,0 +1,1 @@
+import { expect,it } from "vitest"; import { LocalDocumentRepository,MemoryStorage } from "../src/index.js"; import { persistedFixture } from "./fixtures.js"; it("round-trips a local revision",async()=>{const repo=new LocalDocumentRepository(new MemoryStorage());await repo.save("a",persistedFixture);expect((await repo.restore("a")).revision).toEqual(persistedFixture)});

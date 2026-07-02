@@ -1,0 +1,217 @@
+import { RESERVED_WORDS } from "@adl/language";
+import type {
+  DeclarationNode, DocumentNode, ElementFields, GroupFields, IdentifierNode,
+  ParseError, ParseResult, RelationFields, SourcePosition, SourceRange, Token, TokenKind,
+} from "./lexer.js";
+
+const keywords = new Set<string>([...RESERVED_WORDS, "name", "type", "description", "source", "target", "elements", "stylesheet"]);
+const punctuation: Readonly<Record<string, TokenKind>> = {
+  "{": "LeftBrace", "}": "RightBrace", "[": "LeftBracket", "]": "RightBracket", ",": "Comma",
+};
+
+function position(offset: number, line: number, column: number): SourcePosition {
+  return { offset, line, column };
+}
+
+export function lex(source: string): readonly Token[] {
+  const tokens: Token[] = [];
+  let offset = 0;
+  let line = 1;
+  let column = 1;
+
+  const current = () => position(offset, line, column);
+  const advance = () => {
+    const character = source[offset++];
+    if (character === "\n") { line++; column = 1; } else { column++; }
+    return character;
+  };
+  const add = (kind: TokenKind, start: SourcePosition, value?: string) => {
+    tokens.push({ kind, text: source.slice(start.offset, offset), ...(value === undefined ? {} : { value }), range: { start, end: current() } });
+  };
+
+  while (offset < source.length) {
+    const start = current();
+    const char = source[offset];
+    if (/\s/u.test(char)) {
+      while (offset < source.length && /\s/u.test(source[offset])) advance();
+      add("Whitespace", start);
+    } else if (char === "#" || (char === "/" && source[offset + 1] === "/")) {
+      while (offset < source.length && source[offset] !== "\n") advance();
+      add("Comment", start);
+    } else if (punctuation[char]) {
+      advance(); add(punctuation[char], start);
+    } else if (char === '"') {
+      advance();
+      let closed = false;
+      while (offset < source.length) {
+        const next = advance();
+        if (next === '"') { closed = true; break; }
+        if (next === "\\" && offset < source.length) advance();
+        if (next === "\n" || next === "\r") break;
+      }
+      const text = source.slice(start.offset, offset);
+      if (!closed) add("Invalid", start);
+      else {
+        try { add("String", start, JSON.parse(text) as string); }
+        catch { add("Invalid", start); }
+      }
+    } else if (/[A-Za-z]/.test(char)) {
+      while (offset < source.length && /[A-Za-z0-9_-]/.test(source[offset])) advance();
+      const text = source.slice(start.offset, offset);
+      add(keywords.has(text) ? "Keyword" : "Identifier", start, text);
+    } else {
+      advance(); add("Invalid", start);
+    }
+  }
+  const end = current();
+  tokens.push({ kind: "Eof", text: "", range: { start: end, end } });
+  return tokens;
+}
+
+class Parser {
+  private readonly significant: readonly Token[];
+  private index = 0;
+  readonly errors: ParseError[] = [];
+
+  constructor(readonly source: string, readonly tokens: readonly Token[]) {
+    this.significant = tokens.filter((token) => token.kind !== "Whitespace" && token.kind !== "Comment");
+    for (const token of this.significant) {
+      if (token.kind === "Invalid") this.error("INVALID_TOKEN", `Invalid token ${JSON.stringify(token.text)}.`, token.range);
+    }
+  }
+
+  private get token(): Token { return this.significant[this.index]; }
+  private take(): Token { const token = this.token; if (token.kind !== "Eof") this.index++; return token; }
+  private is(kind: TokenKind, value?: string): boolean { return this.token.kind === kind && (value === undefined || this.token.value === value); }
+  private error(code: ParseError["code"], message: string, range = this.token.range): void { this.errors.push({ code, message, range }); }
+  private expect(kind: TokenKind, value?: string): Token {
+    if (this.is(kind, value)) return this.take();
+    this.error("EXPECTED_TOKEN", `Expected ${value ?? kind}, found ${this.token.text || "end of input"}.`);
+    return { kind, text: "", ...(value === undefined ? {} : { value }), range: { start: this.token.range.start, end: this.token.range.start } };
+  }
+  private keyword(value: string): Token { return this.expect("Keyword", value); }
+  private identifier(): IdentifierNode {
+    const token = this.expect("Identifier");
+    return { kind: "Identifier", name: token.value ?? "", range: token.range };
+  }
+  private string(): string { return this.expect("String").value ?? ""; }
+
+  parseDocument(): DocumentNode {
+    const start = this.token.range.start;
+    let stylesheetReference: DocumentNode["stylesheetReference"];
+    if (this.is("Keyword", "stylesheet")) {
+      this.take();
+      const reference = this.expect("String");
+      stylesheetReference = { value: reference.value ?? "", range: reference.range };
+      if (this.is("Keyword", "stylesheet")) this.error("UNEXPECTED_TOKEN", "Only one external stylesheet reference is allowed.");
+    }
+    this.keyword("adl");
+    this.keyword("version");
+    const versionToken = this.expect("String");
+    this.keyword("diagram");
+    this.expect("LeftBrace");
+    const declarations: DeclarationNode[] = [];
+    while (!this.is("RightBrace") && !this.is("Eof")) {
+      const before = this.index;
+      const declaration = this.declaration();
+      if (declaration) declarations.push(declaration);
+      if (this.index === before) this.take();
+    }
+    const close = this.expect("RightBrace");
+    let embeddedStylesheet: DocumentNode["embeddedStylesheet"];
+    if (this.is("Keyword", "stylesheet")) {
+      const embeddedStart = this.take().range.start;
+      const opening = this.expect("LeftBrace");
+      let depth = opening.text ? 1 : 0;
+      let embeddedClose = opening;
+      while (depth > 0 && !this.is("Eof")) {
+        const current = this.take();
+        if (current.kind === "LeftBrace") depth++;
+        if (current.kind === "RightBrace") { depth--; embeddedClose = current; }
+      }
+      if (depth > 0) this.error("EXPECTED_TOKEN", "Expected closing brace for embedded stylesheet.");
+      embeddedStylesheet = { text: this.source.slice(embeddedStart.offset, embeddedClose.range.end.offset), range: { start: embeddedStart, end: embeddedClose.range.end } };
+      if (this.is("Keyword", "stylesheet")) this.error("UNEXPECTED_TOKEN", "Only one embedded stylesheet block is allowed.");
+    }
+    if (!this.is("Eof")) {
+      this.error("UNEXPECTED_TOKEN", `Unexpected token ${JSON.stringify(this.token.text)} after document.`);
+      while (!this.is("Eof")) this.take();
+    }
+    return {
+      kind: "Document",
+      ...(stylesheetReference ? { stylesheetReference } : {}),
+      ...(embeddedStylesheet ? { embeddedStylesheet } : {}),
+      version: { kind: "StringLiteral", value: versionToken.value ?? "", range: versionToken.range },
+      declarations,
+      range: { start, end: close.text ? close.range.end : this.token.range.end },
+    };
+  }
+
+  private declaration(): DeclarationNode | undefined {
+    if (!this.is("Keyword") || !["element", "relation", "group"].includes(this.token.value ?? "")) {
+      this.error("UNEXPECTED_TOKEN", `Expected a declaration, found ${JSON.stringify(this.token.text)}.`);
+      return undefined;
+    }
+    const opening = this.take();
+    const kind = opening.value as "element" | "relation" | "group";
+    const id = this.identifier();
+    this.expect("LeftBrace");
+    const fields: Record<string, string | readonly string[] | Readonly<Record<string, string>>> = {};
+    while (!this.is("RightBrace") && !this.is("Eof")) {
+      const before = this.index;
+      this.field(kind, fields);
+      if (this.index === before) this.take();
+    }
+    const close = this.expect("RightBrace");
+    const range: SourceRange = { start: opening.range.start, end: close.range.end };
+    if (kind === "element") return { kind: "Element", id, fields: fields as ElementFields, range };
+    if (kind === "relation") return { kind: "Relation", id, fields: fields as RelationFields, range };
+    return { kind: "Group", id, fields: fields as GroupFields, range };
+  }
+
+  private field(owner: "element" | "relation" | "group", fields: Record<string, string | readonly string[] | Readonly<Record<string, string>>>): void {
+    if (!this.is("Keyword")) { this.error("UNEXPECTED_TOKEN", `Expected a field, found ${JSON.stringify(this.token.text)}.`); return; }
+    const field = this.take().value ?? "";
+    const allowed: Readonly<Record<typeof owner, readonly string[]>> = {
+      element: ["name", "type", "description", "properties"],
+      relation: ["source", "target", "name", "type", "description", "properties"],
+      group: ["name", "description", "elements", "properties"],
+    };
+    if (!allowed[owner].includes(field)) { this.error("UNEXPECTED_TOKEN", `Field ${field} is not valid in ${owner}.`); return; }
+    if (field === "properties") fields[field] = this.properties();
+    else if (field === "elements") fields[field] = this.identifierList();
+    else if (field === "source" || field === "target") fields[field] = this.identifier().name;
+    else fields[field] = this.string();
+  }
+
+  private properties(): Readonly<Record<string, string>> {
+    this.expect("LeftBrace");
+    const properties: Record<string, string> = {};
+    while (!this.is("RightBrace") && !this.is("Eof")) {
+      const key = this.is("Identifier") ? this.identifier().name : this.take().value;
+      if (!key) { this.error("EXPECTED_TOKEN", "Expected a property name."); continue; }
+      properties[key] = this.string();
+    }
+    this.expect("RightBrace");
+    return properties;
+  }
+
+  private identifierList(): readonly string[] {
+    this.expect("LeftBracket");
+    const identifiers: string[] = [];
+    while (!this.is("RightBracket") && !this.is("Eof")) {
+      identifiers.push(this.identifier().name);
+      if (this.is("Comma")) this.take();
+      else if (!this.is("RightBracket")) { this.error("EXPECTED_TOKEN", "Expected comma or closing bracket."); this.take(); }
+    }
+    this.expect("RightBracket");
+    return identifiers;
+  }
+}
+
+export function parse(source: string): ParseResult {
+  const tokens = lex(source);
+  const parser = new Parser(source, tokens);
+  const document = parser.parseDocument();
+  return parser.errors.length > 0 ? { ok: false, errors: parser.errors, tokens } : { ok: true, document, tokens };
+}
