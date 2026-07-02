@@ -31,6 +31,7 @@ export function CodeEditor({ initialText, onChange, mode="adl", title="Editor AD
     const instance = new EditorView({ parent: host.current, state: EditorState.create({ doc: initialTextRef.current, extensions }) });
     view.current = instance; return () => { instance.destroy(); view.current = null; };
   }, [mode, onChange]);
+  useEffect(()=>{const editor=view.current;if(!editor||editor.state.doc.toString()===initialText)return;editor.dispatch({changes:{from:0,to:editor.state.doc.length,insert:initialText}})},[initialText]);
   const restore = (next: EditHistory) => { setHistory(next); const editor = view.current; if (!editor || editor.state.doc.toString() === next.present.text) return; editor.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: next.present.text }, selection: { anchor: next.present.selection.anchor, head: next.present.selection.head } }); };
   return <section className="code-editor" aria-label={title}>
     <div className="panel-heading"><h2>{title}</h2><div className="toolbar"><button type="button" onClick={() => restore(undoEdit(history))} disabled={!history.past.length}>Desfazer</button><button type="button" onClick={() => restore(redoEdit(history))} disabled={!history.future.length}>Refazer</button></div></div>
