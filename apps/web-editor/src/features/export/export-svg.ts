@@ -1,0 +1,3 @@
+import type { ExportScene } from "@adl/renderer";
+const escape = (value: string) => value.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll('"', "&quot;");
+export const exportSceneToSvg = (scene: ExportScene): string => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${scene.bounds.x} ${scene.bounds.y} ${scene.bounds.width} ${scene.bounds.height}">${scene.shapes.map(shape=>`<g><rect x="${shape.x}" y="${shape.y}" width="${shape.width}" height="${shape.height}"/>${shape.label?`<text x="${shape.x+shape.width/2}" y="${shape.y+shape.height/2}">${escape(shape.label)}</text>`:""}</g>`).join("")}</svg>`;

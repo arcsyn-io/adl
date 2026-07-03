@@ -1,0 +1,1 @@
+import { expect,it } from "vitest";import{createExportScene}from"../src/index.js";it("uses document bounds independent of editor layers",()=>expect(createExportScene([{id:"a",x:-10,y:5,width:20,height:30}],10).bounds).toEqual({x:-20,y:-5,width:40,height:50}));
