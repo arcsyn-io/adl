@@ -10,7 +10,7 @@ import { runStylesheetPipeline } from './features/stylesheet/stylesheet-pipeline
 import { AssistantConversation, CanvasToolbar, TopBar } from './features/workspace/WorkspaceChrome.js'
 import './source-tabs.css'
 
-const source = `adl version "1.0" diagram {
+export const source = `adl version "1.0" diagram {
   element customer { name "Customer" type "user" }
   element database { name "Database" type "data" }
   element api { name "API" type "backend" }

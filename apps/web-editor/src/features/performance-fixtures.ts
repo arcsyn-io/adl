@@ -1,0 +1,1 @@
+export const createScaleFixture = () => ({ elements: Array.from({ length: 200 }, (_, index) => ({ id: `node-${index}` })), relations: Array.from({ length: 400 }, (_, index) => ({ id: `relation-${index}`, source: `node-${index % 200}`, target: `node-${(index + 1) % 200}` })) });
