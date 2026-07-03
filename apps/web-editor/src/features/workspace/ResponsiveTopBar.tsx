@@ -1,0 +1,1 @@
+import type{TopBarProps}from"./WorkspaceChrome.js";import{TopBar}from"./WorkspaceChrome.js";export function ResponsiveTopBar(props:TopBarProps){return <div className="responsive-top-bar"><TopBar {...props}/></div>}

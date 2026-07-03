@@ -37,4 +37,5 @@ describe("visual command bus", () => {
     expect(undoVisualCommand(removed.history).present.elements.api).toBeDefined();
     expect(redoVisualCommand(undoVisualCommand(removed.history)).present.elements.api).toBeUndefined();
   });
+  it("duplicates elements deterministically and reverses relations", () => { let history=createVisualHistory();for(const command of [{type:"create-element",id:"a",name:"A",elementType:"service"},{type:"create-element",id:"b",name:"B",elementType:"service"},{type:"create-relation",id:"r",sourceId:"a",targetId:"b"}] as const){const result=dispatchVisualCommand(history,command);if(result.ok)history=result.history}let result=dispatchVisualCommand(history,{type:"reverse-relation",id:"r"});expect(result.ok&&result.history.present.relations.r.sourceId).toBe("b");if(!result.ok)return;result=dispatchVisualCommand(result.history,{type:"duplicate-elements",ids:["a"]});expect(result.ok&&result.history.present.elements["a-2"]).toBeDefined(); });
 });

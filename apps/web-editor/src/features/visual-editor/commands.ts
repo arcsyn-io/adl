@@ -10,6 +10,9 @@ export type VisualCommand =
   | { readonly type: "create-relation"; readonly id: string; readonly sourceId: string; readonly targetId: string; readonly name?: string; readonly relationType?: MdlConnectorType }
   | { readonly type: "create-group"; readonly id: string; readonly name: string; readonly memberIds: readonly string[] }
   | { readonly type: "update-element"; readonly id: string; readonly name: string; readonly elementType: string }
+  | { readonly type: "duplicate-elements"; readonly ids: readonly string[] }
+  | { readonly type: "update-relation"; readonly id: string; readonly name?: string; readonly relationType?: MdlConnectorType }
+  | { readonly type: "reverse-relation"; readonly id: string }
   | { readonly type: "select"; readonly ids: readonly string[] }
   | { readonly type: "remove-entity"; readonly id: string; readonly cascade: boolean };
 export interface VisualError { readonly code: "INVALID_DRAFT" | "DUPLICATE_ID" | "UNRESOLVED_REFERENCE" | "UNKNOWN_ENTITY" | "DEPENDENT_RELATIONS"; readonly message: string; readonly dependentIds?: readonly string[] }
@@ -26,6 +29,7 @@ export function createVisualHistory(initial: VisualModel = empty()): VisualHisto
 
 export function dispatchVisualCommand(history: VisualHistory, command: VisualCommand): VisualCommandResult {
   const model = history.present;
+  if (command.type === "duplicate-elements") { const elements={...model.elements};for(const id of command.ids){const element=model.elements[id];if(!element)continue;let index=2,next=`${id}-${index}`;while(exists(model,next)||next in elements)next=`${id}-${++index}`;elements[next]={...element,id:next,name:`${element.name} copy`};}return commit(history,{...model,elements,selection:Object.keys(elements).filter(id=>!(id in model.elements))}); }
   if (command.type === "select") {
     const unknown = command.ids.find(id => !exists(model, id));
     if (unknown) return fail(history, "UNKNOWN_ENTITY", `A entidade "${unknown}" não existe.`);
@@ -42,6 +46,7 @@ export function dispatchVisualCommand(history: VisualHistory, command: VisualCom
     if (!command.name.trim() || !command.elementType.trim()) return fail(history, "INVALID_DRAFT", "Nome e tipo são obrigatórios.");
     return commit(history, { ...model, elements: { ...model.elements, [command.id]: { ...model.elements[command.id], name: command.name.trim(), type: command.elementType.trim() } } });
   }
+  if (command.type === "update-relation" || command.type === "reverse-relation") { const relation=model.relations[command.id];if(!relation)return fail(history,"UNKNOWN_ENTITY",`A relação "${command.id}" não existe.`);const next=command.type==="reverse-relation"?{...relation,sourceId:relation.targetId,targetId:relation.sourceId}:{...relation,...(command.name!==undefined?{name:command.name}:{}),...(command.relationType?{type:command.relationType}:{})};return commit(history,{...model,relations:{...model.relations,[command.id]:next}}); }
   if (command.type === "create-relation") {
     if (!model.elements[command.sourceId] || !model.elements[command.targetId]) return fail(history, "UNRESOLVED_REFERENCE", "Origem e destino devem apontar para elementos existentes.");
     return commit(history, { ...model, relations: { ...model.relations, [command.id]: { id: command.id, sourceId: command.sourceId, targetId: command.targetId, type: command.relationType ?? "link", ...(command.name ? { name: command.name } : {}) } } });

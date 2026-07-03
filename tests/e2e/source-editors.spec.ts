@@ -1,0 +1,1 @@
+import{expect,test}from"@playwright/test";test("shows line gutters and diagnostics in both source editors",async({page})=>{await page.goto("/");for(const name of ["Código ADL","Stylesheet aplicado"]){await page.getByRole("tab",{name}).click();await expect(page.locator(".cm-gutters")).toBeVisible();await expect(page.getByRole("heading",{name:/Diagnósticos/})).toBeVisible()}});

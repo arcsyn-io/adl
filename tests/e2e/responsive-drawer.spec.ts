@@ -1,0 +1,1 @@
+import{expect,test}from"@playwright/test";test("keeps the diagram available on a narrow viewport",async({page})=>{await page.setViewportSize({width:700,height:800});await page.goto("/");await expect(page.getByRole("region",{name:"Diagrama Payments Flow"})).toBeVisible();await expect(page.getByRole("tab",{name:"Assistente IA"})).toBeVisible()});

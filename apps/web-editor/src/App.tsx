@@ -5,39 +5,20 @@ import { createDiagramScene, type EntityView } from '@adl/renderer'
 import { buildSemanticModel, type DiagramModel } from '@adl/semantic'
 import { updateElementRule, type Paint, type ResolvedDiagramStyles, type ResolvedElementStyle, type TextStyle } from '@adl/stylesheet'
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { EditorTabs, createSourceBinding } from './features/code-editor/index.js'
+import { createSourceBinding } from './features/code-editor/source-binding.js'
+import { LazyEditorTabs as EditorTabs } from './features/code-editor/LazyEditorTabs.js'
 import { runStylesheetPipeline } from './features/stylesheet/stylesheet-pipeline.js'
 import { AssistantConversation, CanvasToolbar, TopBar } from './features/workspace/WorkspaceChrome.js'
+import { useAssistance } from './features/assistant/use-assistance.js'
+import { downloadArtifact } from './features/export/export-service.js'
+import { rasterizeSvg } from './features/export/png-rasterizer.js'
+import { NewDiagramDialog } from './features/workspace/NewDiagramDialog.js'
+import { paymentExampleAdl, paymentExampleAdls } from './features/workspace/payment-example.js'
 import './source-tabs.css'
 
-export const source = `adl version "1.0" diagram {
-  element customer { name "Customer" type "user" }
-  element database { name "Database" type "data" }
-  element api { name "API" type "backend" }
-  element web { name "Web application" type "frontend" }
-  element partner { name "Partner system" type "black-box" }
-  element auth { name "Authentication module" type "part" }
-  element queue { name "Message queue" type "queue" }
 
-  relation uses { source customer target web name "1. uses application" type "link" }
-  relation calls { source web target api name "validates every request" type "always-link" }
-  relation extends { source partner target api type "specialization" }
-  relation reads { source api target database name "optional data lookup" type "virtual-link" }
-  relation contains { source auth target api type "composition" }
-
-  group solution { name "Solution boundary" elements [customer, database, api, web, partner, auth, queue] }
-}`
-const appliedStylesheet=`stylesheet version "1.0" {
-  element type "backend" {
-    shape "ellipse"
-  }
-  element type "data" { shape "cylinder" orientation "vertical" }
-  element type "user" { shape "user" }
-  element type "frontend" { shape "parallelogram" }
-  element type "black-box" { shape "rectangle" }
-  element type "part" { shape "rectangle" }
-  element type "queue" { shape "cylinder" orientation "horizontal" }
-}`
+export const source = paymentExampleAdl
+const appliedStylesheet=paymentExampleAdls
 const parsed = parse(source)
 if (!parsed.ok) throw new Error('Invalid fixture')
 const semantic = buildSemanticModel(parsed.document)
@@ -92,16 +73,31 @@ function DiagramPreview({ model, styles, onElementGeometryChange }: { readonly m
 }
 
 export function App() {
+  const restored = useMemo(() => { try { return JSON.parse(localStorage.getItem('adl:workspace:current') ?? 'null') as { name?: string; adl?: string; adls?: string; theme?: 'light'|'dark'; messages?: readonly {id:string;role:'user'|'assistant'|'system';content:string}[] } | null } catch { return null } }, [])
   const [renderedModel, setRenderedModel] = useState<DiagramModel>(model)
   const [resolvedStyles, setResolvedStyles] = useState<ResolvedDiagramStyles|undefined>()
-  const [stylesheetSource,setStylesheetSource]=useState(appliedStylesheet)
-  const adlText=useRef(source),stylesheetText=useRef(appliedStylesheet)
+  const [adlSource,setAdlSource]=useState(restored?.adl??source)
+  const [stylesheetSource,setStylesheetSource]=useState(restored?.adls??appliedStylesheet)
+  const [name,setName]=useState(restored?.name??'Payments Flow')
+  const [theme,setTheme]=useState<'light'|'dark'>(restored?.theme??'dark')
+  const [newOpen,setNewOpen]=useState(false)
+  const [revision,setRevision]=useState(0)
+  const history=useRef<{past:{name:string;adl:string;adls:string}[];future:{name:string;adl:string;adls:string}[]}>({past:[],future:[]})
+  const adlText=useRef(adlSource),stylesheetText=useRef(stylesheetSource)
   const sourceBinding = useMemo(() => createSourceBinding(setRenderedModel, 30), [])
   useEffect(() => () => sourceBinding.dispose(), [sourceBinding])
   const applyStyles=useCallback((nextAdl:string,nextStylesheet:string)=>{const document=parse(nextAdl),hasReference=document.ok&&document.document.stylesheetReference!==undefined;const pipelineSource=hasReference?nextAdl:`stylesheet "./applied.adls"\n${nextAdl}`;void runStylesheetPipeline({adlText:pipelineSource,adlUri:'memory:/editor.adl',loadStylesheet:async()=>({text:nextStylesheet,uri:'memory:/applied.adls'})}).then(result=>{if(result.ok)setResolvedStyles(result.styles)})},[])
-  const handleSourceChange = useCallback((nextSource: string) => {adlText.current=nextSource;sourceBinding.schedule(nextSource);applyStyles(nextSource,stylesheetText.current)}, [applyStyles,sourceBinding])
-  const handleStylesheetChange=useCallback((nextStylesheet:string)=>{stylesheetText.current=nextStylesheet;setStylesheetSource(nextStylesheet);applyStyles(adlText.current,nextStylesheet)},[applyStyles])
+  const record=useCallback(()=>{history.current.past.push({name,adl:adlText.current,adls:stylesheetText.current});history.current.past=history.current.past.slice(-100);history.current.future=[]},[name])
+  const handleSourceChange = useCallback((nextSource: string) => {if(nextSource===adlText.current)return;record();adlText.current=nextSource;setAdlSource(nextSource);setRevision(value=>value+1);sourceBinding.schedule(nextSource);applyStyles(nextSource,stylesheetText.current)}, [applyStyles,record,sourceBinding])
+  const handleStylesheetChange=useCallback((nextStylesheet:string)=>{if(nextStylesheet===stylesheetText.current)return;record();stylesheetText.current=nextStylesheet;setStylesheetSource(nextStylesheet);setRevision(value=>value+1);applyStyles(adlText.current,nextStylesheet)},[applyStyles,record])
   const handleElementGeometryChange=useCallback((id:string,geometry:Box)=>{const result=updateElementRule(stylesheetText.current,{elementId:id,...geometry});if(!result.ok)return;stylesheetText.current=result.text;setStylesheetSource(result.text);applyStyles(adlText.current,result.text)},[applyStyles])
-  useEffect(()=>applyStyles(source,appliedStylesheet),[applyStyles])
-  return <main className="app-shell"><TopBar/><div className="workspace-grid"><EditorTabs adlText={source} stylesheetText={stylesheetSource} onAdlChange={handleSourceChange} onStylesheetChange={handleStylesheetChange} assistant={<AssistantConversation/>}/>{resolvedStyles?<DiagramPreview model={renderedModel} styles={resolvedStyles} onElementGeometryChange={handleElementGeometryChange}/>:<section className="preview" aria-label="Diagrama Payments Flow"><h2 className="sr-only">Diagrama</h2><p>Aplicando stylesheet…</p></section>}</div></main>
+  useEffect(()=>applyStyles(adlSource,stylesheetSource),[adlSource,applyStyles,stylesheetSource])
+  useEffect(()=>{document.documentElement.dataset.theme=theme},[theme])
+  const assistance=useAssistance({source:adlSource,revision,initialMessages:restored?.messages,onApply:proposal=>handleSourceChange(proposal.source)})
+  useEffect(()=>{const timer=setTimeout(()=>localStorage.setItem('adl:workspace:current',JSON.stringify({name,adl:adlSource,adls:stylesheetSource,theme,messages:assistance.messages})),500);return()=>clearTimeout(timer)},[adlSource,assistance.messages,name,stylesheetSource,theme])
+  const exportCurrent=useCallback(async(format:'png'|'adl'|'adls')=>{const slug=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'diagram';if(format==='adl'||format==='adls'){const content=format==='adl'?adlText.current:stylesheetText.current;downloadArtifact({filename:`${slug}.${format}`,mediaType:format==='adl'?'text/x-adl':'text/x-adls',content});return}const svg=document.querySelector('svg.diagram');if(!svg)return;const text=new XMLSerializer().serializeToString(svg),result=await rasterizeSvg(text,svg.clientWidth,svg.clientHeight);if(result.ok)downloadArtifact({filename:`${slug}.png`,mediaType:'image/png',content:result.bytes})},[name])
+  const restoreSnapshot=useCallback((snapshot:{name:string;adl:string;adls:string})=>{setName(snapshot.name);adlText.current=snapshot.adl;stylesheetText.current=snapshot.adls;setAdlSource(snapshot.adl);setStylesheetSource(snapshot.adls);sourceBinding.schedule(snapshot.adl);applyStyles(snapshot.adl,snapshot.adls)},[applyStyles,sourceBinding])
+  useEffect(()=>{const undoButton=document.querySelector<HTMLButtonElement>('[aria-label="Desfazer"]'),redoButton=document.querySelector<HTMLButtonElement>('[aria-label="Refazer"]');const undo=()=>{const snapshot=history.current.past.pop();if(!snapshot)return;history.current.future.unshift({name,adl:adlText.current,adls:stylesheetText.current});restoreSnapshot(snapshot)},redo=()=>{const snapshot=history.current.future.shift();if(!snapshot)return;history.current.past.push({name,adl:adlText.current,adls:stylesheetText.current});restoreSnapshot(snapshot)};undoButton?.addEventListener('click',undo);redoButton?.addEventListener('click',redo);return()=>{undoButton?.removeEventListener('click',undo);redoButton?.removeEventListener('click',redo)}},[name,restoreSnapshot])
+  const reset=()=>{setNewOpen(false);setName('Untitled diagram');handleSourceChange('adl version "1.0" diagram {}');handleStylesheetChange('stylesheet version "1.0" {}')}
+  return <main className="app-shell"><TopBar name={name} onNameChange={setName} onNew={()=>setNewOpen(true)} onExport={format=>void exportCurrent(format)} onTheme={()=>setTheme(value=>value==='dark'?'light':'dark')}/><div className="workspace-grid"><EditorTabs adlText={adlSource} stylesheetText={stylesheetSource} onAdlChange={handleSourceChange} onStylesheetChange={handleStylesheetChange} assistant={<AssistantConversation messages={assistance.messages} busy={assistance.flow.status==='generating'||assistance.flow.status==='applying'} error={assistance.flow.status==='failed'?assistance.flow.message:undefined} onSubmit={intent=>void assistance.submit(intent)} onRetry={assistance.retry}/>}/>{resolvedStyles?<DiagramPreview model={renderedModel} styles={resolvedStyles} onElementGeometryChange={handleElementGeometryChange}/>:<section className="preview" aria-label="Diagrama Payments Flow"><h2 className="sr-only">Diagrama</h2><p>Aplicando stylesheet…</p></section>}</div><NewDiagramDialog open={newOpen} onCancel={()=>setNewOpen(false)} onConfirm={reset}/></main>
 }

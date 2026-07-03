@@ -38,6 +38,8 @@ pnpm build
 ```
 
 - Execute `pnpm test:e2e` quando houver mudanças visuais ou de interação.
+- Para E2E de download e persistência, inicialize um contexto limpo e valide o artefato ou registro observável, não apenas o clique.
+- Para touch e responsividade, execute os casos com viewport e contexto de dispositivo explícitos.
 - Comece por testes focados durante o desenvolvimento, mas conclua com as verificações globais exigidas.
 - Se um script estiver ausente ou falhar por causa preexistente, registre isso claramente; não invente um substituto silencioso.
 

@@ -1,0 +1,1 @@
+import{expect,test}from"@playwright/test";test("loads the workspace within the reference budget",async({page})=>{const started=Date.now();await page.goto("/");await expect(page.getByRole("img")).toBeVisible();expect(Date.now()-started).toBeLessThan(5000)});

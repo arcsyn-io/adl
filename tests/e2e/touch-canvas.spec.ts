@@ -1,0 +1,1 @@
+import{expect,test}from"@playwright/test";test("exposes keyboard-operable canvas entities",async({page})=>{await page.goto("/");const api=page.getByRole("button",{name:/Elemento API/});await api.focus();await api.press("ArrowRight");await expect(api).toBeFocused()});
