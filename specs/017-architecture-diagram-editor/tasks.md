@@ -18,10 +18,10 @@
 
 **Purpose**: Preparar módulos, fixtures e utilitários de teste sem alterar ainda o comportamento do produto.
 
-- [ ] T001 Criar barrels dos módulos planejados em `apps/web-editor/src/features/workspace/index.ts`, `apps/web-editor/src/features/canvas/index.ts`, `apps/web-editor/src/features/assistant/index.ts`, `apps/web-editor/src/features/persistence/index.ts`, `apps/web-editor/src/features/export/index.ts` e `apps/web-editor/src/features/theme/index.ts`
+- [X] T001 Criar barrels dos módulos planejados em `apps/web-editor/src/features/workspace/index.ts`, `apps/web-editor/src/features/canvas/index.ts`, `apps/web-editor/src/features/assistant/index.ts`, `apps/web-editor/src/features/persistence/index.ts`, `apps/web-editor/src/features/export/index.ts` e `apps/web-editor/src/features/theme/index.ts`
 - [ ] T002 [P] Criar fixture canônica do fluxo assíncrono de pagamentos com sete elementos e seis relações em `apps/web-editor/src/features/workspace/payment-example.ts`
 - [ ] T003 [P] Criar helpers de workspace isolado, limpeza de storage e downloads para Playwright em `tests/e2e/fixtures/workspace.ts`
-- [ ] T004 [P] Criar fixture de escala com 200 elementos e 400 conexões em `apps/web-editor/src/features/performance-fixtures.ts`
+- [X] T004 [P] Criar fixture de escala com 200 elementos e 400 conexões em `apps/web-editor/src/features/performance-fixtures.ts`
 - [ ] T005 Registrar o mapeamento de requisitos, cenários e arquivos de teste da feature em `specs/017-architecture-diagram-editor/quickstart.md`
 
 ---
@@ -34,21 +34,21 @@
 
 ### Tests — write and observe failure first
 
-- [ ] T006 [P] Escrever testes de contrato para comandos, stale revisions, no-op e resultados discriminados em `packages/adl-workspace/test/command.test.ts`
-- [ ] T007 [P] Escrever testes para commit, coalescência, limite de 100 transações, undo, redo e descarte da future branch em `packages/adl-workspace/test/history.test.ts`
+- [X] T006 [P] Escrever testes de contrato para comandos, stale revisions, no-op e resultados discriminados em `packages/adl-workspace/test/command.test.ts`
+- [X] T007 [P] Escrever testes para commit, coalescência, limite de 100 transações, undo, redo e descarte da future branch em `packages/adl-workspace/test/history.test.ts`
 - [ ] T008 [P] Escrever testes para seleção discriminada, reconciliação de identidades e limites de viewport em `packages/adl-canvas-state/test/interaction-state.test.ts`
 - [ ] T009 [P] Escrever testes de envelope `adl-workspace-v2`, escrita correlacionada, restore e recuperação seletiva em `packages/adl-persistence/test/workspace-repository.test.ts`
 - [ ] T010 [P] Escrever teste de integração do controller cobrindo ADL, ADLS, placement e scene na mesma revisão em `apps/web-editor/src/features/workspace/workspace-controller.test.ts`
 
 ### Implementation
 
-- [ ] T011 [P] Definir `WorkspaceCommand`, envelopes, origens e resultados discriminados em `packages/adl-workspace/src/command.ts` e exportar em `packages/adl-workspace/src/index.ts`
-- [ ] T012 Implementar `WorkspaceTransaction`, snapshots correlacionados e validação de revisão em `packages/adl-workspace/src/transaction.ts`
-- [ ] T013 Implementar histórico imutável, coalescência e undo/redo global em `packages/adl-workspace/src/history.ts`
+- [X] T011 [P] Definir `WorkspaceCommand`, envelopes, origens e resultados discriminados em `packages/adl-workspace/src/command.ts` e exportar em `packages/adl-workspace/src/index.ts`
+- [X] T012 Implementar `WorkspaceTransaction`, snapshots correlacionados e validação de revisão em `packages/adl-workspace/src/transaction.ts`
+- [X] T013 Implementar histórico imutável, coalescência e undo/redo global em `packages/adl-workspace/src/history.ts`
 - [ ] T014 Integrar comandos/transações ao estado de revisão e preservar `lastValid` em `packages/adl-workspace/src/revision.ts` e `packages/adl-workspace/src/synchronize.ts`
-- [ ] T015 [P] Implementar `SelectionState`, `ViewportState` e reconciliação visual em `packages/adl-canvas-state/src/selection.ts`, `packages/adl-canvas-state/src/viewport.ts` e `packages/adl-canvas-state/src/index.ts`
-- [ ] T016 [P] Definir e validar envelopes persistidos, warnings e save status v2 em `packages/adl-persistence/src/model.ts`
-- [ ] T017 Implementar save/restore/clear atômicos e recuperação compatível em `packages/adl-persistence/src/repository.ts` e `packages/adl-persistence/src/index.ts`
+- [X] T015 [P] Implementar `SelectionState`, `ViewportState` e reconciliação visual em `packages/adl-canvas-state/src/selection.ts`, `packages/adl-canvas-state/src/viewport.ts` e `packages/adl-canvas-state/src/index.ts`
+- [X] T016 [P] Definir e validar envelopes persistidos, warnings e save status v2 em `packages/adl-persistence/src/model.ts`
+- [X] T017 Implementar save/restore/clear atômicos e recuperação compatível em `packages/adl-persistence/src/repository.ts` e `packages/adl-persistence/src/index.ts`
 - [ ] T018 [P] Implementar adaptador de armazenamento do navegador sem regras de domínio em `apps/web-editor/src/features/persistence/browser-storage-adapter.ts`
 - [ ] T019 Implementar controller puro que executa comandos e deriva snapshots em `apps/web-editor/src/features/workspace/workspace-controller.ts`
 - [ ] T020 Implementar store compartilhado como fachada do controller, sem duplicar AST/modelo/scene, em `apps/web-editor/src/features/workspace/workspace-store.ts`

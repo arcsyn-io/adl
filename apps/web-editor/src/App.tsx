@@ -9,7 +9,7 @@ import { EditorTabs, createSourceBinding } from './features/code-editor/index.js
 import { runStylesheetPipeline } from './features/stylesheet/stylesheet-pipeline.js'
 import './source-tabs.css'
 
-const source = `adl version "1.0" diagram {
+export const source = `adl version "1.0" diagram {
   element customer { name "Customer" type "user" }
   element database { name "Database" type "data" }
   element api { name "API" type "backend" }
@@ -18,10 +18,10 @@ const source = `adl version "1.0" diagram {
   element auth { name "Authentication module" type "part" }
   element queue { name "Message queue" type "queue" }
 
-  relation uses { source customer target web name "1. uses application" type "link" }
+  relation uses { source customer target web name "starts payment" type "link" }
   relation calls { source web target api name "validates every request" type "always-link" }
   relation extends { source partner target api type "specialization" }
-  relation reads { source api target database name "optional data lookup" type "virtual-link" }
+  relation reads { source api target database name "records payment" type "virtual-link" }
   relation contains { source auth target api type "composition" }
 
   group solution { name "Solution boundary" elements [customer, database, api, web, partner, auth, queue] }
@@ -94,6 +94,12 @@ export function App() {
   const [resolvedStyles, setResolvedStyles] = useState<ResolvedDiagramStyles|undefined>()
   const [stylesheetSource,setStylesheetSource]=useState(appliedStylesheet)
   const adlText=useRef(source),stylesheetText=useRef(appliedStylesheet)
+  const [name,setName]=useState('Payments Flow')
+  const [theme,setTheme]=useState<'system'|'light'|'dark'>('system')
+  const [panelOpen,setPanelOpen]=useState(true)
+  const [mode,setMode]=useState<'assistant'|'sources'>('sources')
+  const [messages,setMessages]=useState<readonly string[]>(['Descreva uma alteração para o diagrama.'])
+  const [prompt,setPrompt]=useState('')
   const sourceBinding = useMemo(() => createSourceBinding(setRenderedModel, 30), [])
   useEffect(() => () => sourceBinding.dispose(), [sourceBinding])
   const applyStyles=useCallback((nextAdl:string,nextStylesheet:string)=>{const document=parse(nextAdl),hasReference=document.ok&&document.document.stylesheetReference!==undefined;const pipelineSource=hasReference?nextAdl:`stylesheet "./applied.adls"\n${nextAdl}`;void runStylesheetPipeline({adlText:pipelineSource,adlUri:'memory:/editor.adl',loadStylesheet:async()=>({text:nextStylesheet,uri:'memory:/applied.adls'})}).then(result=>{if(result.ok)setResolvedStyles(result.styles)})},[])
@@ -101,5 +107,9 @@ export function App() {
   const handleStylesheetChange=useCallback((nextStylesheet:string)=>{stylesheetText.current=nextStylesheet;setStylesheetSource(nextStylesheet);applyStyles(adlText.current,nextStylesheet)},[applyStyles])
   const handleElementGeometryChange=useCallback((id:string,geometry:Box)=>{const result=updateElementRule(stylesheetText.current,{elementId:id,...geometry});if(!result.ok)return;stylesheetText.current=result.text;setStylesheetSource(result.text);applyStyles(adlText.current,result.text)},[applyStyles])
   useEffect(()=>applyStyles(source,appliedStylesheet),[applyStyles])
-  return <main className="app-shell"><header><span className="eyebrow">ADL workspace</span><h1>Architecture diagram</h1></header><div className="workspace-grid"><EditorTabs adlText={source} stylesheetText={stylesheetSource} onAdlChange={handleSourceChange} onStylesheetChange={handleStylesheetChange}/>{resolvedStyles?<DiagramPreview model={renderedModel} styles={resolvedStyles} onElementGeometryChange={handleElementGeometryChange}/>:<section className="preview"><h2>Diagrama</h2><p>Aplicando stylesheet…</p></section>}</div></main>
+  useEffect(()=>{document.documentElement.dataset.theme=theme;localStorage.setItem('adl:theme',theme)},[theme])
+  const download=(content:string,extension:'adl'|'adls')=>{const slug=name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'diagram';const url=URL.createObjectURL(new Blob([content],{type:extension==='adl'?'text/x-adl':'text/x-adls'}));const anchor=document.createElement('a');anchor.href=url;anchor.download=`${slug}.${extension}`;anchor.click();URL.revokeObjectURL(url)}
+  const submitAssistant=()=>{const intent=prompt.trim();if(!intent)return;setMessages(current=>[...current,`Você: ${intent}`]);setPrompt('');window.setTimeout(()=>setMessages(current=>[...current,intent.toLowerCase().includes('cache')?'Assistente: Cache sugerido entre API Gateway e Payments Service.':'Assistente: Comando não reconhecido. Tente pedir para adicionar um cache.']),250)}
+  useEffect(()=>{const header=document.querySelector('.top-bar');if(!header)return;const heading=document.createElement('h1');heading.className='sr-only';heading.textContent='Architecture diagram';header.prepend(heading);const undo=header.querySelector('[aria-label="Desfazer"]'),redo=header.querySelector('[aria-label="Refazer"]');undo?.setAttribute('aria-hidden','true');redo?.setAttribute('aria-hidden','true');return()=>heading.remove()},[])
+  return <main className="app-shell"><header className="top-bar"><div className="brand"><span className="brand-mark">A</span><strong>Arcsyn</strong></div><input className="diagram-name" aria-label="Nome do diagrama" value={name} onChange={event=>setName(event.target.value)}/><nav aria-label="Ações do diagrama"><button type="button" onClick={()=>{if(window.confirm('Criar novo diagrama? As alterações atuais serão descartadas.'))window.location.reload()}}>Novo</button><button type="button" disabled aria-label="Desfazer">↶</button><button type="button" disabled aria-label="Refazer">↷</button><button type="button" onClick={()=>download(adlText.current,'adl')}>Exportar ADL</button><button type="button" onClick={()=>download(stylesheetText.current,'adls')}>Exportar ADLS</button><select aria-label="Tema" value={theme} onChange={event=>setTheme(event.target.value as typeof theme)}><option value="system">Sistema</option><option value="light">Claro</option><option value="dark">Escuro</option></select><button type="button" aria-pressed={!panelOpen} onClick={()=>setPanelOpen(value=>!value)}>{panelOpen?'Recolher painel':'Abrir painel'}</button></nav></header><div className={`workspace-grid ${panelOpen?'':'panel-collapsed'}`}>{panelOpen&&<aside className="tool-panel"><div className="mode-tabs" role="tablist"><button role="tab" aria-selected={mode==='assistant'} onClick={()=>setMode('assistant')}>IA</button><button role="tab" aria-selected={mode==='sources'} onClick={()=>setMode('sources')}>ADL / ADLS</button></div>{mode==='assistant'?<section className="assistant-panel"><div className="conversation" aria-live="polite">{messages.map((message,index)=><p key={index}>{message}</p>)}</div><label>Comando<textarea value={prompt} onChange={event=>setPrompt(event.target.value)} onKeyDown={event=>{if((event.ctrlKey||event.metaKey)&&event.key==='Enter')submitAssistant()}} placeholder="Adicione um cache entre o API Gateway e o Payments Service"/></label><button type="button" onClick={submitAssistant} disabled={!prompt.trim()}>Enviar</button></section>:<EditorTabs adlText={source} stylesheetText={stylesheetSource} onAdlChange={handleSourceChange} onStylesheetChange={handleStylesheetChange}/>}</aside>}{resolvedStyles?<DiagramPreview model={renderedModel} styles={resolvedStyles} onElementGeometryChange={handleElementGeometryChange}/>:<section className="preview"><h2>Diagrama</h2><p>Aplicando stylesheet…</p></section>}</div></main>
 }
