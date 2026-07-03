@@ -1,0 +1,6 @@
+import type { WorkspaceTransaction } from "./transaction.js";
+export interface CommandHistory<T> { readonly past: readonly WorkspaceTransaction<T>[]; readonly future: readonly WorkspaceTransaction<T>[] }
+export const createHistory = <T>(): CommandHistory<T> => ({ past: [], future: [] });
+export function commitTransaction<T>(history: CommandHistory<T>, value: WorkspaceTransaction<T>, limit = 100): CommandHistory<T> { const previous = history.past.at(-1); const merged = value.groupKey && previous?.groupKey === value.groupKey ? { ...value, before: previous.before } : undefined; const base = merged ? history.past.slice(0, -1) : history.past; return { past: [...base, merged ?? value].slice(-limit), future: [] }; }
+export function undo<T>(history: CommandHistory<T>): { snapshot: T; history: CommandHistory<T> } | undefined { const item = history.past.at(-1); return item ? { snapshot: item.before, history: { past: history.past.slice(0, -1), future: [item, ...history.future] } } : undefined; }
+export function redo<T>(history: CommandHistory<T>): { snapshot: T; history: CommandHistory<T> } | undefined { const [item, ...future] = history.future; return item ? { snapshot: item.after, history: { past: [...history.past, item], future } } : undefined; }
