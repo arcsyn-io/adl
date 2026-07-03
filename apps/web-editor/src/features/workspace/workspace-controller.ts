@@ -1,13 +1,14 @@
 import { commitTransaction, createHistory, redo, undo, validateCommandRevision, type CommandHistory, type CommandResult, type WorkspaceCommand, type WorkspaceTransaction } from "@adl/workspace";
 import { parse } from "@adl/parser";
+import { defaultPreferences, type WorkspacePreferences } from "./workspace-preferences.js";
 
 export interface SourceState { readonly text: string; readonly validText: string; readonly validRevision: number; readonly status: "valid" | "invalid"; readonly diagnostics: readonly string[] }
-export interface WorkspaceSnapshot { readonly revision: number; readonly name: string; readonly adl: SourceState; readonly adls: SourceState; readonly placements: Readonly<Record<string, unknown>>; readonly conversation: readonly string[] }
+export interface WorkspaceSnapshot { readonly revision: number; readonly name: string; readonly adl: SourceState; readonly adls: SourceState; readonly placements: Readonly<Record<string, unknown>>; readonly conversation: readonly string[]; readonly viewport?: { readonly x: number; readonly y: number; readonly zoom: number }; readonly selection?: readonly string[]; readonly preferences?: WorkspacePreferences }
 type Listener = (snapshot: WorkspaceSnapshot) => void;
 
 export class WorkspaceController {
   #snapshot: WorkspaceSnapshot; #history: CommandHistory<WorkspaceSnapshot> = createHistory(); readonly #listeners = new Set<Listener>(); #gesture: { before: WorkspaceSnapshot; preview: WorkspaceSnapshot } | undefined;
-  constructor(snapshot: WorkspaceSnapshot) { this.#snapshot = snapshot; }
+  constructor(snapshot: WorkspaceSnapshot) { this.#snapshot = { ...snapshot, viewport: snapshot.viewport ?? { x: 0, y: 0, zoom: 1 }, selection: snapshot.selection ?? [], preferences: snapshot.preferences ?? defaultPreferences }; }
   getSnapshot(): WorkspaceSnapshot { return this.#snapshot; }
   subscribe(listener: Listener): () => void { this.#listeners.add(listener); return () => this.#listeners.delete(listener); }
   #publish(): void { for (const listener of this.#listeners) listener(this.#snapshot); }
@@ -26,5 +27,9 @@ export class WorkspaceController {
   previewGesture(placements:Readonly<Record<string,unknown>>):void{if(!this.#gesture)return;this.#gesture={...this.#gesture,preview:{...this.#gesture.preview,placements}};this.#snapshot=this.#gesture.preview;this.#publish();}
   commitGesture():CommandResult{if(!this.#gesture)return{ok:true,revision:this.#snapshot.revision,changed:false};const{before,preview}=this.#gesture;this.#gesture=undefined;if(before.placements===preview.placements)return{ok:true,revision:before.revision,changed:false};const after={...preview,revision:before.revision+1};this.#history=commitTransaction(this.#history,{id:`gesture-${after.revision}`,origin:"canvas",description:"Mover elementos",before,after,createdAt:Date.now()});this.#snapshot=after;this.#publish();return{ok:true,revision:after.revision,changed:true};}
   cancelGesture():void{if(!this.#gesture)return;this.#snapshot=this.#gesture.before;this.#gesture=undefined;this.#publish();}
+  updateEphemeral(patch: Pick<WorkspaceSnapshot, "selection" | "viewport">): void { this.#snapshot = { ...this.#snapshot, ...patch }; this.#publish(); }
+  updatePreferences(preferences: WorkspacePreferences): void { if (preferences === this.#snapshot.preferences) return; const before=this.#snapshot,after={...before,revision:before.revision+1,preferences};this.#history=commitTransaction(this.#history,{id:`preferences-${after.revision}`,origin:"workspace",description:"Atualizar preferências",before,after,createdAt:Date.now()});this.#snapshot=after;this.#publish(); }
+  restore(snapshot: WorkspaceSnapshot): void { this.#snapshot={...snapshot,viewport:snapshot.viewport??{x:0,y:0,zoom:1},selection:[],preferences:snapshot.preferences??defaultPreferences};this.#history=createHistory();this.#gesture=undefined;this.#publish(); }
+  reset(): void { const before=this.#snapshot;this.#snapshot={...before,revision:before.revision+1,name:"Untitled diagram",adl:{text:'adl version "1.0" diagram {}',validText:'adl version "1.0" diagram {}',validRevision:before.revision+1,status:"valid",diagnostics:[]},adls:{text:'stylesheet version "1.0" {}',validText:'stylesheet version "1.0" {}',validRevision:before.revision+1,status:"valid",diagnostics:[]},placements:{},conversation:[],selection:[],viewport:{x:0,y:0,zoom:1}};this.#history=createHistory();this.#gesture=undefined;this.#publish(); }
   get history(): { canUndo: boolean; canRedo: boolean } { return { canUndo: this.#history.past.length > 0, canRedo: this.#history.future.length > 0 }; }
 }
