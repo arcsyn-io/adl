@@ -1,0 +1,2 @@
+import { expect, test } from "@playwright/test";
+test("downloads current ADL and ADLS with normalized names", async ({ page }) => { await page.goto("/"); await page.getByLabel("Nome do diagrama").fill("Payments Flow"); await page.locator("summary").click(); const adl = page.waitForEvent("download"); await page.getByRole("button", { name: "ADL", exact: true }).click(); expect((await adl).suggestedFilename()).toBe("payments-flow.adl"); });

@@ -14,6 +14,8 @@ type WorkspaceTab = 'assistant' | 'adl' | 'stylesheet'
 export function EditorTabs({ adlText, stylesheetText, onAdlChange, onStylesheetChange, assistant }: EditorTabsProps) {
   const [active, setActive] = useState<WorkspaceTab>('assistant')
   const [adl, setAdl] = useState(adlText)
+  const [lastAdlText, setLastAdlText] = useState(adlText)
+  if (adlText !== lastAdlText) { setLastAdlText(adlText); setAdl(adlText) }
   const changeAdl = useCallback((text: string) => {
     setAdl(text)
     onAdlChange(text)

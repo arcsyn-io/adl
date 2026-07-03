@@ -42,6 +42,9 @@
 
 ## Testes
 
+- Controllers e cálculos puros devem ser testados em Vitest antes da integração React.
+- Downloads, atalhos globais, touch, drawer responsivo, persistência e exportação são cobertos em Playwright com storage isolado por contexto.
+
 - Teste comportamento observável, contratos e casos limítrofes; evite acoplamento a detalhes internos.
 - Alterações no parser, compilador ou modelo exigem testes positivos e negativos relevantes.
 - Correções de defeitos devem incluir teste de regressão quando viável.

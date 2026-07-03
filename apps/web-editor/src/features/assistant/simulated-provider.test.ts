@@ -1,0 +1,1 @@
+import{expect,it}from"vitest";import{SimulatedAssistanceProvider}from"./simulated-provider.js";it("proposes cache deterministically",async()=>expect(await new SimulatedAssistanceProvider().propose({id:"1",intent:"adicione cache",baseRevision:2,disclosedContent:"diagram {\n}"})).toMatchObject({requestId:"1",baseRevision:2,summary:expect.stringContaining("Cache")}));

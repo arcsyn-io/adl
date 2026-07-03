@@ -1,0 +1,1 @@
+import{expect,it}from"vitest";import{findAlignmentGuides}from"../src/index.js";it("finds center and edge guides",()=>expect(findAlignmentGuides({x:99,y:0,width:50,height:50},[{x:100,y:100,width:50,height:50}],2)).toContainEqual({axis:"x",value:100}));

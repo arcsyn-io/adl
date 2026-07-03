@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./features/theme/theme-tokens.css";
 
 @theme {
   --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
@@ -21,8 +22,12 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .cm-editor.cm-focused { outline: 2px solid #6594ff; outline-offset: 2px; }
 ::selection { color: #f8fafc; background: #315fae; }
 
-.app-shell { display: flex; min-width: 960px; height: 100vh; min-height: 600px; flex-direction: column; overflow: hidden; background: #0a0e14; }
+.app-shell { display: flex; min-width: 320px; height: 100vh; min-height: 600px; flex-direction: column; overflow: hidden; background: #0a0e14; }
 .workspace-grid { display: grid; min-height: 0; flex: 1; grid-template-columns: 356px minmax(0, 1fr); }
+.workspace-grid > .source-tabs { width: 100%; }
+.editor-shell { display: flex; min-width: 0; min-height: 0; flex-direction: column; }
+.editor-shell > .source-tabs { width: 100%; flex: 1; }
+.recovery-warning { border-bottom: 1px solid #7c5d19; background: #2a210d; padding: 8px 12px; color: #ffd987; font-size: 12px; }
 
 .code-editor { display: flex; min-height: 0; flex: 1; flex-direction: column; background: #0f141b; }
 .panel-heading { display: flex; min-height: 45px; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid #202630; padding: 8px 10px; }
@@ -45,11 +50,23 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .diagnostics button { border: 0; background: transparent; color: #ff9c96; padding: 2px 0; text-align: left; }
 
 .preview { position: relative; min-width: 0; min-height: 0; overflow: hidden; background-color: #0a0e14; background-image: linear-gradient(#202630 1px, transparent 1px), linear-gradient(90deg, #202630 1px, transparent 1px); background-size: 24px 24px; }
+.preview.grid-hidden { background-image: none; }
+.panel-resizer { z-index: 20; cursor: col-resize; background: #202630; touch-action: none; }
+.panel-resizer:hover, .panel-resizer:focus-visible { background: #6594ff; }
+.alignment-guides { position: absolute; z-index: 4; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.alignment-guides line { stroke: #ff4da6; stroke-width: 1; stroke-dasharray: 4 3; }
+.drawer-backdrop { position: fixed; z-index: 50; inset: 43px 0 0; background: rgb(0 0 0 / 55%); }
+.mobile-drawer { width: min(92vw, 520px); height: 100%; background: #0f141b; box-shadow: 12px 0 40px rgb(0 0 0 / 45%); outline: none; }
+.mobile-drawer > .source-tabs { width: 100%; height: 100%; }
+.mobile-drawer > .editor-shell { height: 100%; }
+.mobile-workspace { display: block; }
+.mobile-workspace > .preview { position: absolute; inset: 0; }
 .preview > p:not(.inspection) { margin: 24px; color: #8f9bab; }
 .diagram { display: block; width: 100%; height: 100%; min-height: 0; }
-.group { fill: #0c1118; fill-opacity: .82; stroke: #465263; stroke-dasharray: 8 6; }
+.group { fill: #0c1118; fill-opacity: .82; stroke: #465263; stroke-dasharray: 8 6; pointer-events: none; }
 .element { fill: #10151c; stroke: #3a4655; stroke-width: 1; }
 .relation { stroke: #6f7784; stroke-width: 1.5; }
+.relation-hit-target { fill: none; stroke: transparent; stroke-width: 16; pointer-events: stroke; }
 .diagram text { fill: #e8edf3; font-size: 15px; font-weight: 600; pointer-events: none; }
 .diagram .type { fill: #8d98a8; font-size: 11px; font-weight: 400; }
 .diagram g[role=button] { cursor: grab; outline: none; touch-action: none; }
@@ -64,6 +81,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .resize-handle { fill: #6594ff; stroke: #0a0e14; stroke-width: 2; touch-action: none; }
 .resize-nw, .resize-se { cursor: nwse-resize; }
 .resize-ne, .resize-sw { cursor: nesw-resize; }
+.connection-handle { fill: #0a0e14; stroke: #6594ff; stroke-width: 3; cursor: crosshair; }
+.canvas-context-menu { position: fixed; z-index: 60; }
+.canvas-context-menu menu { min-width: 150px; margin: 0; padding: 4px; border: 1px solid #354052; background: #151b23; list-style: none; box-shadow: 0 10px 30px rgb(0 0 0 / 40%); }
+.canvas-context-menu button { width: 100%; min-height: 36px; border: 0; background: transparent; color: #e8edf3; text-align: left; }
 .canvas-meta { position: absolute; z-index: 5; top: 12px; right: 5px; border: 1px solid #202733; border-radius: 4px; background: #10151c; padding: 6px 9px; color: #6f7b8b; font-size: 10px; }
 .inspection { position: absolute; z-index: 5; bottom: 14px; left: 12px; max-width: 430px; margin: 0; color: #6f7b8b; font-size: 10px; }
 .canvas-toolbar { position: absolute; z-index: 10; bottom: 12px; left: 50%; display: flex; transform: translateX(-50%); align-items: center; border: 1px solid #29313d; border-radius: 8px; background: #161c25; padding: 4px; box-shadow: 0 8px 30px rgb(0 0 0 / 35%); }
@@ -73,4 +94,12 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 
 @media (max-width: 1100px) {
   .workspace-grid { grid-template-columns: 320px minmax(0, 1fr); }
+}
+@media (max-width: 920px) {
+  .workspace-grid { position: relative; display: block; }
+  .source-tabs { position: absolute; z-index: 30; inset: 0 auto 0 0; width: min(92vw, 520px); box-shadow: 0 0 0 100vmax rgb(0 0 0 / 55%); }
+  .workspace-grid > .source-tabs { width: min(92vw, 520px); }
+  .preview { position: absolute; inset: 0; }
+  header { min-width: 0 !important; overflow-x: auto; }
+  .source-tablist button, .canvas-toolbar button { min-width: 44px; min-height: 44px; }
 }

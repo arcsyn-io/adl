@@ -192,3 +192,34 @@ docker compose exec workspace bash -lc "pnpm test:e2e"
 - Assistência/UI: [contracts/assistance-ui.md](./contracts/assistance-ui.md)
 - Entidades e transições: [data-model.md](./data-model.md)
 - Decisões e alternativas: [research.md](./research.md)
+
+## Implementation validation record — 2026-07-03
+
+### Manual scenario coverage
+
+Os 12 cenários acima foram executados como walkthrough de aceitação apoiado pela suíte E2E final. A cobertura observável usada para cada cenário foi:
+
+1. First run and initial diagram — `tests/e2e/smoke.spec.ts`, `tests/e2e/workspace-layout.spec.ts`.
+2. Visual editing and connections — `tests/e2e/canvas-interactions.spec.ts`, `tests/e2e/connection-editing.spec.ts`, `tests/e2e/diagram-renderer.spec.ts`.
+3. Snap, grid and guides — `tests/e2e/workspace-preferences.spec.ts`, `packages/adl-canvas-state/test/snapping.test.ts`, `packages/adl-canvas-state/test/alignment.test.ts`.
+4. ADL synchronization and errors — `tests/e2e/code-canvas-sync.spec.ts`, `tests/e2e/code-visual-editor.spec.ts`, `tests/e2e/source-editors.spec.ts`.
+5. ADLS synchronization and errors — `tests/e2e/editor-tabs.spec.ts`, `tests/e2e/element-stylesheet.spec.ts`, `apps/web-editor/src/features/stylesheet/stylesheet-controller.test.ts`.
+6. Simulated assistance — `tests/e2e/assistant-flow.spec.ts`, `apps/web-editor/src/features/workspace/workspace-controller.test.ts`, `packages/adl-ai-contracts/test/workspace-proposal.test.ts`.
+7. Shared undo/redo — `tests/e2e/shared-history.spec.ts`, `packages/adl-workspace/test/history.test.ts`, `apps/web-editor/src/features/workspace/workspace-controller.test.ts`.
+8. Persistence and recovery — `tests/e2e/persistence-history.spec.ts`, `packages/adl-persistence/test/workspace-repository.test.ts`, `packages/adl-persistence/test/recovery.test.ts`.
+9. New diagram — `tests/e2e/new-diagram.spec.ts`, `apps/web-editor/src/features/workspace/workspace-controller.test.ts`.
+10. Export — `tests/e2e/export.spec.ts`, `packages/adl-io/test/export-artifacts.test.ts`, `packages/adl-renderer/test/export-scene.test.ts`.
+11. Themes, panel and responsive layout — `tests/e2e/responsive-drawer.spec.ts`, `tests/e2e/touch-canvas.spec.ts`, `tests/e2e/workspace-preferences.spec.ts`.
+12. Accessibility — `tests/e2e/accessibility.spec.ts`, `apps/web-editor/src/features/theme/theme-contrast.test.ts`, roving tabindex/keyboard movement in `tests/e2e/code-visual-editor.spec.ts`.
+
+Riscos remanescentes: `pnpm lint` mantém o warning conhecido de Fast Refresh em `apps/web-editor/src/App.tsx`; `pnpm build` mantém o warning de chunk principal acima de 500 kB apesar do split do editor em `EditorTabs-*.js`. Ambos são avisos, não falhas de gate.
+
+### Final Docker gates
+
+Executados no serviço Docker `workspace` em 2026-07-03:
+
+- `pnpm lint` — passou; 1 warning Fast Refresh em `apps/web-editor/src/App.tsx`.
+- `pnpm typecheck` — passou.
+- `pnpm test` — passou; 15 packages, incluindo `@adl/web-editor` com 14 arquivos / 26 testes.
+- `pnpm build` — passou; warning de chunk grande no bundle principal.
+- `pnpm test:e2e` — passou; 32/32 testes Playwright.

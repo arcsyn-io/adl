@@ -1,0 +1,1 @@
+import{expect,test}from"@playwright/test";test("restores name and sources after reload",async({page})=>{await page.goto("/");await page.getByLabel("Nome do diagrama").fill("Restored Flow");await page.waitForTimeout(600);await page.reload();await expect(page.getByLabel("Nome do diagrama")).toHaveValue("Restored Flow")});

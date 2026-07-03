@@ -1,0 +1,1 @@
+import{expect,it}from"vitest";import{rasterizeSvg}from"./png-rasterizer.js";it("rejects empty and oversized exports",async()=>{expect(await rasterizeSvg("<svg/>",0,0)).toMatchObject({ok:false,code:"EMPTY_EXPORT"});expect(await rasterizeSvg("<svg/>",10000,10000)).toMatchObject({ok:false,code:"RASTERIZATION_FAILED"})});

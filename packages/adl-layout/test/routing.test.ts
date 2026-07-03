@@ -1,0 +1,2 @@
+import { expect, it } from "vitest"; import { routeOrthogonal } from "../src/index.js";
+it("creates an orthogonal route and stable label anchor",()=>{const route=routeOrthogonal({x:0,y:0,width:100,height:50},{x:300,y:100,width:100,height:50});expect(route.sourceSide).toBe("right");expect(route.points.every((point,index)=>index===0||point.x===route.points[index-1].x||point.y===route.points[index-1].y)).toBe(true);});

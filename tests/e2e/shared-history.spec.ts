@@ -1,0 +1,2 @@
+import { expect, test } from "@playwright/test";
+test("does not steal native source-editor undo", async ({ page }) => { await page.goto("/"); await page.getByRole("tab", { name: "Código ADL" }).click(); const editor = page.locator(".cm-content"); await editor.click(); await page.keyboard.type("ZZZ"); await expect(editor).toContainText("ZZZ"); await page.keyboard.press("Control+z"); await expect(editor).not.toContainText("ZZZ"); });

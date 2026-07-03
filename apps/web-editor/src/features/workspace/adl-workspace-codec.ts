@@ -1,0 +1,4 @@
+import { parse } from "@adl/parser";
+import { serializeModel } from "@adl/serializer";
+import { buildSemanticModel, type DiagramModel } from "@adl/semantic";
+export const adlWorkspaceCodec = { parse(source: string): { ok: true; model: DiagramModel } | { ok: false; message: string } { const parsed = parse(source); if (!parsed.ok) return { ok: false, message: parsed.errors[0]?.message ?? "ADL inválido" }; const semantic = buildSemanticModel(parsed.document); return semantic.ok ? { ok: true, model: semantic.model } : { ok: false, message: semantic.errors[0]?.message ?? "ADL inválido" }; }, serialize(model: DiagramModel) { const result = serializeModel(model); if (!result.ok) throw new Error(result.errors[0]?.message ?? "Falha ao serializar"); return result.text; }, apply(model: DiagramModel) { return model; } };

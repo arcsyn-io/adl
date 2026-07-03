@@ -32,6 +32,9 @@ importers:
       '@adl/parser':
         specifier: workspace:*
         version: link:../../packages/adl-parser
+      '@adl/persistence':
+        specifier: workspace:*
+        version: link:../../packages/adl-persistence
       '@adl/renderer':
         specifier: workspace:*
         version: link:../../packages/adl-renderer
@@ -44,6 +47,9 @@ importers:
       '@adl/stylesheet':
         specifier: workspace:*
         version: link:../../packages/adl-stylesheet
+      '@adl/workspace':
+        specifier: workspace:*
+        version: link:../../packages/adl-workspace
       '@codemirror/autocomplete':
         specifier: ^6.20.3
         version: 6.20.3

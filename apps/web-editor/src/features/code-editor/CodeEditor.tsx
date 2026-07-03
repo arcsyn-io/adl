@@ -1,7 +1,7 @@
 import { autocompletion, type CompletionContext } from "@codemirror/autocomplete";
-import { defaultKeymap, indentWithTab } from "@codemirror/commands";
+import { defaultKeymap, history as codeMirrorHistory, historyKeymap, indentWithTab } from "@codemirror/commands";
 import { EditorState, type Extension } from "@codemirror/state";
-import { Decoration as ViewDecoration, EditorView, keymap, ViewPlugin, type DecorationSet, type ViewUpdate } from "@codemirror/view";
+import { Decoration as ViewDecoration, EditorView, highlightActiveLine, highlightActiveLineGutter, keymap, lineNumbers, ViewPlugin, type DecorationSet, type ViewUpdate } from "@codemirror/view";
 import { parseStylesheet, validateStylesheet } from "@adl/stylesheet";
 import { useEffect, useRef, useState } from "react";
 import { analyzeRevision, applyEdit, createEditingDocument, redoEdit, suggestionsAt, undoEdit } from "./language-service.js";
@@ -26,7 +26,7 @@ export function CodeEditor({ initialText, onChange, mode="adl", title="Editor AD
   useEffect(() => {
     if (!host.current) return;
     const completion = (context: CompletionContext) => { const options = suggestionsAt(context.state.doc.toString(), context.pos); return options.length ? { from: context.matchBefore(/\w*/)?.from ?? context.pos, options: options.map(label => ({ label, type: "keyword" })) } : null; };
-    const extensions:Extension[]=[keymap.of([indentWithTab, ...defaultKeymap]),EditorView.lineWrapping,EditorView.updateListener.of(update => { if (!update.docChanged && !update.selectionSet) return; const text = update.state.doc.toString(), selection = update.state.selection.main; setHistory(current => applyEdit(current, text, { anchor: selection.anchor, head: selection.head })); if (update.docChanged) onChange?.(text); })];
+    const extensions:Extension[]=[lineNumbers(),highlightActiveLine(),highlightActiveLineGutter(),codeMirrorHistory(),keymap.of([indentWithTab,...historyKeymap,...defaultKeymap]),EditorView.lineWrapping,EditorView.updateListener.of(update => { if (!update.docChanged && !update.selectionSet) return; const text = update.state.doc.toString(), selection = update.state.selection.main; setHistory(current => applyEdit(current, text, { anchor: selection.anchor, head: selection.head })); if (update.docChanged) onChange?.(text); })];
     if(mode==="adl")extensions.push(autocompletion({ override: [completion] }),adlDecorations);
     const instance = new EditorView({ parent: host.current, state: EditorState.create({ doc: initialTextRef.current, extensions }) });
     view.current = instance; return () => { instance.destroy(); view.current = null; };

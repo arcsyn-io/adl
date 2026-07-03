@@ -36,6 +36,10 @@ Cada etapa deve expor contratos próprios e não depender de detalhes internos d
 
 ## Estado e persistência
 
+- O workspace transacional coordena ADL, ADLS, geometria, conversa e revisão; React consome snapshots e despacha comandos, sem duplicar AST ou modelo semântico.
+- Integrações de canvas ficam atrás de adapters próprios. O scene graph interativo e a `ExportScene` são projeções distintas da mesma revisão; a exportação nunca captura controles do editor.
+- Persistência usa um envelope versionado e correlacionado em uma única escrita local. Histórico e gestos ativos permanecem efêmeros.
+
 - Defina uma única fonte canônica para cada informação; derive representações secundárias sempre que possível.
 - O texto `.adl` é a fonte da definição textual do diagrama.
 - Coordenadas manuais, seleção, viewport e preferências de interface permanecem fora do texto `.adl`.

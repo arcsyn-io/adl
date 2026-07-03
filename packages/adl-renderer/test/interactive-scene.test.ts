@@ -1,0 +1,1 @@
+import{expect,it}from"vitest";import{createDiagramScene}from"../src/index.js";import{geometry,model}from"./fixtures.js";it("derives selected state without changing semantic identity",()=>{const result=createDiagramScene({model,geometry,state:{selectedId:"api"}});expect(result.ok&&result.scene.entities.find(entity=>entity.identity.value==="api")?.state).toBe("selected")});

@@ -1,0 +1,2 @@
+import type { Decoration } from "./model.js";
+export function SourceDiagnostics({ diagnostics, revision }: { readonly diagnostics: readonly Decoration[]; readonly revision: number }) { return <section aria-live="polite"><h3>Diagnósticos ({diagnostics.length})</h3><p>Revisão {revision} · {diagnostics.length ? "Fonte inválida" : "Fonte válida"}</p>{diagnostics.map((item, index) => <p key={index}>{item.message}</p>)}</section>; }

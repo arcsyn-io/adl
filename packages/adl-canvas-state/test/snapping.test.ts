@@ -1,0 +1,1 @@
+import{expect,it}from"vitest";import{snapPoint}from"../src/index.js";it("snaps independently from grid visibility",()=>{expect(snapPoint({x:25,y:47},24,true)).toEqual({x:24,y:48});expect(snapPoint({x:25,y:47},24,false)).toEqual({x:25,y:47})});
