@@ -1,0 +1,1 @@
+import{expect,it}from"vitest";import{clampPanelWidth,resolveTheme}from"./workspace-preferences.js";it("clamps panel and resolves system theme",()=>{expect(clampPanelWidth(100)).toBe(280);expect(clampPanelWidth(900)).toBe(520);expect(resolveTheme("system",true)).toBe("dark")});

@@ -1,0 +1,1 @@
+export function ConversationHistory({messages}:{readonly messages:readonly {id:string;role:string;content:string}[]}){return <div aria-live="polite" className="conversation-history">{messages.map(message=><article key={message.id} data-role={message.role}><strong>{message.role==="user"?"Você":"ADL Assistant"}</strong><p>{message.content}</p></article>)}</div>}
