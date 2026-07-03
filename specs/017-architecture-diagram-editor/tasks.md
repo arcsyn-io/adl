@@ -413,15 +413,15 @@ Integrações em `App.tsx`, `WorkspaceChrome.tsx`, `DiagramCanvas.tsx` e `worksp
 
 ## Phase 11: Convergence
 
-- [ ] T112 CRITICAL Integrar `WorkspaceController` e a store Zustand como fonte canônica do `App`, removendo estado, histórico e persistência paralelos de `apps/web-editor/src/App.tsx` per plan: estado transacional (contradicts)
-- [ ] T113 Aplicar propostas da assistência, mensagens e resumo em uma transação atômica com validação de stale revision e undo/redo global per FR-015, FR-016 e FR-057 (partial)
-- [ ] T114 Integrar `DiagramCanvas` e comandos semânticos ao workspace para seleção múltipla, conexões, edição inline, menu contextual, copiar, colar, duplicar e excluir per FR-029–FR-048 (partial)
-- [ ] T115 Persistir e restaurar o envelope `adl-workspace-v2` completo com fontes, placements, viewport, conversa, preferências e estados de recuperação per FR-054–FR-060 (partial)
+- [X] T112 CRITICAL Integrar `WorkspaceController` e a store Zustand como fonte canônica do `App`, removendo estado, histórico e persistência paralelos de `apps/web-editor/src/App.tsx` per plan: estado transacional (contradicts)
+- [X] T113 Aplicar propostas da assistência, mensagens e resumo em uma transação atômica com validação de stale revision e undo/redo global per FR-015, FR-016 e FR-057 (partial)
+- [X] T114 Integrar `DiagramCanvas` e comandos semânticos ao workspace para seleção múltipla, conexões, edição inline, menu contextual, copiar, colar, duplicar e excluir per FR-029–FR-048 (partial)
+- [X] T115 Persistir e restaurar o envelope `adl-workspace-v2` completo com fontes, placements, viewport, conversa, preferências e estados de recuperação per FR-054–FR-060 (partial)
 - [X] T116 Exportar PNG exclusivamente a partir de `ExportScene`, com bounds completos e sem camadas interativas do editor per FR-064 e FR-065 (contradicts)
-- [ ] T117 Integrar painel redimensionável/recolhível, grade, snap, guias e temas system/light/dark restauráveis ao shell canônico per FR-002, FR-003, FR-034–FR-040, FR-068 e FR-069 (partial)
-- [ ] T118 Integrar drawer mobile, focus trap, roving tabindex, touch/pinch e live regions ao fluxo real do workspace per FR-070–FR-075 (partial)
+- [X] T117 Integrar painel redimensionável/recolhível, grade, snap, guias e temas system/light/dark restauráveis ao shell canônico per FR-002, FR-003, FR-034–FR-040, FR-068 e FR-069 (partial)
+- [X] T118 Integrar drawer mobile, focus trap, roving tabindex, touch/pinch e live regions ao fluxo real do workspace per FR-070–FR-075 (partial)
 - [X] T119 Conectar editores ADL/ADLS ao snapshot e aos comandos canônicos, preservando drafts inválidos e a última revisão válida per FR-019–FR-027 (partial)
 - [X] T120 Tornar Novo uma transação atômica que limpa documento, conversa e histórico preservando preferências per FR-061 e FR-062 (partial)
-- [ ] T121 Reforçar testes de performance para comprovar restore, 50 operações mistas e latência sobre o workspace integrado per SC-005, SC-006 e SC-012 (partial)
-- [ ] T122 Reforçar E2E para exercitar os contratos integrados reais de desktop, mobile, touch, teclado, exportação e acessibilidade per SC-009 e SC-010 (partial)
+- [X] T121 Reforçar testes de performance para comprovar restore, 50 operações mistas e latência sobre o workspace integrado per SC-005, SC-006 e SC-012 (partial)
+- [X] T122 Reforçar E2E para exercitar os contratos integrados reais de desktop, mobile, touch, teclado, exportação e acessibilidade per SC-009 e SC-010 (partial)
 - [ ] T123 Executar os 12 cenários manuais e todos os gates no Docker, registrando evidências e riscos em `specs/017-architecture-diagram-editor/quickstart.md` per T110 e T111 (missing)

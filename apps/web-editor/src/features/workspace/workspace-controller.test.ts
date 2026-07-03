@@ -7,10 +7,13 @@ it("keeps ADL, ADLS and visual state on one revision", () => { const controller 
 it("applies an assistant proposal and conversation atomically and rejects stale proposals", () => {
   const controller = new WorkspaceController(initial)
   const proposal = 'adl version "1.0" diagram {}'
-  expect(controller.dispatch({ id: "ai-1", type: "assistant.apply-proposal", baseRevision: 0, origin: "assistant", payload: { source: proposal, summary: "Aplicado" } })).toMatchObject({ ok: true, revision: 1 })
-  expect(controller.getSnapshot()).toMatchObject({ revision: 1, adl: { text: proposal }, conversation: ["Aplicado"] })
+  const messages = [{ id: "user", role: "user" as const, content: "Adicione cache" }, { id: "reply", role: "assistant" as const, content: "Aplicado" }]
+  expect(controller.dispatch({ id: "ai-1", type: "assistant.apply-proposal", baseRevision: 0, origin: "assistant", payload: { source: proposal, summary: "Aplicado", messages } })).toMatchObject({ ok: true, revision: 1 })
+  expect(controller.getSnapshot()).toMatchObject({ revision: 1, adl: { text: proposal }, conversation: messages })
   expect(controller.dispatch({ id: "ai-2", type: "assistant.apply-proposal", baseRevision: 0, origin: "assistant", payload: { source: proposal, summary: "Stale" } })).toMatchObject({ ok: false, code: "STALE_REVISION", currentRevision: 1 })
-  expect(controller.getSnapshot().conversation).toEqual(["Aplicado"])
+  expect(controller.getSnapshot().conversation).toEqual(messages)
+  controller.undo()
+  expect(controller.getSnapshot()).toMatchObject({ revision: 0, conversation: [], adl: { text: "adl" } })
 })
 
 it("resets document state and history while preserving preferences", () => {

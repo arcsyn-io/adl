@@ -34,12 +34,12 @@ function ToolButton({ label, children, active = false, onClick }: ToolButtonProp
   )
 }
 
-export interface TopBarProps { readonly name?: string; readonly onNameChange?: (name: string) => void; readonly onNew?: () => void; readonly onUndo?: () => void; readonly onRedo?: () => void; readonly onExport?: (format: "png" | "adl" | "adls") => void; readonly onTheme?: () => void }
-export function TopBar({ name = "Payments Flow", onNameChange, onNew, onUndo, onRedo, onExport, onTheme }: TopBarProps) {
+export interface TopBarProps { readonly name?: string; readonly onNameChange?: (name: string) => void; readonly onNew?: () => void; readonly onUndo?: () => void; readonly onRedo?: () => void; readonly onExport?: (format: "png" | "adl" | "adls") => void; readonly onTheme?: () => void; readonly theme?: "system"|"light"|"dark"; readonly panelCollapsed?:boolean; readonly onPanelToggle?:()=>void;readonly selectionKind?:"element"|"relation";readonly onDuplicate?:()=>void;readonly onDelete?:()=>void;readonly onReverse?:()=>void }
+export function TopBar({ name = "Payments Flow", onNameChange, onNew, onUndo, onRedo, onExport, onTheme, theme="system", panelCollapsed=false, onPanelToggle, selectionKind, onDuplicate, onDelete, onReverse }: TopBarProps) {
   return (
     <header className="flex h-[43px] min-w-[960px] shrink-0 items-center border-b border-[#202630] bg-[#0d1117] px-3 text-xs text-slate-400">
       <div className="flex min-w-[350px] items-center gap-2">
-        <ToolButton label="Alternar painel lateral">
+        <ToolButton label={panelCollapsed?"Abrir painel lateral":"Recolher painel lateral"} onClick={onPanelToggle}>
           <Icon><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M9 4v16M13 9l-3 3 3 3" /></Icon>
         </ToolButton>
         <span className="grid size-6 place-items-center rounded bg-slate-100 text-xs font-bold text-[#11161d]">A</span>
@@ -48,7 +48,8 @@ export function TopBar({ name = "Payments Flow", onNameChange, onNew, onUndo, on
         <h1 className="sr-only">{name}</h1><input aria-label="Nome do diagrama" className="m-0 bg-transparent text-xs font-semibold text-slate-200" value={name} onChange={event => onNameChange?.(event.target.value)} />
       </div>
 
-      <div className="flex h-full items-center gap-0.5 border-l border-[#252b34] px-4">
+      {selectionKind&&<div className="flex h-full items-center gap-0.5 border-l border-[#252b34] px-4" aria-label={`Ações de ${selectionKind==='element'?'elemento':'conexão'}`}>
+        {selectionKind==='element'?<>
         <ToolButton label="Estilo de texto"><span className="font-serif text-base">T</span></ToolButton>
         <span className="px-1 text-slate-500">14⌄</span>
         <ToolButton label="Alinhar texto"><Icon><path d="M5 7h14M5 12h10M5 17h14" /></Icon></ToolButton>
@@ -57,9 +58,10 @@ export function TopBar({ name = "Payments Flow", onNameChange, onNew, onUndo, on
         <ToolButton label="Itálico"><span className="font-serif text-sm italic">I</span></ToolButton>
         <ToolButton label="Sublinhar"><span className="text-sm underline underline-offset-2">U</span></ToolButton>
         <span className="mx-1 h-4 w-px bg-[#252b34]" />
-        <ToolButton label="Duplicar"><Icon><rect x="8" y="8" width="11" height="11" rx="2" /><path d="M16 5H7a2 2 0 0 0-2 2v9" /></Icon></ToolButton>
-        <ToolButton label="Excluir"><Icon><path d="M5 7h14M9 7V4h6v3M8 10v7M12 10v7M16 10v7M7 7l1 13h8l1-13" /></Icon></ToolButton>
-      </div>
+        </>:<ToolButton label="Inverter direção" onClick={onReverse}><Icon><path d="M5 8h12l-3-3M19 16H7l3 3"/></Icon></ToolButton>}
+        <ToolButton label="Duplicar" onClick={onDuplicate}><Icon><rect x="8" y="8" width="11" height="11" rx="2" /><path d="M16 5H7a2 2 0 0 0-2 2v9" /></Icon></ToolButton>
+        <ToolButton label="Excluir" onClick={onDelete}><Icon><path d="M5 7h14M9 7V4h6v3M8 10v7M12 10v7M16 10v7M7 7l1 13h8l1-13" /></Icon></ToolButton>
+      </div>}
 
       <div className="ml-auto flex items-center gap-1">
         <button type="button" onClick={onNew} className="flex h-7 items-center gap-1.5 rounded border-0 bg-transparent px-2 text-slate-400 hover:bg-[#1b222d] hover:text-slate-200"><span className="text-lg leading-none">+</span> Novo</button>
@@ -71,7 +73,7 @@ export function TopBar({ name = "Payments Flow", onNameChange, onNew, onUndo, on
         <span className="mx-1 h-4 w-px bg-[#252b34]" />
         <button type="button" onClick={onTheme} className="flex h-7 items-center gap-2 rounded border-0 bg-transparent px-2 text-slate-400 hover:bg-[#1b222d] hover:text-slate-200">
           <Icon><rect x="3" y="5" width="18" height="12" rx="2" /><path d="M8 21h8M12 17v4" /></Icon>
-          Sistema
+          {theme==="system"?"Sistema":theme==="light"?"Claro":"Escuro"}
         </button>
         <ToolButton label="Mais opções"><span className="text-lg leading-none">•••</span></ToolButton>
       </div>
@@ -116,7 +118,7 @@ export function AssistantConversation({ messages, busy = false, error, onSubmit,
   )
 }
 
-export function CanvasToolbar({ onReorganize }: { readonly onReorganize: () => void }) {
+export function CanvasToolbar({ onReorganize, grid=true, snap=true, guides=true, onToggle }: { readonly onReorganize: () => void; readonly grid?:boolean; readonly snap?:boolean; readonly guides?:boolean; readonly onToggle?:(key:"grid"|"snap"|"guides")=>void }) {
   return (
     <div className="canvas-toolbar">
       <ToolButton label="Selecionar" active><Icon><path d="m5 4 6.5 15 2-6 6-2L5 4Z" /></Icon></ToolButton>
@@ -126,8 +128,9 @@ export function CanvasToolbar({ onReorganize }: { readonly onReorganize: () => v
       <ToolButton label="Aumentar zoom"><Icon><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4M8 11h6M11 8v6" /></Icon></ToolButton>
       <ToolButton label="Reorganizar diagrama" onClick={onReorganize}><Icon><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" /><circle cx="12" cy="12" r="3" /></Icon></ToolButton>
       <span className="mx-1 h-5 w-px bg-[#29313d]" />
-      <ToolButton label="Grade" active><Icon><path d="M4 4h16v16H4zM4 10h16M10 4v16M15 4v16M4 15h16" /></Icon></ToolButton>
-      <ToolButton label="Conexões" active><Icon><path d="M8 12a4 4 0 0 1 4-4h2M16 12a4 4 0 0 1-4 4h-2" /><circle cx="6" cy="12" r="2" /><circle cx="18" cy="12" r="2" /></Icon></ToolButton>
+      <ToolButton label="Grade" active={grid} onClick={()=>onToggle?.("grid")}><Icon><path d="M4 4h16v16H4zM4 10h16M10 4v16M15 4v16M4 15h16" /></Icon></ToolButton>
+      <ToolButton label="Snap" active={snap} onClick={()=>onToggle?.("snap")}><Icon><path d="M8 12a4 4 0 0 1 4-4h2M16 12a4 4 0 0 1-4 4h-2" /><circle cx="6" cy="12" r="2" /><circle cx="18" cy="12" r="2" /></Icon></ToolButton>
+      <ToolButton label="Guias" active={guides} onClick={()=>onToggle?.("guides")}><Icon><path d="M4 12h16M12 4v16" /></Icon></ToolButton>
     </div>
   )
 }
