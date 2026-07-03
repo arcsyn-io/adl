@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test'
 
 test('edits ADL with current diagnostics and keyboard controls', async ({ page }) => {
   await page.goto('/')
+  await page.getByRole('tab', { name: 'Código ADL' }).click()
   await expect(page.getByRole('heading', { name: 'Editor ADL' })).toBeVisible()
   await expect(page.getByText('Documento válido.')).toBeVisible()
   await page.locator('.cm-content').click()
@@ -13,6 +14,7 @@ test('edits ADL with current diagnostics and keyboard controls', async ({ page }
 
 test('moves diagram elements with pointer and keyboard without changing ADL', async ({ page }) => {
   await page.goto('/')
+  await page.getByRole('tab', { name: 'Código ADL' }).click()
   const sourceBefore = await page.locator('.cm-content').textContent()
   const api = page.getByRole('img').getByRole('button', { name: /API/ })
   const initial = await api.boundingBox()
@@ -32,6 +34,7 @@ test('moves diagram elements with pointer and keyboard without changing ADL', as
 
 test('debounces valid code into the canvas and keeps the last valid render on errors', async ({ page }) => {
   await page.goto('/')
+  await page.getByRole('tab', { name: 'Código ADL' }).click()
   const editor = page.locator('.cm-content')
   const diagram = page.getByRole('img')
   const beforeInvalid = await diagram.innerHTML()
