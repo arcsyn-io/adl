@@ -1,7 +1,7 @@
 import type { SourceRange } from "@adl/parser";
 
 export type StyleOrigin = "external" | "embedded";
-export type StyleTarget = "global" | "element" | "relation";
+export type StyleTarget = "global" | "element" | "relation" | "group";
 export type SelectorKind = "global" | "category" | "type" | "id";
 export type Shape = "rectangle" | "ellipse" | "cylinder" | "user" | "parallelogram";
 export type Orientation = "horizontal" | "vertical";
@@ -25,7 +25,8 @@ export type Paint = SolidPaint | LinearGradientPaint;
 export interface TextStyle { readonly paint: Paint; readonly fontSize: number; readonly fontFamily: readonly string[]; readonly fontWeight: "normal" | "bold"; readonly fontStyle: "normal" | "italic"; readonly textDecoration: "none" | "underline"; readonly textAlign: TextAlign; readonly verticalAlign: VerticalAlign }
 export interface ResolvedElementStyle { readonly shape: Shape; readonly width: number; readonly height: number; readonly fill: Paint; readonly borderPaint: Paint; readonly borderWidth: number; readonly borderRadius: number; readonly orientation: Orientation; readonly rotation: number; readonly text: TextStyle; readonly position?: { readonly x: number; readonly y: number } }
 export interface ResolvedRelationStyle { readonly linePaint: Paint; readonly lineWidth: number; readonly text: TextStyle }
-export interface DiagramStyleDefaults { readonly element?: Partial<ResolvedElementStyle>; readonly relation?: Partial<ResolvedRelationStyle> }
-export interface ResolvedDiagramStyles { readonly elements: Readonly<Record<string, ResolvedElementStyle>>; readonly relations: Readonly<Record<string, ResolvedRelationStyle>>; readonly diagnostics: readonly StyleDiagnostic[]; readonly completeness: "complete" | "fallback" }
+export interface ResolvedGroupStyle { readonly text: TextStyle }
+export interface DiagramStyleDefaults { readonly element?: Partial<ResolvedElementStyle>; readonly relation?: Partial<ResolvedRelationStyle>; readonly group?: Partial<ResolvedGroupStyle> }
+export interface ResolvedDiagramStyles { readonly elements: Readonly<Record<string, ResolvedElementStyle>>; readonly relations: Readonly<Record<string, ResolvedRelationStyle>>; readonly groups: Readonly<Record<string, ResolvedGroupStyle>>; readonly diagnostics: readonly StyleDiagnostic[]; readonly completeness: "complete" | "fallback" }
 export interface ValidatedRule { readonly source: StyleRule; readonly values: Readonly<Record<string, unknown>> }
 export interface ValidatedStylesheet { readonly source: StylesheetDocument; readonly rules: readonly ValidatedRule[]; readonly diagnostics: readonly StyleDiagnostic[]; readonly valid: boolean }

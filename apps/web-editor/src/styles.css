@@ -50,11 +50,14 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .group { fill: #0c1118; fill-opacity: .82; stroke: #465263; stroke-dasharray: 8 6; }
 .element { fill: #10151c; stroke: #3a4655; stroke-width: 1; }
 .relation { stroke: #6f7784; stroke-width: 1.5; }
+.relation-hit { fill: none; stroke: transparent; stroke-width: 16; pointer-events: stroke; }
 .diagram text { fill: #e8edf3; font-size: 15px; font-weight: 600; pointer-events: none; }
+.diagram .relation-label { cursor: pointer; pointer-events: auto; }
 .diagram .type { fill: #8d98a8; font-size: 11px; font-weight: 400; }
 .diagram g[role=button] { cursor: grab; outline: none; touch-action: none; }
 .diagram g[role=button]:active { cursor: grabbing; }
 .diagram g[data-state=selected] .element { stroke: #6594ff; stroke-width: 3; }
+.diagram g[data-state=selected] .relation { stroke: #6594ff; stroke-width: 3; }
 .diagram marker path, .diagram marker circle { fill: #7f8998; stroke: #7f8998; }
 .diagram marker .marker-outline { fill: #0a0e14; stroke-width: 1.5; }
 .diagram marker .marker-chevron { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }

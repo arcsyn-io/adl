@@ -1,4 +1,8 @@
+import type { TextStylePatch } from '@adl/stylesheet'
 import type { ReactNode } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { freeFontOptions } from './free-font-options.js'
+import type { TextToolbarState, ToolbarValue } from './text-toolbar-state.js'
 
 type IconProps = {
   readonly children: ReactNode
@@ -18,23 +22,141 @@ type ToolButtonProps = {
   readonly children: ReactNode
   readonly active?: boolean
   readonly onClick?: () => void
+  readonly disabled?: boolean
 }
 
-function ToolButton({ label, children, active = false, onClick }: ToolButtonProps) {
+function ToolButton({ label, children, active = false, onClick, disabled = false }: ToolButtonProps) {
   return (
     <button
       type="button"
       aria-label={label}
       title={label}
       onClick={onClick}
-      className={`grid size-7 shrink-0 place-items-center rounded border-0 p-0 transition-colors hover:bg-[#1b222d] hover:text-slate-200 ${active ? 'bg-[#202735] text-slate-100' : 'bg-transparent text-slate-500'}`}
+      disabled={disabled}
+      className={`grid size-7 shrink-0 place-items-center rounded border-0 p-0 transition-colors hover:bg-[#1b222d] hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-40 ${active ? 'bg-[#202735] text-slate-100' : 'bg-transparent text-slate-500'}`}
     >
       {children}
     </button>
   )
 }
 
-export function TopBar() {
+const valueOr = <T,>(value: ToolbarValue<T>, fallback: T): T => value.kind === 'single' ? value.value : fallback
+const colorInputValue = (value: ToolbarValue<string>): string => value.kind === 'single' ? value.value.slice(0, 7) : '#6594ff'
+const textColorPalette = ['#FFFFFFFF', '#CBD5E1FF', '#172033FF', '#475569FF', '#B91C1CFF', '#C2410CFF', '#A16207FF', '#D97706FF', '#15803DFF', '#65A30DFF', '#0E7490FF', '#0891B2FF', '#1D4ED8FF', '#6D28D9FF', '#BE185DFF'] as const
+const colorLabel = (color: string) => color.slice(0, 7)
+const toOpaquePaint = (color: string) => `${color.slice(0, 7).toUpperCase()}FF`
+
+export interface TopBarProps {
+  readonly textToolbarState?: TextToolbarState
+  readonly onApplyTextStyle: (patch: TextStylePatch) => void
+  readonly onCopySelection: () => void
+  readonly onRemoveSelection: () => void
+}
+
+function ColorSwatch({ color, label, active, disabled, onSelect }: { readonly color: string; readonly label: string; readonly active: boolean; readonly disabled: boolean; readonly onSelect: (color: string) => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={`${label} ${colorLabel(color)}`}
+      title={`${label} ${colorLabel(color)}`}
+      disabled={disabled}
+      onClick={() => onSelect(color)}
+      className={`grid size-6 place-items-center rounded border p-0 disabled:cursor-not-allowed disabled:opacity-40 ${active ? 'border-slate-100' : 'border-[#303947]'}`}
+    >
+      <span className="size-4 rounded-sm" style={{ backgroundColor: colorLabel(color) }} />
+    </button>
+  )
+}
+
+function TextColorMenu({ value, usedColors, disabled, onChange }: { readonly value: ToolbarValue<string>; readonly usedColors: readonly string[]; readonly disabled: boolean; readonly onChange: (color: string) => void }) {
+  const [open, setOpen] = useState(false)
+  const menuRef = useRef<HTMLDetailsElement>(null)
+  const currentColor = value.kind === 'single' ? value.value : '#6594ffFF'
+  const modelColors = usedColors.filter((color, index, colors) => colors.indexOf(color) === index)
+  const select = (color: string) => onChange(toOpaquePaint(color))
+
+  useEffect(() => {
+    if (!open) return
+    const closeOnOutsidePointer = (event: PointerEvent) => {
+      if (event.target instanceof Node && menuRef.current?.contains(event.target)) return
+      setOpen(false)
+    }
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('pointerdown', closeOnOutsidePointer)
+    document.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.removeEventListener('pointerdown', closeOnOutsidePointer)
+      document.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [open])
+
+  return (
+    <details ref={menuRef} open={open} className="relative">
+      <summary aria-label="Cor do texto" title="Cor do texto" onClick={event => { event.preventDefault(); if (!disabled) setOpen(current => !current) }} className={`grid size-7 cursor-pointer list-none place-items-center rounded hover:bg-[#1b222d] ${disabled ? 'pointer-events-none opacity-40' : ''}`}>
+        <span className="size-4 rounded-sm border border-[#303947]" style={{ backgroundColor: colorLabel(currentColor) }} />
+      </summary>
+      <div className="absolute left-0 top-8 z-20 w-48 rounded-md border border-[#273140] bg-[#0f141b] p-2 shadow-xl" aria-label="Paleta de cor do texto">
+        <p className="m-0 mb-1 text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-500">Paleta</p>
+        <div className="grid grid-cols-5 gap-1">
+          {textColorPalette.map(color => <ColorSwatch key={color} color={color} label="Cor predefinida" active={currentColor === color} disabled={disabled} onSelect={select} />)}
+        </div>
+        {modelColors.length > 0 && <>
+          <p className="m-0 mb-1 mt-2 text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-500">Usadas no modelo</p>
+          <div className="grid grid-cols-5 gap-1">
+            {modelColors.map(color => <ColorSwatch key={color} color={color} label="Cor usada no modelo" active={currentColor === color} disabled={disabled} onSelect={select} />)}
+          </div>
+        </>}
+        <label className="mt-2 flex items-center justify-between gap-2 rounded border border-[#273140] bg-[#111821] px-2 py-1 text-[11px] text-slate-300">
+          Personalizada
+          <input aria-label="Cor personalizada" type="color" value={colorInputValue(value)} disabled={disabled} onChange={event => onChange(toOpaquePaint(event.currentTarget.value))} className="size-5 cursor-pointer border-0 bg-transparent p-0" />
+        </label>
+      </div>
+    </details>
+  )
+}
+
+function TextToolbar({ state, onApplyTextStyle, onCopySelection, onRemoveSelection }: { readonly state?: TextToolbarState } & Pick<TopBarProps, 'onApplyTextStyle' | 'onCopySelection' | 'onRemoveSelection'>) {
+  if (!state || state.targets.length === 0) return null
+
+  const disabled = state.targets.some(target => !target.canPersistStyle)
+  const fontFamily = valueOr(state.values.fontFamily, freeFontOptions[0]!.fontFamily).join('|')
+  const fontSize = valueOr(state.values.fontSize, 14)
+  const align = valueOr(state.values.textAlign, 'center')
+  const weight = valueOr(state.values.fontWeight, 'normal')
+  const fontStyle = valueOr(state.values.fontStyle, 'normal')
+  const decoration = valueOr(state.values.textDecoration, 'none')
+  const apply = (patch: TextStylePatch) => {
+    if (!disabled) onApplyTextStyle(patch)
+  }
+
+  return (
+    <div className="flex h-full min-w-0 items-center gap-1 border-l border-[#252b34] px-3" aria-label="Estilo do texto selecionado">
+      <label className="sr-only" htmlFor="text-toolbar-font">Fonte</label>
+      <select id="text-toolbar-font" aria-label="Fonte" value={fontFamily} disabled={disabled} onChange={event => apply({ fontFamily: event.currentTarget.value.split('|') })} className="h-7 max-w-[132px] rounded border border-[#273140] bg-[#111821] px-2 text-xs text-slate-200">
+        {freeFontOptions.map(option => <option key={option.id} value={option.fontFamily.join('|')}>{option.label}</option>)}
+      </select>
+
+      <label className="sr-only" htmlFor="text-toolbar-size">Tamanho da fonte</label>
+      <input id="text-toolbar-size" aria-label="Tamanho da fonte" type="number" min={8} max={256} value={fontSize} disabled={disabled} onChange={event => apply({ fontSize: Number(event.currentTarget.value) })} className="h-7 w-14 rounded border border-[#273140] bg-[#111821] px-2 text-xs text-slate-200" />
+
+      <TextColorMenu value={state.values.textPaint} usedColors={state.usedTextPaints} disabled={disabled} onChange={color => apply({ textPaint: color })} />
+
+      <ToolButton label="Alinhar a esquerda" active={align === 'left'} disabled={disabled} onClick={() => apply({ textAlign: 'left' })}><Icon><path d="M5 7h14M5 12h9M5 17h14" /></Icon></ToolButton>
+      <ToolButton label="Centralizar texto" active={align === 'center'} disabled={disabled} onClick={() => apply({ textAlign: 'center' })}><Icon><path d="M5 7h14M8 12h8M5 17h14" /></Icon></ToolButton>
+      <ToolButton label="Alinhar a direita" active={align === 'right'} disabled={disabled} onClick={() => apply({ textAlign: 'right' })}><Icon><path d="M5 7h14M10 12h9M5 17h14" /></Icon></ToolButton>
+      <ToolButton label="Negrito" active={weight === 'bold'} disabled={disabled} onClick={() => apply({ fontWeight: weight === 'bold' ? 'normal' : 'bold' })}><span className="text-sm font-bold">B</span></ToolButton>
+      <ToolButton label="Itálico" active={fontStyle === 'italic'} disabled={disabled} onClick={() => apply({ fontStyle: fontStyle === 'italic' ? 'normal' : 'italic' })}><span className="font-serif text-sm italic">I</span></ToolButton>
+      <ToolButton label="Sublinhar" active={decoration === 'underline'} disabled={disabled} onClick={() => apply({ textDecoration: decoration === 'underline' ? 'none' : 'underline' })}><span className="text-sm underline underline-offset-2">U</span></ToolButton>
+      <span className="mx-1 h-4 w-px bg-[#252b34]" />
+      <ToolButton label="Copiar selecao" disabled={!state.actions.copy.enabled} onClick={onCopySelection}><Icon><rect x="8" y="8" width="11" height="11" rx="2" /><path d="M16 5H7a2 2 0 0 0-2 2v9" /></Icon></ToolButton>
+      <ToolButton label="Remover selecao" disabled={!state.actions.remove.enabled} onClick={onRemoveSelection}><Icon><path d="M5 7h14M9 7V4h6v3M8 10v7M12 10v7M16 10v7M7 7l1 13h8l1-13" /></Icon></ToolButton>
+    </div>
+  )
+}
+
+export function TopBar({ textToolbarState, onApplyTextStyle, onCopySelection, onRemoveSelection }: TopBarProps) {
   return (
     <header className="flex h-[43px] min-w-[960px] shrink-0 items-center border-b border-[#202630] bg-[#0d1117] px-3 text-xs text-slate-400">
       <div className="flex min-w-[350px] items-center gap-2">
@@ -47,18 +169,7 @@ export function TopBar() {
         <h1 className="m-0 text-xs font-semibold text-slate-200">Payments Flow</h1>
       </div>
 
-      <div className="flex h-full items-center gap-0.5 border-l border-[#252b34] px-4">
-        <ToolButton label="Estilo de texto"><span className="font-serif text-base">T</span></ToolButton>
-        <span className="px-1 text-slate-500">14⌄</span>
-        <ToolButton label="Alinhar texto"><Icon><path d="M5 7h14M5 12h10M5 17h14" /></Icon></ToolButton>
-        <ToolButton label="Cor"><span className="size-4 rounded bg-[#6594ff]" /></ToolButton>
-        <ToolButton label="Negrito"><span className="text-sm font-bold">B</span></ToolButton>
-        <ToolButton label="Itálico"><span className="font-serif text-sm italic">I</span></ToolButton>
-        <ToolButton label="Sublinhar"><span className="text-sm underline underline-offset-2">U</span></ToolButton>
-        <span className="mx-1 h-4 w-px bg-[#252b34]" />
-        <ToolButton label="Duplicar"><Icon><rect x="8" y="8" width="11" height="11" rx="2" /><path d="M16 5H7a2 2 0 0 0-2 2v9" /></Icon></ToolButton>
-        <ToolButton label="Excluir"><Icon><path d="M5 7h14M9 7V4h6v3M8 10v7M12 10v7M16 10v7M7 7l1 13h8l1-13" /></Icon></ToolButton>
-      </div>
+      <TextToolbar state={textToolbarState} onApplyTextStyle={onApplyTextStyle} onCopySelection={onCopySelection} onRemoveSelection={onRemoveSelection} />
 
       <div className="ml-auto flex items-center gap-1">
         <button type="button" className="flex h-7 items-center gap-1.5 rounded border-0 bg-transparent px-2 text-slate-400 hover:bg-[#1b222d] hover:text-slate-200"><span className="text-lg leading-none">+</span> Novo</button>
