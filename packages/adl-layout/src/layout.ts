@@ -1,6 +1,7 @@
 import ELK, { type ElkExtendedEdge, type ElkNode } from "elkjs/lib/elk.bundled.js";
 import type { DiagramModel } from "@adl/semantic";
 import { transformedBounds, type EdgeRoute, type LayoutOptions, type LayoutOutcome, type LayoutResult, type NodeGeometry } from "./model.js";
+import { separateElementBoxes } from "./overlap-prevention.js";
 
 const elk = new ELK();
 const freeze = <T>(value: T): T => {
@@ -50,8 +51,18 @@ export async function calculateLayout(model: DiagramModel, input: LayoutOptions 
     const graph = await elk.layout({ id: "root", children, edges, layoutOptions: { "elk.algorithm": "layered", "elk.direction": config.direction, "elk.spacing.nodeNode": String(config.spacing), "elk.layered.spacing.nodeNodeBetweenLayers": String(config.spacing), "elk.hierarchyHandling": "INCLUDE_CHILDREN" } });
     const nodes: Record<string, NodeGeometry> = {}; absoluteGeometry(graph, 0, 0, nodes);
     for(const [id,style] of Object.entries(input.elementStyles??{})){const node=nodes[id];if(!node)continue;const canonical={...node,width:style.width,height:style.height,...(style.position??{})};nodes[id]=transformedBounds(canonical,style.rotation??0)}
+    const lockedElementIds = new Set(Object.entries(input.elementStyles ?? {}).flatMap(([id, style]) => style.position ? [id] : []));
+    const collisionFreeNodes = separateElementBoxes(nodes, model.elements.map(element => element.identity.value), lockedElementIds, Math.min(config.spacing, 24));
+    for (const group of model.groups) {
+      const groupBox = collisionFreeNodes[group.identity.value]
+      const memberBoxes = group.members.map(member => collisionFreeNodes[member.identity.value]).filter((box): box is NodeGeometry => box !== undefined)
+      if (!groupBox || memberBoxes.length === 0) continue
+      const right = Math.max(groupBox.x + groupBox.width, ...memberBoxes.map(box => box.x + box.width + 24))
+      const bottom = Math.max(groupBox.y + groupBox.height, ...memberBoxes.map(box => box.y + box.height + 24))
+      collisionFreeNodes[group.identity.value] = { ...groupBox, width: right - groupBox.x, height: bottom - groupBox.y }
+    }
     const edgeRoutes = Object.fromEntries((graph.edges ?? []).map(edge => [edge.id, route(edge)]));
-    return freeze({ ok: true, layout: { revision: `${model.version}:${model.elements.map(e=>e.identity.value).join(",")}:${model.relations.map(e=>e.identity.value).join(",")}`, nodes, edges: edgeRoutes } });
+    return freeze({ ok: true, layout: { revision: `${model.version}:${model.elements.map(e=>e.identity.value).join(",")}:${model.relations.map(e=>e.identity.value).join(",")}`, nodes: collisionFreeNodes, edges: edgeRoutes } });
   } catch (error) {
     return freeze({ ok: false, errors: [{ code: "LAYOUT_FAILED", message: error instanceof Error ? error.message : "Falha desconhecida no layout." }], ...(previous ? { previous } : {}) });
   }

@@ -1,5 +1,20 @@
 import { expect, test } from '@playwright/test'
 
+test('keeps existing diagram nodes mounted while copying a selection', async ({ page }) => {
+  await page.goto('/')
+
+  const api = page.locator('[data-entity-id="api"]')
+  await api.click()
+  const originalApi = await api.elementHandle()
+  expect(originalApi).not.toBeNull()
+
+  await page.getByRole('button', { name: 'Copiar selecao' }).click()
+
+  await expect(page.locator('[data-entity-id="api_copy"]')).toBeVisible()
+  expect(await originalApi!.evaluate(node => node.isConnected)).toBe(true)
+  await expect(page.getByText('Diagrama indisponivel.')).toHaveCount(0)
+})
+
 test('applies selected element text style from the top toolbar', async ({ page }) => {
   await page.goto('/')
 
@@ -12,7 +27,7 @@ test('applies selected element text style from the top toolbar', async ({ page }
   await expect(page.getByRole('button', { name: 'Cor predefinida #FFFFFF' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Cor predefinida #1D4ED8' })).toBeVisible()
   await expect(page.getByRole('button', { name: 'Cor predefinida #BE185D' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Cor usada no modelo #172033' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Cor usada no modelo #CBD5E1' })).toBeVisible()
   await page.getByRole('img').click({ position: { x: 20, y: 20 } })
   await expect(page.getByLabel('Paleta de cor do texto')).toBeHidden()
   await page.getByLabel('Cor do texto', { exact: true }).click()

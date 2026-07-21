@@ -2,7 +2,7 @@ import type { DiagramModel } from "@adl/semantic";
 import type { DiagramStyleDefaults, Paint, ResolvedDiagramStyles, ResolvedElementStyle, ResolvedGroupStyle, ResolvedRelationStyle, StyleDiagnostic, TextStyle, ValidatedRule, ValidatedStylesheet } from "./syntax.js";
 
 const solid=(color:string):Paint=>({kind:"solid",color});
-const textDefaults:TextStyle={paint:solid("#172033FF"),fontSize:14,fontFamily:["sans-serif"],fontWeight:"normal",fontStyle:"normal",textDecoration:"none",textAlign:"center",verticalAlign:"middle"};
+const textDefaults:TextStyle={paint:solid("#CBD5E1FF"),fontSize:14,fontFamily:["sans-serif"],fontWeight:"normal",fontStyle:"normal",textDecoration:"none",textAlign:"center",verticalAlign:"middle"};
 const elementDefaults:ResolvedElementStyle={shape:"rectangle",width:180,height:84,fill:solid("#FFFFFFFF"),borderPaint:solid("#64748BFF"),borderWidth:1,borderRadius:8,orientation:"horizontal",rotation:0,text:textDefaults};
 const relationDefaults:ResolvedRelationStyle={linePaint:solid("#64748BFF"),lineWidth:2,text:textDefaults};
 const groupDefaults:ResolvedGroupStyle={text:textDefaults};

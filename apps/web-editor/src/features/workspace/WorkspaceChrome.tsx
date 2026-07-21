@@ -23,13 +23,17 @@ type ToolButtonProps = {
   readonly active?: boolean
   readonly onClick?: () => void
   readonly disabled?: boolean
+  readonly ariaExpanded?: boolean
+  readonly ariaControls?: string
 }
 
-function ToolButton({ label, children, active = false, onClick, disabled = false }: ToolButtonProps) {
+function ToolButton({ label, children, active = false, onClick, disabled = false, ariaExpanded, ariaControls }: ToolButtonProps) {
   return (
     <button
       type="button"
       aria-label={label}
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
       title={label}
       onClick={onClick}
       disabled={disabled}
@@ -51,6 +55,8 @@ export interface TopBarProps {
   readonly onApplyTextStyle: (patch: TextStylePatch) => void
   readonly onCopySelection: () => void
   readonly onRemoveSelection: () => void
+  readonly sidebarCollapsed: boolean
+  readonly onToggleSidebar: () => void
 }
 
 function ColorSwatch({ color, label, active, disabled, onSelect }: { readonly color: string; readonly label: string; readonly active: boolean; readonly disabled: boolean; readonly onSelect: (color: string) => void }) {
@@ -156,11 +162,11 @@ function TextToolbar({ state, onApplyTextStyle, onCopySelection, onRemoveSelecti
   )
 }
 
-export function TopBar({ textToolbarState, onApplyTextStyle, onCopySelection, onRemoveSelection }: TopBarProps) {
+export function TopBar({ textToolbarState, onApplyTextStyle, onCopySelection, onRemoveSelection, sidebarCollapsed, onToggleSidebar }: TopBarProps) {
   return (
     <header className="flex h-[43px] min-w-[960px] shrink-0 items-center border-b border-[#202630] bg-[#0d1117] px-3 text-xs text-slate-400">
       <div className="flex min-w-[350px] items-center gap-2">
-        <ToolButton label="Alternar painel lateral">
+        <ToolButton label={sidebarCollapsed ? 'Expandir painel lateral' : 'Recolher painel lateral'} active={!sidebarCollapsed} onClick={onToggleSidebar} ariaExpanded={!sidebarCollapsed} ariaControls="workspace-sidebar">
           <Icon><rect x="4" y="4" width="16" height="16" rx="2" /><path d="M9 4v16M13 9l-3 3 3 3" /></Icon>
         </ToolButton>
         <span className="grid size-6 place-items-center rounded bg-slate-100 text-xs font-bold text-[#11161d]">A</span>
@@ -223,14 +229,14 @@ export function AssistantConversation() {
   )
 }
 
-export function CanvasToolbar({ onReorganize }: { readonly onReorganize: () => void }) {
+export function CanvasToolbar({ onReorganize, zoom, onDecreaseZoom, onIncreaseZoom }: { readonly onReorganize: () => void; readonly zoom: number; readonly onDecreaseZoom: () => void; readonly onIncreaseZoom: () => void }) {
   return (
     <div className="canvas-toolbar">
       <ToolButton label="Selecionar" active><Icon><path d="m5 4 6.5 15 2-6 6-2L5 4Z" /></Icon></ToolButton>
       <span className="mx-1 h-5 w-px bg-[#29313d]" />
-      <ToolButton label="Diminuir zoom"><Icon><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4M8 11h6" /></Icon></ToolButton>
-      <span className="min-w-12 text-center text-[11px] text-slate-400">100%</span>
-      <ToolButton label="Aumentar zoom"><Icon><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4M8 11h6M11 8v6" /></Icon></ToolButton>
+      <ToolButton label="Diminuir zoom" disabled={zoom <= 0.5} onClick={onDecreaseZoom}><Icon><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4M8 11h6" /></Icon></ToolButton>
+      <span className="min-w-12 text-center text-[11px] text-slate-400" aria-live="polite">{Math.round(zoom * 100)}%</span>
+      <ToolButton label="Aumentar zoom" disabled={zoom >= 2} onClick={onIncreaseZoom}><Icon><circle cx="11" cy="11" r="6" /><path d="m16 16 4 4M8 11h6M11 8v6" /></Icon></ToolButton>
       <ToolButton label="Reorganizar diagrama" onClick={onReorganize}><Icon><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5" /><circle cx="12" cy="12" r="3" /></Icon></ToolButton>
       <span className="mx-1 h-5 w-px bg-[#29313d]" />
       <ToolButton label="Grade" active><Icon><path d="M4 4h16v16H4zM4 10h16M10 4v16M15 4v16M4 15h16" /></Icon></ToolButton>
