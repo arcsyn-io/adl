@@ -13,6 +13,12 @@ resolvido → layout/renderizadores`. O `DiagramModel` não contém estilos. O
 carregamento de arquivos é fornecido pelo consumidor; o pacote de stylesheet
 permanece puro e independente de filesystem, browser e React.
 
+Assistência opcional segue outra fronteira explícita:
+`descrição + revisão + consentimento → adaptador de assistência → proposta não
+confiável → diagnósticos/preview → confirmação → texto .adl`. Propostas nunca
+entram diretamente no modelo, layout ou renderer e o editor deve continuar
+funcional sem adaptador.
+
 Cada etapa deve expor contratos próprios e não depender de detalhes internos das etapas posteriores.
 
 ## Responsabilidades
@@ -24,6 +30,8 @@ Cada etapa deve expor contratos próprios e não depender de detalhes internos d
 - **Layout:** calcula posições automáticas a partir do modelo semântico, sem modificar o texto ADL.
 - **Renderizadores:** transformam modelo e layout em uma representação visual; não interpretam regras da linguagem.
 - **Editor web:** coordena entrada, comandos e apresentação; componentes React não contêm regras de negócio.
+- **Assistência:** adaptadores apenas propõem fonte; contratos de consentimento,
+  revisão, validação e confirmação permanecem independentes de provedor e UI.
 
 ## Direção das dependências
 

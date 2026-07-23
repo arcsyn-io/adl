@@ -7,6 +7,7 @@ import { buildSemanticModel, type DiagramModel } from '@adl/semantic'
 import { updateElementRule, updateGroupRule, updateRelationRule, type Paint, type ResolvedDiagramStyles, type ResolvedElementStyle, type TextStyle, type TextStylePatch } from '@adl/stylesheet'
 import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from 'react'
 import { EditorTabs, createSourceBinding } from './features/code-editor/index.js'
+import { createLocalDiagramProvider, createOllamaDiagramProvider, DEFAULT_OLLAMA_CONFIG } from './features/assistant/index.js'
 import { elementIdsIntersectingArea, groupIdsIntersectingArea, relationIdsIntersectingArea, selectionArea } from './features/canvas/area-selection.js'
 import { constrainDrag, dragAxisForDelta } from './features/canvas/drag-constraint.js'
 import { composeDiagramGeometry } from './features/canvas/diagram-geometry.js'
@@ -436,6 +437,7 @@ export function App() {
   const [resolvedStyles, setResolvedStyles] = useState<ResolvedDiagramStyles | undefined>()
   const [stylesheetSource, setStylesheetSource] = useState(appliedStylesheet)
   const [adlSource, setAdlSource] = useState(source)
+  const [adlRevision, setAdlRevision] = useState(0)
   const [selectedIds, setSelectedIds] = useState<readonly string[]>([])
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [optimisticGeometry, setOptimisticGeometry] = useState<Readonly<Record<string, Box>>>({})
@@ -443,6 +445,10 @@ export function App() {
   const stylesheetText = useRef(appliedStylesheet)
   const visibleGeometry = useRef<Readonly<Record<string, Box>>>({})
   const sourceBinding = useMemo(() => createSourceBinding(setRenderedModel, 30), [])
+  const assistantProviders = useMemo(() => ({
+    ollama: createOllamaDiagramProvider({ config: DEFAULT_OLLAMA_CONFIG }),
+    demo: createLocalDiagramProvider(),
+  }), [])
 
   useEffect(() => () => sourceBinding.dispose(), [sourceBinding])
 
@@ -458,6 +464,7 @@ export function App() {
   const updateAdlSource = useCallback((nextSource: string) => {
     adlText.current = nextSource
     setAdlSource(nextSource)
+    setAdlRevision(current => current + 1)
     sourceBinding.schedule(nextSource)
     applyStyles(nextSource, stylesheetText.current)
   }, [applyStyles, sourceBinding])
@@ -587,7 +594,7 @@ export function App() {
     <main className="app-shell">
       <TopBar textToolbarState={textToolbarState} onApplyTextStyle={handleApplyTextStyle} onCopySelection={handleCopySelection} onRemoveSelection={handleRemoveSelection} sidebarCollapsed={sidebarCollapsed} onToggleSidebar={() => setSidebarCollapsed(current => !current)} />
       <div className={`workspace-grid${sidebarCollapsed ? ' workspace-grid-sidebar-collapsed' : ''}`}>
-        <EditorTabs adlText={adlSource} stylesheetText={stylesheetSource} onAdlChange={updateAdlSource} onStylesheetChange={handleStylesheetChange} assistant={<AssistantConversation />} />
+        <EditorTabs adlText={adlSource} stylesheetText={stylesheetSource} onAdlChange={updateAdlSource} onStylesheetChange={handleStylesheetChange} assistant={<AssistantConversation currentSource={adlSource} currentRevision={adlRevision} providers={assistantProviders} ollamaConfig={DEFAULT_OLLAMA_CONFIG} onApply={updateAdlSource} />} />
         {resolvedStyles
           ? <DiagramPreview model={renderedModel} styles={resolvedStyles} selectedIds={selectedIds} optimisticGeometry={optimisticGeometry} onSelectionChange={handleSelectionChange} onAreaSelectionChange={handleAreaSelectionChange} onEntityTextChange={handleEntityTextChange} onElementGeometryChange={handleElementGeometryChange} onVisibleGeometryChange={handleVisibleGeometryChange} />
           : <section className="preview" aria-label="Diagrama Payments Flow"><h2 className="sr-only">Diagrama</h2><p>Aplicando stylesheet...</p></section>}

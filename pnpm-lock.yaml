@@ -20,6 +20,9 @@ importers:
 
   apps/web-editor:
     dependencies:
+      '@adl/ai-contracts':
+        specifier: workspace:*
+        version: link:../../packages/adl-ai-contracts
       '@adl/canvas-state':
         specifier: workspace:*
         version: link:../../packages/adl-canvas-state
