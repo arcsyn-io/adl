@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@adl/ai-contracts": "workspace:*",
     "@adl/canvas-state": "workspace:*",
     "@adl/diagnostics": "workspace:*",
     "@adl/layout": "workspace:*",

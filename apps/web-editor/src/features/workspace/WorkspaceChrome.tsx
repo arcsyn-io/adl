@@ -1,6 +1,16 @@
 import type { TextStylePatch } from '@adl/stylesheet'
+import type { AssistanceRequest, Proposal, ProposalDiff, ProviderAdapter } from '@adl/ai-contracts'
 import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
+import {
+  adlProposalValidator,
+  applyAssistantProposal,
+  checkOllamaStatus,
+  generateAssistantProposal,
+  prepareAssistantRequest,
+  type OllamaConfig,
+  type OllamaStatus,
+} from '../assistant/index.js'
 import { freeFontOptions } from './free-font-options.js'
 import type { TextToolbarState, ToolbarValue } from './text-toolbar-state.js'
 
@@ -198,30 +208,233 @@ export function TopBar({ textToolbarState, onApplyTextStyle, onCopySelection, on
   )
 }
 
-export function AssistantConversation() {
+export interface AssistantConversationProps {
+  readonly currentSource: string
+  readonly currentRevision: number
+  readonly providers: {
+    readonly ollama: ProviderAdapter
+    readonly demo: ProviderAdapter
+  }
+  readonly ollamaConfig: OllamaConfig
+  readonly onApply: (source: string) => void
+}
+
+type AssistantProposalView = {
+  readonly proposal: Proposal
+  readonly preview: ProposalDiff
+}
+
+const assistantErrorMessage = (code: string, fallback: string): string => code === 'STALE_PROPOSAL'
+  ? 'O documento mudou desde a geração. Descarte esta proposta e gere outra.'
+  : fallback
+
+type AssistantProviderMode = 'ollama' | 'demo'
+type AssistantOllamaStatus = OllamaStatus | { readonly kind: 'checking' }
+
+export function AssistantConversation({ currentSource, currentRevision, providers, ollamaConfig, onApply }: AssistantConversationProps) {
+  const [prompt, setPrompt] = useState('')
+  const [providerMode, setProviderMode] = useState<AssistantProviderMode>('ollama')
+  const [ollamaStatus, setOllamaStatus] = useState<AssistantOllamaStatus>({ kind: 'checking' })
+  const [request, setRequest] = useState<AssistanceRequest | undefined>()
+  const [approved, setApproved] = useState(false)
+  const [proposalView, setProposalView] = useState<AssistantProposalView | undefined>()
+  const [status, setStatus] = useState<'draft' | 'ready' | 'generating' | 'proposal' | 'applied' | 'error'>('draft')
+  const [message, setMessage] = useState<string>()
+  const requestSequence = useRef(0)
+  const provider = providers[providerMode]
+  const ollamaReady = ollamaStatus.kind === 'available'
+
+  useEffect(() => {
+    let active = true
+    void checkOllamaStatus(ollamaConfig).then(nextStatus => {
+      if (active) setOllamaStatus(nextStatus)
+    })
+    return () => {
+      active = false
+    }
+  }, [ollamaConfig])
+
+  const resetProposal = () => {
+    setRequest(undefined)
+    setApproved(false)
+    setProposalView(undefined)
+    setMessage(undefined)
+    setStatus('draft')
+  }
+
+  const changePrompt = (value: string) => {
+    setPrompt(value)
+    if (status !== 'draft') resetProposal()
+  }
+
+  const changeProvider = (value: AssistantProviderMode) => {
+    resetProposal()
+    setProviderMode(value)
+  }
+
+  const prepare = () => {
+    const prepared = prepareAssistantRequest({
+      prompt,
+      currentSource,
+      currentRevision,
+      requestId: `assistant-${currentRevision}-${++requestSequence.current}`,
+    })
+    if (!prepared.ok) {
+      setMessage(prepared.message)
+      setStatus('error')
+      return
+    }
+    setRequest(prepared.request)
+    setApproved(false)
+    setMessage(undefined)
+    setStatus('ready')
+  }
+
+  const generate = async () => {
+    if (!request) return
+    setStatus('generating')
+    setMessage(undefined)
+    const generated = await generateAssistantProposal({
+      request,
+      approved,
+      provider,
+      currentSource,
+      currentRevision,
+      validator: adlProposalValidator,
+    })
+    if (!generated.ok) {
+      setMessage(assistantErrorMessage(generated.code, generated.message))
+      setStatus('error')
+      return
+    }
+    setProposalView({ proposal: generated.proposal, preview: generated.preview })
+    setStatus('proposal')
+  }
+
+  const apply = () => {
+    if (!proposalView) return
+    const applied = applyAssistantProposal({
+      proposal: proposalView.proposal,
+      currentSource,
+      currentRevision,
+      validator: adlProposalValidator,
+    })
+    if (!applied.ok) {
+      setMessage(assistantErrorMessage(applied.code, applied.message))
+      setStatus('error')
+      return
+    }
+    onApply(applied.value)
+    setProposalView(undefined)
+    setRequest(undefined)
+    setApproved(false)
+    setMessage('Proposta aplicada ao documento.')
+    setStatus('applied')
+  }
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 text-[13px] leading-[1.65] text-slate-100">
-        <p className="mb-1.5 text-[10px] font-semibold tracking-[0.06em] text-slate-400">VOCÊ</p>
-        <p className="m-0 font-medium">Preciso de um fluxo de pagamentos assíncrono com fila e um worker que grava no banco e notifica um sistema externo.</p>
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-3 text-[12px] leading-[1.55] text-slate-100">
+        <div className="mb-3 rounded-md border border-[#25324a] bg-[#111a29] p-3">
+          <label htmlFor="assistant-provider" className="text-[10px] font-semibold uppercase tracking-[0.06em] text-slate-400">Provedor de geração</label>
+          <select
+            id="assistant-provider"
+            aria-label="Provedor de geração"
+            value={providerMode}
+            disabled={status === 'generating'}
+            onChange={event => changeProvider(event.currentTarget.value as AssistantProviderMode)}
+            className="mt-1 h-8 w-full rounded border border-[#303947] bg-[#0c1118] px-2 text-xs text-slate-100 disabled:opacity-50"
+          >
+            <option value="ollama">Ollama local (IA)</option>
+            <option value="demo">Demonstração (sem IA)</option>
+          </select>
 
-        <p className="mb-1.5 mt-4 text-[10px] font-semibold tracking-[0.06em] text-[#8fa0b8]">ADL ASSISTANT</p>
-        <p className="m-0 font-medium">O editor está conectado ao código ADL e ao stylesheet. Alterações válidas são refletidas no diagrama, e ajustes de geometria no canvas são gravados no ADLS.</p>
-
-        <div className="mt-3 inline-flex items-center gap-2 rounded border border-[#222a35] bg-[#151b23] px-2 py-1 text-[11px] text-slate-400">
-          <span className="size-1.5 rounded-full bg-[#6594ff]" />
-          Editor ADL, stylesheet e diagrama sincronizados
+          {providerMode === 'ollama'
+            ? (
+                <div aria-live="polite" className="mt-2 text-[11px] text-slate-400">
+                  <p className="m-0">Modelo: <code className="text-slate-200">{ollamaConfig.model}</code></p>
+                  {ollamaStatus.kind === 'checking' && <p className="mb-0 mt-1">Verificando Ollama…</p>}
+                  {ollamaStatus.kind === 'available' && <p className="mb-0 mt-1 text-emerald-300">IA local pronta.</p>}
+                  {ollamaStatus.kind === 'model-missing' && (
+                    <p className="mb-0 mt-1 text-amber-300">
+                      Modelo não instalado. Execute <code>ollama pull {ollamaStatus.model}</code>.
+                    </p>
+                  )}
+                  {ollamaStatus.kind === 'unavailable' && (
+                    <div className="mt-1 text-amber-300">
+                      <p className="m-0">Ollama indisponível. Instale ou inicie o runtime local e execute <code>ollama pull {ollamaConfig.model}</code>.</p>
+                      <p className="mb-0 mt-1 text-slate-500">Se o navegador bloquear a origem, configure <code>OLLAMA_ORIGINS=http://localhost:5173</code>.</p>
+                    </div>
+                  )}
+                </div>
+              )
+            : (
+                <p className="mb-0 mt-2 text-[11px] text-slate-400">
+                  Demonstração local sem IA: gera uma proposta determinística e não usa rede.
+                </p>
+              )}
+          <p className="mb-0 mt-2 text-[11px] text-slate-500">Nenhuma alteração é aplicada antes da sua confirmação.</p>
         </div>
+
+        {(status === 'ready' || status === 'generating') && request && (
+          <section aria-labelledby="assistant-disclosure-title" className="rounded-md border border-[#252d39] bg-[#0c1118] p-3">
+            <h2 id="assistant-disclosure-title" className="m-0 text-xs font-semibold text-slate-200">Conteúdo divulgado</h2>
+            <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap rounded bg-[#080c11] p-2 text-[10px] text-slate-400">{request.disclosedContent}</pre>
+            <label className="mt-3 flex items-start gap-2 text-[11px] text-slate-300">
+              <input type="checkbox" checked={approved} disabled={status === 'generating'} onChange={event => setApproved(event.currentTarget.checked)} />
+              Autorizo esta solicitação com o conteúdo exibido.
+            </label>
+            <div className="mt-3 flex gap-2">
+              <button type="button" disabled={!approved || status === 'generating' || (providerMode === 'ollama' && !ollamaReady)} onClick={() => void generate()} className="rounded bg-[#6594ff] px-3 py-1.5 text-xs font-semibold text-[#08101f] disabled:cursor-not-allowed disabled:opacity-40">
+                {status === 'generating' ? 'Gerando…' : 'Gerar proposta'}
+              </button>
+              <button type="button" disabled={status === 'generating'} onClick={resetProposal} className="rounded border border-[#303947] bg-transparent px-3 py-1.5 text-xs text-slate-300">Cancelar</button>
+            </div>
+          </section>
+        )}
+
+        {status === 'proposal' && proposalView && (
+          <section aria-labelledby="assistant-proposal-title" className="rounded-md border border-[#2d466c] bg-[#0c1420] p-3">
+            <h2 id="assistant-proposal-title" className="m-0 text-xs font-semibold text-slate-100">Proposta pronta</h2>
+            <p className="mb-2 mt-1 text-[11px] text-slate-300">{proposalView.preview.summary}</p>
+            <details className="mb-2 rounded border border-[#273140] bg-[#090d12] p-2">
+              <summary className="cursor-pointer text-[11px] font-semibold text-slate-300">Documento atual</summary>
+              <pre className="mt-2 max-h-40 overflow-auto whitespace-pre-wrap text-[10px] text-slate-500">{proposalView.preview.before}</pre>
+            </details>
+            <details open className="rounded border border-[#273140] bg-[#090d12] p-2">
+              <summary className="cursor-pointer text-[11px] font-semibold text-slate-300">ADL proposto</summary>
+              <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap text-[10px] text-slate-300">{proposalView.preview.after}</pre>
+            </details>
+            <div className="mt-3 flex gap-2">
+              <button type="button" onClick={apply} className="rounded bg-[#6594ff] px-3 py-1.5 text-xs font-semibold text-[#08101f]">Aplicar proposta</button>
+              <button type="button" onClick={resetProposal} className="rounded border border-[#303947] bg-transparent px-3 py-1.5 text-xs text-slate-300">Descartar</button>
+            </div>
+          </section>
+        )}
+
+        {(status === 'error' || status === 'applied') && message && (
+          <div role={status === 'error' ? 'alert' : 'status'} className={`rounded-md border p-3 text-[11px] ${status === 'error' ? 'border-red-900/70 bg-red-950/30 text-red-200' : 'border-emerald-900/70 bg-emerald-950/30 text-emerald-200'}`}>
+            <p className="m-0">{message}</p>
+            <button type="button" onClick={resetProposal} className="mt-2 rounded border border-current bg-transparent px-2 py-1 text-[10px]">Começar novamente</button>
+          </div>
+        )}
+
+        {status === 'draft' && (
+          <div className="inline-flex items-center gap-2 rounded border border-[#222a35] bg-[#151b23] px-2 py-1 text-[11px] text-slate-400">
+          <span className="size-1.5 rounded-full bg-[#6594ff]" />
+            Editor ADL, proposta e diagrama sincronizados
+          </div>
+        )}
       </div>
 
-      <form className="m-2 rounded-md border border-[#252d39] bg-[#090d12] p-3" onSubmit={(event) => event.preventDefault()}>
-        <label htmlFor="assistant-prompt" className="sr-only">Descreva alterações no diagrama</label>
-        <textarea id="assistant-prompt" aria-label="Descreva alterações no diagrama" placeholder="Descreva alterações no diagrama..." className="h-12 w-full resize-none bg-transparent text-[13px] text-slate-100 outline-none placeholder:text-slate-400" />
+      <form className="m-2 rounded-md border border-[#252d39] bg-[#090d12] p-3" onSubmit={(event) => { event.preventDefault(); prepare() }}>
+        <label htmlFor="assistant-prompt" className="sr-only">Descreva o diagrama</label>
+        <textarea id="assistant-prompt" aria-label="Descreva o diagrama" value={prompt} disabled={status === 'generating'} onChange={event => changePrompt(event.currentTarget.value)} placeholder="Ex.: API publica em uma fila e um worker grava no banco…" className="h-16 w-full resize-none bg-transparent text-[13px] text-slate-100 outline-none placeholder:text-slate-500 disabled:opacity-50" />
         <div className="flex items-end justify-between gap-3">
-          <span className="text-[10px] text-slate-500">⌘ + ↵ para enviar</span>
-          <button type="submit" className="flex h-8 items-center gap-2 rounded-md border-0 bg-[#6594ff] px-3 text-xs font-semibold text-[#08101f] transition-colors hover:bg-[#79a3ff] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8cb0ff]">
+          <span className="text-[10px] text-slate-500">A proposta não altera o documento.</span>
+          <button type="submit" disabled={status === 'generating'} className="flex h-8 items-center gap-2 rounded-md border-0 bg-[#6594ff] px-3 text-xs font-semibold text-[#08101f] transition-colors hover:bg-[#79a3ff] disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8cb0ff]">
             <Icon><path d="m3 11 18-8-8 18-2-8-8-2Z" /><path d="m11 13 10-10" /></Icon>
-            Enviar
+            Preparar proposta
           </button>
         </div>
       </form>

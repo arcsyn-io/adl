@@ -24,17 +24,16 @@ export function EditorTabs({ adlText, stylesheetText, onAdlChange, onStylesheetC
         <span className="source-tab-caption">ASSISTENTE</span>
       </div>
 
-      {active === 'assistant' ? (
-        <div className="source-tabpanel" role="tabpanel" id="assistant-panel" aria-labelledby="assistant-tab">{assistant}</div>
-      ) : active === 'adl' ? (
+      <div hidden={active !== 'assistant'} className="source-tabpanel" role="tabpanel" id="assistant-panel" aria-labelledby="assistant-tab">{assistant}</div>
+      {active === 'adl' ? (
         <div className="source-tabpanel" role="tabpanel" id="adl-editor-panel" aria-labelledby="adl-editor-tab">
           <CodeEditor key="adl" initialText={adlText} onChange={changeAdl} />
         </div>
-      ) : (
+      ) : active === 'stylesheet' ? (
         <div className="source-tabpanel" role="tabpanel" id="stylesheet-editor-panel" aria-labelledby="stylesheet-editor-tab">
           <CodeEditor key="stylesheet" initialText={stylesheetText} onChange={onStylesheetChange} mode="stylesheet" title="Editor de stylesheet" ariaLabel="Código do stylesheet aplicado" />
         </div>
-      )}
+      ) : null}
     </aside>
   )
 }
